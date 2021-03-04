@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module-Name: JavaScript
+OpenIDE-Module-Display-Category: ADITO / Editors
+OpenIDE-Module-Short-Description: JavaScript Support for ADITO Designer
