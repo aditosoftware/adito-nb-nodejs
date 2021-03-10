@@ -37,7 +37,8 @@ public class NodeJSOptionsPanel extends JPanel
 
   @NbBundle.Messages({
       "LBL_Path=Path to Executable",
-      "LBL_Installation=Installation"
+      "LBL_Installation=Installation",
+      "LBL_Chooser_LocateNodeJS=Locate NodeJS Executable"
   })
   public NodeJSOptionsPanel()
   {
@@ -62,7 +63,7 @@ public class NodeJSOptionsPanel extends JPanel
     tlu.add(0, 0, 2, 0, new LinedDecorator(Bundle.LBL_Installation(), null));
 
     // Path
-    path = new _PathSelection(_getInstalledNodeJSVersions(), _createDownloadButton());
+    path = new _PathSelection(Bundle.LBL_Chooser_LocateNodeJS(), JFileChooser.FILES_ONLY, _getInstalledNodeJSVersions(), _createDownloadButton());
     tlu.add(0, 2, new JLabel(Bundle.LBL_Path() + ":"));
     tlu.add(2, 2, path);
 
@@ -273,18 +274,24 @@ public class NodeJSOptionsPanel extends JPanel
   private static class _PathSelection extends JPanel
   {
     private final JTextComponent path;
+    private final String fileChooserTitle;
+    private final int fileChooserType;
     private JComboBox<String> entries;
 
-    public _PathSelection(JButton... pAdditionalButtons)
+    public _PathSelection(@NotNull String pFileChooserTitle, int pFileChooserType, JButton... pAdditionalButtons)
     {
       super(new BorderLayout(5, 0));
+      fileChooserTitle = pFileChooserTitle;
+      fileChooserType = pFileChooserType;
       path = new JTextField();
       _init(path, pAdditionalButtons);
     }
 
-    public _PathSelection(@NotNull List<String> pEntries, JButton... pAdditionalButtons)
+    public _PathSelection(@NotNull String pFileChooserTitle, int pFileChooserType, @NotNull List<String> pEntries, JButton... pAdditionalButtons)
     {
       super(new BorderLayout(5, 0));
+      fileChooserTitle = pFileChooserTitle;
+      fileChooserType = pFileChooserType;
       entries = new JComboBox<>(new DefaultComboBoxModel<>());
       entries.setEditable(true);
       path = (JTextComponent) entries.getEditor().getEditorComponent();
@@ -330,16 +337,15 @@ public class NodeJSOptionsPanel extends JPanel
      */
     @NbBundle.Messages({
         "LBL_Browse=Browse...",
-        "LBL_ChooserTitle=Locate NodeJS Executable"
     })
     @NotNull
-    private static JButton _createBrowseButton(@NotNull JComponent pParent, @NotNull Supplier<String> pDefaultPath, @NotNull Consumer<String> pOnFileSelected)
+    private JButton _createBrowseButton(@NotNull JComponent pParent, @NotNull Supplier<String> pDefaultPath, @NotNull Consumer<String> pOnFileSelected)
     {
       JButton btn = new JButton(Bundle.LBL_Browse());
       btn.addActionListener(e -> {
         JFileChooser chooser = new JFileChooser(pDefaultPath.get());
-        chooser.setDialogTitle(Bundle.LBL_ChooserTitle());
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setDialogTitle(fileChooserTitle);
+        chooser.setFileSelectionMode(fileChooserType);
         int result = chooser.showOpenDialog(pParent);
         if (result == JFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null)
           pOnFileSelected.accept(chooser.getSelectedFile().getAbsolutePath());
@@ -357,7 +363,8 @@ public class NodeJSOptionsPanel extends JPanel
     private final _PathSelection path;
 
     @NbBundle.Messages({
-        "LBL_TargetPath=Target Path: "
+        "LBL_TargetPath=Target Path: ",
+        "LBL_Chooser_Download=Target Folder for Downloaded Version"
     })
     public _DownloadPanel(@NotNull List<String> pAvailableVersions)
     {
@@ -383,7 +390,7 @@ public class NodeJSOptionsPanel extends JPanel
       tlu.add(2, 0, versions);
 
       // path
-      path = new _PathSelection();
+      path = new _PathSelection(Bundle.LBL_Chooser_Download(), JFileChooser.DIRECTORIES_ONLY);
       path.setValue(_DEFAULT_PATH);
       tlu.add(0, 2, new JLabel(Bundle.LBL_TargetPath()));
       tlu.add(2, 2, 3, 2, path);
