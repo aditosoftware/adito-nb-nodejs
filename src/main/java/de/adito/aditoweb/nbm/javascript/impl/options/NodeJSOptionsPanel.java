@@ -344,6 +344,7 @@ public class NodeJSOptionsPanel extends JPanel
       JButton btn = new JButton(Bundle.LBL_Browse());
       btn.addActionListener(e -> {
         JFileChooser chooser = new JFileChooser(pDefaultPath.get());
+        chooser.setFileHidingEnabled(false);
         chooser.setDialogTitle(fileChooserTitle);
         chooser.setFileSelectionMode(fileChooserType);
         int result = chooser.showOpenDialog(pParent);
