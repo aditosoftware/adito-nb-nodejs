@@ -14,7 +14,8 @@ import java.io.IOException;
  */
 @NbBundle.Messages("LBL_JSONDataObject_LOADER=JSON")
 @MIMEResolver.ExtensionRegistration(displayName = "#LBL_JSONDataObject_LOADER", mimeType = "text/json", extension = "json")
-@DataObject.Registration(mimeType = "text/json", displayName = "#LBL_JSONDataObject_LOADER", position = 300)
+@DataObject.Registration(mimeType = "text/json", displayName = "#LBL_JSONDataObject_LOADER", position = 300,
+    iconBase = "de/adito/aditoweb/nbm/javascript/impl/dataobjects/json.png")
 @GrammarRegistration(mimeType = "text/json", grammar = "JSON.tmLanguage.json")
 public class JSONDataObject extends MultiDataObject
 {

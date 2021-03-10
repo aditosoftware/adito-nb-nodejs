@@ -14,7 +14,8 @@ import java.io.IOException;
  */
 @NbBundle.Messages("LBL_JavaScriptDataObject_LOADER=JavaScript")
 @MIMEResolver.ExtensionRegistration(displayName = "#LBL_JavaScriptDataObject_LOADER", mimeType = "text/javascript", extension = "js", position = 192)
-@DataObject.Registration(mimeType = "text/javascript", displayName = "#LBL_JavaScriptDataObject_LOADER", position = 300)
+@DataObject.Registration(mimeType = "text/javascript", displayName = "#LBL_JavaScriptDataObject_LOADER", position = 300,
+    iconBase = "de/adito/aditoweb/nbm/javascript/impl/dataobjects/javascript.png")
 @GrammarRegistration(mimeType = "text/javascript", grammar = "TypeScript.tmLanguage.json")
 public class JavaScriptDataObject extends MultiDataObject
 {

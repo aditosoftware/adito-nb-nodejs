@@ -14,7 +14,8 @@ import java.io.IOException;
  */
 @NbBundle.Messages("LBL_TypeScriptDataObject_LOADER=TypeScript")
 @MIMEResolver.ExtensionRegistration(displayName = "#LBL_TypeScriptDataObject_LOADER", mimeType = "text/typescript", extension = "ts", position = 193)
-@DataObject.Registration(mimeType = "text/typescript", displayName = "#LBL_TypeScriptDataObject_LOADER", position = 300)
+@DataObject.Registration(mimeType = "text/typescript", displayName = "#LBL_TypeScriptDataObject_LOADER", position = 300,
+    iconBase = "de/adito/aditoweb/nbm/javascript/impl/dataobjects/typescript.png")
 @GrammarRegistration(mimeType = "text/typescript", grammar = "TypeScript.tmLanguage.json")
 public class TypeScriptDataObject extends MultiDataObject
 {
