@@ -1,6 +1,6 @@
 package de.adito.aditoweb.nbm.javascript.impl.options.downloader;
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.*;
 
 import java.io.*;
 import java.util.List;
@@ -26,6 +26,15 @@ public interface INodeJSDownloader
    */
   @NotNull
   List<String> getAvailableVersions() throws IOException;
+
+  /**
+   * Detects the appropriate binary to use in nodejs installation
+   *
+   * @param pInstallation installation folder of nodejs
+   * @return the binary file or null if not found
+   */
+  @Nullable
+  File findNodeExecutableInInstallation(@NotNull File pInstallation);
 
   /**
    * Downloads a nodejs version to pTarget.

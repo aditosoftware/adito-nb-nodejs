@@ -59,6 +59,13 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
     }
   }
 
+  @Nullable
+  @Override
+  public File findNodeExecutableInInstallation(@NotNull File pInstallation)
+  {
+    return _findBinary(pInstallation, OS_SUFFIX.getCurrent());
+  }
+
   @NotNull
   @Override
   public File downloadVersion(@NotNull String pVersion, @NotNull File pTarget) throws IOException

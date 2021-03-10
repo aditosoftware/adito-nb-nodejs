@@ -13,6 +13,7 @@ import org.openide.util.NbBundle;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.*;
+import java.util.stream.Collectors;
 
 /**
  * Panel to display the options
@@ -28,6 +30,7 @@ import java.util.function.*;
  */
 public class NodeJSOptionsPanel extends JPanel
 {
+  private static final String _DEFAULT_PATH = System.getProperty("user.home") + "/.nodejs-versions";
 
   private final _PathSelection path;
   private NodeJSOptions options;
@@ -59,7 +62,7 @@ public class NodeJSOptionsPanel extends JPanel
     tlu.add(0, 0, 2, 0, new LinedDecorator(Bundle.LBL_Installation(), null));
 
     // Path
-    path = new _PathSelection(_createDownloadButton());
+    path = new _PathSelection(_getInstalledNodeJSVersions(), _createDownloadButton());
     tlu.add(0, 2, new JLabel(Bundle.LBL_Path() + ":"));
     tlu.add(2, 2, path);
 
@@ -87,6 +90,28 @@ public class NodeJSOptionsPanel extends JPanel
     return options.toBuilder()
         .path(path.getValue())
         .build();
+  }
+
+  /**
+   * @return all available nodejs installations
+   */
+  @NotNull
+  private List<String> _getInstalledNodeJSVersions()
+  {
+    File folder = new File(_DEFAULT_PATH);
+    if (folder.exists() && folder.isDirectory())
+    {
+      File[] children = folder.listFiles();
+      if (children != null)
+        return Arrays.stream(children)
+            .map(pChild -> INodeJSDownloader.getInstance().findNodeExecutableInInstallation(pChild))
+            .filter(Objects::nonNull)
+            .map(File::getAbsolutePath)
+            .sorted(String.CASE_INSENSITIVE_ORDER)
+            .collect(Collectors.toList());
+    }
+
+    return List.of();
   }
 
   /**
@@ -122,6 +147,7 @@ public class NodeJSOptionsPanel extends JPanel
               {
                 File bin = downloader.downloadVersion(container.getVersion(), container.getTarget());
                 path.setValue(bin.getAbsolutePath());
+                path.setEntries(_getInstalledNodeJSVersions()); //refresh
               }
               catch (Exception ex2)
               {
@@ -173,7 +199,7 @@ public class NodeJSOptionsPanel extends JPanel
     Runnable updateLabel = () -> _getNodeJSVersionOfSelectedPath(Bundle.LBL_UnknownVersion())
         .thenAccept(pVersion -> label.setText(Bundle.LBL_Version() + pVersion));
     updateLabel.run();
-    path.path.getDocument().addDocumentListener(new DocumentListener()
+    path.addDocumentListener(new DocumentListener()
     {
       @Override
       public void insertUpdate(DocumentEvent e)
@@ -246,17 +272,31 @@ public class NodeJSOptionsPanel extends JPanel
    */
   private static class _PathSelection extends JPanel
   {
-    private final JTextField path = new JTextField();
+    private final JTextComponent path;
+    private JComboBox<String> entries;
 
     public _PathSelection(JButton... pAdditionalButtons)
     {
       super(new BorderLayout(5, 0));
-      JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-      panel.add(_createBrowseButton(this, path::getText, path::setText));
-      for (JButton btn : pAdditionalButtons)
-        panel.add(btn);
-      add(path, BorderLayout.CENTER);
-      add(panel, BorderLayout.EAST);
+      path = new JTextField();
+      _init(path, pAdditionalButtons);
+    }
+
+    public _PathSelection(@NotNull List<String> pEntries, JButton... pAdditionalButtons)
+    {
+      super(new BorderLayout(5, 0));
+      entries = new JComboBox<>(new DefaultComboBoxModel<>());
+      entries.setEditable(true);
+      path = (JTextComponent) entries.getEditor().getEditorComponent();
+      _init(entries, pAdditionalButtons);
+      setEntries(pEntries);
+    }
+
+    public void setEntries(@NotNull List<String> pEntries)
+    {
+      if (entries == null)
+        throw new IllegalArgumentException("You are settings entires, but this is not allowed in a non-combobox editor");
+      entries.setModel(new DefaultComboBoxModel<>(pEntries.toArray(new String[0])));
     }
 
     public void setValue(@NotNull String pValue)
@@ -268,6 +308,21 @@ public class NodeJSOptionsPanel extends JPanel
     public String getValue()
     {
       return path.getText();
+    }
+
+    public void addDocumentListener(@NotNull DocumentListener pListener)
+    {
+      path.getDocument().addDocumentListener(pListener);
+    }
+
+    private void _init(JComponent pComp, JButton... pAdditionalButtons)
+    {
+      JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+      panel.add(_createBrowseButton(this, path::getText, path::setText));
+      for (JButton btn : pAdditionalButtons)
+        panel.add(btn);
+      add(pComp, BorderLayout.CENTER);
+      add(panel, BorderLayout.EAST);
     }
 
     /**
@@ -298,7 +353,6 @@ public class NodeJSOptionsPanel extends JPanel
    */
   private static class _DownloadPanel extends JPanel
   {
-    private static final String _DEFAULT_PATH = System.getProperty("user.home") + "/.nodejs-versions";
     private final JComboBox<String> versions;
     private final _PathSelection path;
 
@@ -330,7 +384,7 @@ public class NodeJSOptionsPanel extends JPanel
 
       // path
       path = new _PathSelection();
-      path.path.setText(_DEFAULT_PATH);
+      path.setValue(_DEFAULT_PATH);
       tlu.add(0, 2, new JLabel(Bundle.LBL_TargetPath()));
       tlu.add(2, 2, 3, 2, path);
     }
@@ -351,7 +405,7 @@ public class NodeJSOptionsPanel extends JPanel
 
     public void addChangeListener(@NotNull ChangeListener pOnChange)
     {
-      path.path.getDocument().addDocumentListener(new DocumentListener()
+      path.addDocumentListener(new DocumentListener()
       {
         @Override
         public void insertUpdate(DocumentEvent e)
