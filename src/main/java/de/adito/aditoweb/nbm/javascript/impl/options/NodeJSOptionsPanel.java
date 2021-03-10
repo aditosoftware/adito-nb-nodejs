@@ -295,7 +295,7 @@ public class NodeJSOptionsPanel extends JPanel
     public void setEntries(@NotNull List<String> pEntries)
     {
       if (entries == null)
-        throw new IllegalArgumentException("You are settings entires, but this is not allowed in a non-combobox editor");
+        throw new IllegalArgumentException("You are setting entries, but this is not allowed in a non-combobox editor");
       entries.setModel(new DefaultComboBoxModel<>(pEntries.toArray(new String[0])));
     }
 
