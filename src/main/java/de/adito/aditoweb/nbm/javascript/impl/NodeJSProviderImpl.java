@@ -1,5 +1,7 @@
 package de.adito.aditoweb.nbm.javascript.impl;
 
+import de.adito.aditoweb.nbm.javascript.impl.options.NodeJSOptions;
+import de.adito.aditoweb.nbm.javascript.impl.version.NodeJSVersionFactory;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.*;
@@ -8,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.Project;
 import org.openide.util.lookup.ServiceProvider;
 
+import java.io.File;
 import java.util.Optional;
 
 /**
@@ -40,7 +43,8 @@ public class NodeJSProviderImpl implements INodeJSProvider, Disposable
   @Override
   public Observable<Optional<INodeJSVersion>> current()
   {
-    return current_observe;
+    //todo do something useful
+    return Observable.just(Optional.ofNullable(NodeJSVersionFactory.create(new File(NodeJSOptions.getInstance().getPath()))));
   }
 
   @Override
