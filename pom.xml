@@ -29,6 +29,11 @@
       <artifactId>de-adito-netbeans-utilities</artifactId>
       <version>${netbeans.version}-1.6.1-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>de.adito.util</groupId>
+      <artifactId>reactive</artifactId>
+      <version>1.1.0</version>
+    </dependency>
 
     <!-- Google Guava -->
     <dependency>
@@ -135,9 +140,15 @@
 
     <!-- Compress/Uncompress -->
     <dependency>
+      <groupId>de.adito.nbm.wrappers</groupId>
+      <artifactId>lwjarchivelib</artifactId>
+      <version>1.1.0-1.2.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.rauschig</groupId>
       <artifactId>jarchivelib</artifactId>
       <version>1.1.0</version>
+      <scope>provided</scope>
     </dependency>
 
     <!--  NotNull/Nullable annotations  -->
@@ -167,5 +178,19 @@
     </dependency>
 
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.netbeans.utilities</groupId>
+        <artifactId>nbm-maven-plugin</artifactId>
+        <version>4.5</version>
+        <extensions>true</extensions>
+        <configuration>
+          <useOSGiDependencies>true</useOSGiDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
