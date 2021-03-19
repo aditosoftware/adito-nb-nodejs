@@ -17,6 +17,21 @@
     <netbeans.version>RELEASE122</netbeans.version>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-filesystems</artifactId>
+        <version>RELEASE122-1.6.0-1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-util</artifactId>
+        <version>RELEASE122-1.6.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <!-- ADITO -->
     <dependency>
@@ -63,7 +78,6 @@
     <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-openide-util</artifactId>
-      <version>${netbeans.version}</version>
     </dependency>
     <dependency>
       <groupId>org.netbeans.api</groupId>
@@ -88,7 +102,6 @@
     <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-openide-filesystems</artifactId>
-      <version>${netbeans.version}</version>
     </dependency>
     <dependency>
       <groupId>org.netbeans.api</groupId>
