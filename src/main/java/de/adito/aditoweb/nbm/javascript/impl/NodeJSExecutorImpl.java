@@ -7,7 +7,7 @@ import org.openide.util.lookup.ServiceProvider;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -19,7 +19,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
 
   @NotNull
   @Override
-  public String executeSync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, @NotNull String pCommand, long pTimeout)
+  public String executeSync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, long pTimeout, @NotNull String... pParams)
       throws IOException, InterruptedException
   {
     // Invalid Environment
@@ -27,7 +27,9 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
       throw new IOException("Failed to execute command on nodejs, because version is invalid (" + pEnv + ")");
 
     // Prepare Process
-    Process process = new ProcessBuilder(List.of(pEnv.resolveExecBase(pBase).getAbsolutePath(), pCommand)).start();
+    ArrayList<String> params = new ArrayList<>(Arrays.asList(pParams));
+    params.add(0, pEnv.resolveExecBase(pBase).getAbsolutePath());
+    Process process = new ProcessBuilder(params).start();
 
     // Execute blocking
     if (pTimeout > -1)

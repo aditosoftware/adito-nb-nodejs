@@ -28,7 +28,7 @@ public class Test_NodeJSExecutorImpl
   @Test
   void test_executeSimple() throws Exception
   {
-    Assertions.assertEquals("v15.12.0", executor.executeSync(env, INodeJSExecBase.node(), "--version", 2000));
+    Assertions.assertEquals("v15.12.0", executor.executeSync(env, INodeJSExecBase.node(), 2000, "--version"));
   }
 
   @Test

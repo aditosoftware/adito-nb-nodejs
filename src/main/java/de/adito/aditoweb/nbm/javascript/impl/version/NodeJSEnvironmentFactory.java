@@ -150,7 +150,7 @@ public class NodeJSEnvironmentFactory
         {
           return true;
         }
-      }, INodeJSExecBase.node(), "--version", 2000);
+      }, INodeJSExecBase.node(), 2000, "--version");
     }
   }
 
