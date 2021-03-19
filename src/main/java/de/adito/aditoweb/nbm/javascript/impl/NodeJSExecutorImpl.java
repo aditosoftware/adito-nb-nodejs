@@ -57,9 +57,12 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     if (!pEnv.isValid())
       throw new IOException("Failed to execute command on nodejs, because version is invalid (" + pEnv + ")");
 
+    // prepare path
+    File commandPath = pBase.isRelativeToWorkingDir() ? new File(workingDir, pBase.getBasePath()) : pEnv.resolveExecBase(pBase);
+
     // Prepare Process
     ArrayList<String> params = new ArrayList<>(Arrays.asList(pParams));
-    params.add(0, pEnv.resolveExecBase(pBase).getAbsolutePath());
+    params.add(0, commandPath.getAbsolutePath());
     Process process = new ProcessBuilder(params)
         .directory(workingDir)
         .start();

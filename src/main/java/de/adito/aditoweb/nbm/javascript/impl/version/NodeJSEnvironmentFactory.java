@@ -53,9 +53,6 @@ public class NodeJSEnvironmentFactory
     @Override
     public File resolveExecBase(@NotNull INodeJSExecBase pBase)
     {
-      if (pBase.isRelativeToProject()) // current base workingdir is the project
-        return new File(pBase.getBasePath());
-
       // try with casual base path
       File executable = new File(nodejsBinary.getParentFile(), pBase.getBasePath());
       if (executable.exists())
