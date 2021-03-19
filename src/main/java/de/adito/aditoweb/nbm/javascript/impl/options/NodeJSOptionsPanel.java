@@ -1,8 +1,8 @@
 package de.adito.aditoweb.nbm.javascript.impl.options;
 
 import de.adito.aditoweb.nbm.javascript.impl.options.downloader.INodeJSDownloader;
-import de.adito.aditoweb.nbm.javascript.impl.version.NodeJSVersionFactory;
-import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSVersion;
+import de.adito.aditoweb.nbm.javascript.impl.version.NodeJSEnvironmentFactory;
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSEnvironment;
 import de.adito.swing.*;
 import info.clearthought.layout.TableLayout;
 import org.jetbrains.annotations.*;
@@ -235,9 +235,9 @@ public class NodeJSOptionsPanel extends JPanel
     return CompletableFuture.supplyAsync(() -> {
       try
       {
-        INodeJSVersion version = NodeJSVersionFactory.create(new File(path.getValue()));
-        if (version != null)
-          return version.getVersion();
+        INodeJSEnvironment env = NodeJSEnvironmentFactory.create(new File(path.getValue()));
+        if (env != null)
+          return env.getVersion();
       }
       catch (Throwable e)
       {

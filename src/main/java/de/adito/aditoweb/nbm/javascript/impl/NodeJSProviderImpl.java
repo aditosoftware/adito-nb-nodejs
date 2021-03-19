@@ -1,7 +1,7 @@
 package de.adito.aditoweb.nbm.javascript.impl;
 
 import de.adito.aditoweb.nbm.javascript.impl.options.NodeJSOptions;
-import de.adito.aditoweb.nbm.javascript.impl.version.NodeJSVersionFactory;
+import de.adito.aditoweb.nbm.javascript.impl.version.NodeJSEnvironmentFactory;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.*;
@@ -22,8 +22,8 @@ public class NodeJSProviderImpl implements INodeJSProvider, Disposable
 
   private final Project project;
   private final CompositeDisposable compositeDisposable = new CompositeDisposable();
-  private final ReplaySubject<Optional<INodeJSVersion>> current = ReplaySubject.create();
-  private final Observable<Optional<INodeJSVersion>> current_observe = current
+  private final ReplaySubject<Optional<INodeJSEnvironment>> current = ReplaySubject.create();
+  private final Observable<Optional<INodeJSEnvironment>> current_observe = current
       .replay(1)
       .autoConnect(1, compositeDisposable::add);
 
@@ -41,10 +41,10 @@ public class NodeJSProviderImpl implements INodeJSProvider, Disposable
 
   @NotNull
   @Override
-  public Observable<Optional<INodeJSVersion>> current()
+  public Observable<Optional<INodeJSEnvironment>> current()
   {
     //todo do something useful
-    return Observable.just(Optional.ofNullable(NodeJSVersionFactory.create(new File(NodeJSOptions.getInstance().getPath()))));
+    return Observable.just(Optional.ofNullable(NodeJSEnvironmentFactory.create(new File(NodeJSOptions.getInstance().getPath()))));
   }
 
   @Override

@@ -19,14 +19,15 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
 
   @NotNull
   @Override
-  public String executeSync(@NotNull INodeJSVersion pVersion, @NotNull String pCommand, long pTimeout) throws IOException, InterruptedException
+  public String executeSync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, @NotNull String pCommand, long pTimeout)
+      throws IOException, InterruptedException
   {
-    // Invalid Version
-    if (!pVersion.isValid())
-      throw new IOException("Failed to execute command on nodejs, because version is invalid (" + pVersion + ")");
+    // Invalid Environment
+    if (!pEnv.isValid())
+      throw new IOException("Failed to execute command on nodejs, because version is invalid (" + pEnv + ")");
 
     // Prepare Process
-    Process process = new ProcessBuilder(List.of(pVersion.getPath().getAbsolutePath(), pCommand)).start();
+    Process process = new ProcessBuilder(List.of(pEnv.resolveExecBase(pBase).getAbsolutePath(), pCommand)).start();
 
     // Execute blocking
     if (pTimeout > -1)
@@ -37,7 +38,9 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     // Copy to String
     StringWriter writer = new StringWriter();
     IOUtils.copy(process.getInputStream(), writer, StandardCharsets.UTF_8);
-    return writer.toString();
+
+    // trim trailing linebreak
+    return writer.toString().trim();
   }
 
 }
