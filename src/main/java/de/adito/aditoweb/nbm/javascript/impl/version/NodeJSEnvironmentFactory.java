@@ -1,5 +1,6 @@
 package de.adito.aditoweb.nbm.javascript.impl.version;
 
+import de.adito.aditoweb.nbm.javascript.impl.NodeJSExecutorImpl;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import lombok.ToString;
 import org.jetbrains.annotations.*;
@@ -122,7 +123,7 @@ public class NodeJSEnvironmentFactory
     @NotNull
     private String _readVersion() throws Exception
     {
-      return INodeJSExecutor.getInstance().executeSync(new INodeJSEnvironment()
+      return NodeJSExecutorImpl.getInternalUnboundExecutor(new File(".")).executeSync(new INodeJSEnvironment()
       {
         @NotNull
         @Override
