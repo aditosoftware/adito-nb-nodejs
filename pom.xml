@@ -200,6 +200,7 @@
         <version>4.5</version>
         <extensions>true</extensions>
         <configuration>
+          <requiresRestart>true</requiresRestart>
           <useOSGiDependencies>true</useOSGiDependencies>
         </configuration>
       </plugin>
