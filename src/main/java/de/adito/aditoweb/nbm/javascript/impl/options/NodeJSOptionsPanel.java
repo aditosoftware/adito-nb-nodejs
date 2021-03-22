@@ -308,12 +308,17 @@ public class NodeJSOptionsPanel extends JPanel
 
     public void setValue(@NotNull String pValue)
     {
-      path.setText(pValue);
+      if (entries != null)
+        entries.setSelectedItem(pValue);
+      else
+        path.setText(pValue);
     }
 
     @NotNull
     public String getValue()
     {
+      if (entries != null && entries.getSelectedItem() != null)
+        return (String) entries.getSelectedItem();
       return path.getText();
     }
 
@@ -325,7 +330,7 @@ public class NodeJSOptionsPanel extends JPanel
     private void _init(JComponent pComp, JButton... pAdditionalButtons)
     {
       JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-      panel.add(_createBrowseButton(this, path::getText, path::setText));
+      panel.add(_createBrowseButton(this, this::getValue, this::setValue));
       for (JButton btn : pAdditionalButtons)
         panel.add(btn);
       add(pComp, BorderLayout.CENTER);
