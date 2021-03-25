@@ -5,6 +5,7 @@ import org.jetbrains.annotations.*;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.io.InputOutput;
 import org.netbeans.api.project.*;
+import org.netbeans.modules.lsp.client.LanguageServerProviderAccessor;
 import org.netbeans.modules.lsp.client.spi.LanguageServerProvider;
 import org.openide.util.*;
 
@@ -23,9 +24,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   private static final Logger LOGGER = Logger.getLogger(TypeScriptLanguageServerProvider.class.getName());
   private static final Cache<String, LanguageServerDescription> PROJECT_LSP_CACHE = CacheBuilder.newBuilder()
       .expireAfterAccess(15, TimeUnit.MINUTES)
-      //.removalListener((RemovalListener<String, LanguageServerDescription>) pRemoval -> { todo stop after expiry
-      //  LanguageServerProviderAccessor.getINSTANCE().getProcess(pRemoval.getValue())
-      //})
+      .removalListener((RemovalListener<String, LanguageServerDescription>) pRemoval -> _stopServer(pRemoval.getValue()))
       .build();
 
   @Override
@@ -37,7 +36,15 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 
     try
     {
-      return PROJECT_LSP_CACHE.get(prj.getProjectDirectory().getPath(), () -> _startServer(prj));
+      String projectPath = prj.getProjectDirectory().getPath();
+      LanguageServerDescription current = PROJECT_LSP_CACHE.get(projectPath, () -> _startServer(prj));
+      if (!_isAlive(current))
+      {
+        PROJECT_LSP_CACHE.invalidate(projectPath);
+        current = PROJECT_LSP_CACHE.get(projectPath, () -> _startServer(prj));
+      }
+
+      return current;
     }
     catch (ExecutionException e)
     {
@@ -71,6 +78,50 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     {
       LOGGER.log(Level.SEVERE, "", t);
       return null;
+    }
+  }
+
+  /**
+   * Stops the given language server
+   *
+   * @param pDescription Description to stop
+   */
+  private static void _stopServer(@Nullable LanguageServerDescription pDescription)
+  {
+    if (pDescription == null)
+      return;
+
+    try
+    {
+      if (!_isAlive(pDescription))
+        LanguageServerProviderAccessor.getINSTANCE().getProcess(pDescription).destroy();
+    }
+    catch (Exception e)
+    {
+      LOGGER.log(Level.WARNING, "Failed to shutdown language server", e);
+    }
+  }
+
+  /**
+   * Returns true, if the language server in the given description is alive
+   *
+   * @param pDescription Description to check
+   * @return true, if it is alive
+   */
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+  private static boolean _isAlive(@Nullable LanguageServerDescription pDescription)
+  {
+    if (pDescription == null)
+      return false;
+
+    try
+    {
+      Process process = LanguageServerProviderAccessor.getINSTANCE().getProcess(pDescription);
+      return process != null && process.isAlive();
+    }
+    catch (Exception e)
+    {
+      return false;
     }
   }
 
