@@ -235,9 +235,13 @@ public class NodeJSOptionsPanel extends JPanel
     return CompletableFuture.supplyAsync(() -> {
       try
       {
-        INodeJSEnvironment env = NodeJSEnvironmentFactory.create(new File(path.getValue()));
-        if (env != null)
-          return env.getVersion();
+        String value = path.getValue();
+        if (!value.trim().isEmpty())
+        {
+          INodeJSEnvironment env = NodeJSEnvironmentFactory.create(new File(value));
+          if (env != null)
+            return env.getVersion();
+        }
       }
       catch (Throwable e)
       {
