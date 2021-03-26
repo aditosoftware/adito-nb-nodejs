@@ -53,21 +53,10 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
   public String executeSync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, long pTimeout, @NotNull String... pParams)
       throws IOException, InterruptedException
   {
-    // Invalid Environment
-    if (!pEnv.isValid())
-      throw new IOException("Failed to execute command on nodejs, because version is invalid (" + pEnv + ")");
+    // create and start
+    Process process = execute(pEnv, pBase, pParams);
 
-    // prepare path
-    File commandPath = pBase.isRelativeToWorkingDir() ? new File(workingDir, pBase.getBasePath()) : pEnv.resolveExecBase(pBase);
-
-    // Prepare Process
-    ArrayList<String> params = new ArrayList<>(Arrays.asList(pParams));
-    params.add(0, commandPath.getAbsolutePath());
-    Process process = new ProcessBuilder(params)
-        .directory(workingDir)
-        .start();
-
-    // Execute blocking
+    // wait until finished
     if (pTimeout > -1)
       process.waitFor(pTimeout, TimeUnit.MILLISECONDS);
     else
@@ -79,6 +68,25 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
 
     // trim trailing linebreak
     return writer.toString().trim();
+  }
+
+  @NotNull
+  @Override
+  public Process execute(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, @NotNull String... pParams) throws IOException
+  {
+    // Invalid Environment
+    if (!pEnv.isValid())
+      throw new IOException("Failed to execute command on nodejs, because version is invalid (" + pEnv + ")");
+
+    // prepare path
+    File commandPath = pBase.isRelativeToWorkingDir() ? new File(workingDir, pBase.getBasePath()) : pEnv.resolveExecBase(pBase);
+
+    // Prepare Process
+    ArrayList<String> params = new ArrayList<>(Arrays.asList(pParams));
+    params.add(0, commandPath.getAbsolutePath());
+    return new ProcessBuilder(params)
+        .directory(workingDir)
+        .start();
   }
 
 }
