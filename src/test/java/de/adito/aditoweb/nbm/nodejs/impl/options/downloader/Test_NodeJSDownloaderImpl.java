@@ -1,4 +1,4 @@
-package de.adito.aditoweb.nbm.javascript.impl.options.downloader;
+package de.adito.aditoweb.nbm.nodejs.impl.options.downloader;
 
 import org.junit.jupiter.api.*;
 import org.openide.util.Pair;

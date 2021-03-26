@@ -1,7 +1,7 @@
-package de.adito.aditoweb.nbm.javascript.impl.version;
+package de.adito.aditoweb.nbm.nodejs.impl.version;
 
-import de.adito.aditoweb.nbm.javascript.impl.NodeJSExecutorImpl;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
+import de.adito.aditoweb.nbm.nodejs.impl.NodeJSExecutorImpl;
 import lombok.ToString;
 import org.jetbrains.annotations.*;
 import org.openide.util.BaseUtilities;

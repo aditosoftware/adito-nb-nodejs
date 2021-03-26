@@ -1,4 +1,4 @@
-package de.adito.aditoweb.nbm.javascript.impl.ls;
+package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
 import com.google.common.cache.*;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;

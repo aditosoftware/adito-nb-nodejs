@@ -1,8 +1,8 @@
-package de.adito.aditoweb.nbm.javascript.impl.options;
+package de.adito.aditoweb.nbm.nodejs.impl.options;
 
-import de.adito.aditoweb.nbm.javascript.impl.options.downloader.INodeJSDownloader;
-import de.adito.aditoweb.nbm.javascript.impl.version.NodeJSEnvironmentFactory;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSEnvironment;
+import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
+import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.swing.*;
 import info.clearthought.layout.TableLayout;
 import org.jetbrains.annotations.*;

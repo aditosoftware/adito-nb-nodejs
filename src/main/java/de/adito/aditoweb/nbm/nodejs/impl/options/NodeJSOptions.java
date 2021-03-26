@@ -1,4 +1,4 @@
-package de.adito.aditoweb.nbm.javascript.impl.options;
+package de.adito.aditoweb.nbm.nodejs.impl.options;
 
 import de.adito.observables.netbeans.PreferencesObservable;
 import io.reactivex.rxjava3.core.Observable;

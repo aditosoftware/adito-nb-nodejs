@@ -1,4 +1,4 @@
-package de.adito.aditoweb.nbm.javascript.impl;
+package de.adito.aditoweb.nbm.nodejs.impl;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import org.apache.commons.io.IOUtils;

@@ -1,8 +1,8 @@
-package de.adito.aditoweb.nbm.javascript.impl;
+package de.adito.aditoweb.nbm.nodejs.impl;
 
-import de.adito.aditoweb.nbm.javascript.impl.options.downloader.INodeJSDownloader;
-import de.adito.aditoweb.nbm.javascript.impl.version.NodeJSEnvironmentFactory;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
+import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
+import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.File;

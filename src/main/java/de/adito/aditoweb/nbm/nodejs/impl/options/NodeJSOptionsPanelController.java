@@ -1,4 +1,4 @@
-package de.adito.aditoweb.nbm.javascript.impl.options;
+package de.adito.aditoweb.nbm.nodejs.impl.options;
 
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.*;
