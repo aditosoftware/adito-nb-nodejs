@@ -1,5 +1,7 @@
 package de.adito.aditoweb.nbm.javascript.impl.options;
 
+import de.adito.observables.netbeans.PreferencesObservable;
+import io.reactivex.rxjava3.core.Observable;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.openide.util.NbPreferences;
@@ -33,6 +35,18 @@ public class NodeJSOptions
     return NodeJSOptions.builder()
         .path(PREFS.get("path", null))
         .build();
+  }
+
+  /**
+   * Creates a new observable that fires, if options change
+   *
+   * @return Observable with options
+   */
+  @NotNull
+  public static Observable<NodeJSOptions> observe()
+  {
+    return PreferencesObservable.create(PREFS)
+        .map(pPrefs -> getInstance());
   }
 
   /**
