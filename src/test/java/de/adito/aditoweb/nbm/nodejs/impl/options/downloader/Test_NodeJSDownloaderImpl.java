@@ -14,7 +14,7 @@ import java.util.stream.*;
 /**
  * @author w.glanzer, 10.03.2021
  */
-public class Test_NodeJSDownloaderImpl
+class Test_NodeJSDownloaderImpl
 {
 
   private NodeJSDownloaderImpl downloader;

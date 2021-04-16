@@ -4,7 +4,7 @@ import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSEnvir
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.swing.*;
-import info.clearthought.layout.TableLayout;
+import info.clearthought.layout.*;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.progress.BaseProgressUtils;
 import org.openide.*;
@@ -33,7 +33,7 @@ public class NodeJSOptionsPanel extends JPanel
   private static final String _DEFAULT_PATH = System.getProperty("user.home") + "/.nodejs-versions";
 
   private final _PathSelection path;
-  private NodeJSOptions options;
+  private NodeJSOptions options; //NOSONAR its just a swing panel
 
   @NbBundle.Messages({
       "LBL_Path=Path to Executable",
@@ -44,8 +44,8 @@ public class NodeJSOptionsPanel extends JPanel
   {
     super(new BorderLayout());
 
-    double fill = TableLayout.FILL;
-    double pref = TableLayout.PREFERRED;
+    double fill = TableLayoutConstants.FILL;
+    double pref = TableLayoutConstants.PREFERRED;
     int gap = 5;
 
     double[] cols = {pref, gap, fill};
@@ -135,7 +135,7 @@ public class NodeJSOptionsPanel extends JPanel
         _DownloadPanel container = new _DownloadPanel(downloader.getAvailableVersions());
 
         // validity check
-        Supplier<Boolean> isValid = () -> container.getVersion() != null && container.getTarget() != null;
+        BooleanSupplier isValid = () -> container.getVersion() != null && container.getTarget() != null;
 
         // action listener
         ActionListener onAction = action -> {
@@ -161,16 +161,16 @@ public class NodeJSOptionsPanel extends JPanel
         // create dialog
         JButton downloadBtn = new JButton(Bundle.LBL_DownloadBtn());
         DialogDescriptor descriptor = new DialogDescriptor(container, Bundle.LBL_DownloadTitle(), true,
-                                                           new Object[]{downloadBtn, DialogDescriptor.CANCEL_OPTION},
+                                                           new Object[]{downloadBtn, NotifyDescriptor.CANCEL_OPTION},
                                                            downloadBtn, DialogDescriptor.DEFAULT_ALIGN, null,
                                                            onAction);
 
         // configure descriptor
-        descriptor.setClosingOptions(new Object[]{downloadBtn, DialogDescriptor.CANCEL_OPTION});
+        descriptor.setClosingOptions(new Object[]{downloadBtn, NotifyDescriptor.CANCEL_OPTION});
 
         // set valid, if changed
-        downloadBtn.setEnabled(isValid.get());
-        container.addChangeListener(a -> downloadBtn.setEnabled(isValid.get()));
+        downloadBtn.setEnabled(isValid.getAsBoolean());
+        container.addChangeListener(a -> downloadBtn.setEnabled(isValid.getAsBoolean()));
 
         Dialog dialog = DialogDisplayer.getDefault().createDialog(descriptor);
         dialog.setMinimumSize(new Dimension(450, 150));
@@ -179,7 +179,7 @@ public class NodeJSOptionsPanel extends JPanel
       }
       catch (Exception ex)
       {
-        throw new RuntimeException("Failed to download nodejs binary", ex);
+        throw new IllegalStateException("Failed to download nodejs binary", ex);
       }
     });
     return btn;
@@ -243,33 +243,13 @@ public class NodeJSOptionsPanel extends JPanel
             return env.getVersion();
         }
       }
-      catch (Throwable e)
+      catch (Exception e)
       {
         // ignore
       }
 
       return pDefault;
     });
-  }
-
-  /**
-   * Checks, if the given path is a valid file path
-   *
-   * @param pPath Path to check
-   * @return true, if valid
-   */
-  private static boolean _isValidFilePath(@NotNull String pPath)
-  {
-    try
-    {
-      //noinspection ResultOfMethodCallIgnored
-      new File(pPath).getCanonicalPath();
-      return true;
-    }
-    catch (Exception e)
-    {
-      return false;
-    }
   }
 
   /**
@@ -380,8 +360,8 @@ public class NodeJSOptionsPanel extends JPanel
     {
       setBorder(new EmptyBorder(5, 5, 5, 5));
 
-      double fill = TableLayout.FILL;
-      double pref = TableLayout.PREFERRED;
+      double fill = TableLayoutConstants.FILL;
+      double pref = TableLayoutConstants.PREFERRED;
       int gap = 5;
 
       double[] cols = {pref, gap, pref, fill};
@@ -444,6 +424,26 @@ public class NodeJSOptionsPanel extends JPanel
       });
 
       versions.addItemListener(e -> pOnChange.stateChanged(new ChangeEvent(versions)));
+    }
+
+    /**
+     * Checks, if the given path is a valid file path
+     *
+     * @param pPath Path to check
+     * @return true, if valid
+     */
+    private static boolean _isValidFilePath(@NotNull String pPath)
+    {
+      try
+      {
+        //noinspection ResultOfMethodCallIgnored
+        new File(pPath).getCanonicalPath();
+        return true;
+      }
+      catch (Exception e)
+      {
+        return false;
+      }
     }
   }
 

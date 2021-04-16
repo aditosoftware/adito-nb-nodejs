@@ -9,8 +9,9 @@ import org.rauschig.jarchivelib.*;
 import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.*;
 import java.util.stream.Collectors;
 
@@ -111,8 +112,7 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
     }
 
     // Delete Download
-    //noinspection ResultOfMethodCallIgnored
-    downloadedFile.delete();
+    Files.delete(downloadedFile.toPath());
 
     // find nodeJS binary
     File binary = _findBinary(extractedFolder, pOsType);
@@ -163,9 +163,9 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
     private final String suffix;
     private final String displayName;
     private final String fileEnding;
-    private final Function<File, File> binaryExtractor;
+    private final UnaryOperator<File> binaryExtractor;
 
-    OS_SUFFIX(@NotNull String pSuffix, @NotNull String pDisplayName, @NotNull String pFileEnding, @NotNull Function<File, File> pBinaryExtractor)
+    OS_SUFFIX(@NotNull String pSuffix, @NotNull String pDisplayName, @NotNull String pFileEnding, @NotNull UnaryOperator<File> pBinaryExtractor)
     {
       suffix = pSuffix;
       displayName = pDisplayName;
@@ -187,7 +187,7 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
         return WINDOWS_X64;
 
       // should not happen..
-      throw new RuntimeException("Failed to retrieve os system type");
+      throw new IllegalStateException("Failed to retrieve os system type");
     }
   }
 

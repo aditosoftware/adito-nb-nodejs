@@ -55,6 +55,10 @@ public class VersionNumberComparator
     return new VersionNumberComparator.AlphaDecimalComparator<>(Comparator.comparing(CharSequence::toString, Comparator.naturalOrder()), false);
   }
 
+  private VersionNumberComparator()
+  {
+  }
+
   /**
    * Compares char sequences, taking into account their numeric part if one exists.
    */
@@ -118,7 +122,9 @@ public class VersionNumberComparator
 
       CharSequence get()
       {
-        int start = index, end = start, len = sequence.length() - start;
+        int start = index;
+        int end = start;
+        int len = sequence.length() - start;
         while (len > 0)
         {
           int cp = Character.codePointAt(sequence, end);
@@ -133,7 +139,8 @@ public class VersionNumberComparator
           len -= cpWidth;
         }
         expectingDecimal = !expectingDecimal;
-        return sequence.subSequence(start, index = end);
+        index = end;
+        return sequence.subSequence(start, index);
       }
 
       boolean eos()
@@ -186,7 +193,7 @@ public class VersionNumberComparator
           @Override
           public int compare(CharSequence cs1, CharSequence cs2)
           {
-            return super.compare(cs2, cs1);
+            return super.compare(cs2, cs1); //NOSONAR reversed is correct
           }
         };
 
@@ -203,7 +210,7 @@ public class VersionNumberComparator
           @Override
           public int compare(CharSequence cs1, CharSequence cs2)
           {
-            return super.compare(cs2, cs1);
+            return super.compare(cs2, cs1); //NOSONAR reversed is correct
           }
         };
 
@@ -227,7 +234,7 @@ public class VersionNumberComparator
         int cp = Character.codePointAt(s, i);
         if (Character.digit(cp, 10) != 0)
           return false;
-        i += Character.charCount(cp);
+        i += Character.charCount(cp); //NOSONAR how should this be possible otherwise?
       }
       return true;
     }
@@ -274,10 +281,11 @@ public class VersionNumberComparator
             return cmpNum;
           }
         }
-        i1 += Character.charCount(cp1);
-        i2 += Character.charCount(cp2);
+        i1 += Character.charCount(cp1); //NOSONAR how should this be possible otherwise?
+        i2 += Character.charCount(cp2); //NOSONAR how should this be possible otherwise?
       }
-      return dlen == 0 ? cmp : (leadingZeroesFirst ^ (dlen < 0) ? -1 : 1);
+      int comp = leadingZeroesFirst ^ (dlen < 0) ? -1 : 1;
+      return dlen == 0 ? cmp : comp;
     }
   }
 }

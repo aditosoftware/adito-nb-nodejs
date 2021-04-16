@@ -10,7 +10,7 @@ import java.io.File;
 /**
  * @author w.glanzer, 19.03.2021
  */
-public class Test_NodeJSExecutorImpl
+class Test_NodeJSExecutorImpl
 {
 
   private INodeJSEnvironment env;

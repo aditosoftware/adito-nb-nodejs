@@ -6,7 +6,7 @@ import lombok.ToString;
 import org.jetbrains.annotations.*;
 import org.openide.util.BaseUtilities;
 
-import java.io.File;
+import java.io.*;
 
 /**
  * @author w.glanzer, 08.03.2021
@@ -27,6 +27,10 @@ public class NodeJSEnvironmentFactory
     if (version.isValid())
       return version;
     return null;
+  }
+
+  private NodeJSEnvironmentFactory()
+  {
   }
 
   /**
@@ -67,8 +71,8 @@ public class NodeJSEnvironmentFactory
       }
 
       // not found
-      throw new RuntimeException("Unable to determine absolute path of execution base (" + pBase.getBasePath() + ", " +
-                                     nodejsBinary.getParentFile().getAbsolutePath() + ")");
+      throw new IllegalStateException("Unable to determine absolute path of execution base (" + pBase.getBasePath() + ", " +
+                                          nodejsBinary.getParentFile().getAbsolutePath() + ")");
     }
 
     @NotNull
@@ -83,7 +87,7 @@ public class NodeJSEnvironmentFactory
       }
       catch (Exception e)
       {
-        throw new RuntimeException("Failed to retrieve version from nodejs package (" + getPath() + ")", e);
+        throw new IllegalStateException("Failed to retrieve version from nodejs package (" + getPath() + ")", e);
       }
     }
 
@@ -118,7 +122,7 @@ public class NodeJSEnvironmentFactory
      * @return the version
      */
     @NotNull
-    private String _readVersion() throws Exception
+    private String _readVersion() throws IOException, InterruptedException
     {
       return NodeJSExecutorImpl.getInternalUnboundExecutor(new File(".")).executeSync(new INodeJSEnvironment()
       {

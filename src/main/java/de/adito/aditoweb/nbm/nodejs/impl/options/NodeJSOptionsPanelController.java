@@ -62,11 +62,13 @@ public class NodeJSOptionsPanelController extends OptionsPanelController
   @Override
   public void addPropertyChangeListener(PropertyChangeListener pPropertyChangeListener)
   {
+    // not used
   }
 
   @Override
   public void removePropertyChangeListener(PropertyChangeListener pPropertyChangeListener)
   {
+    // not used
   }
 
 }

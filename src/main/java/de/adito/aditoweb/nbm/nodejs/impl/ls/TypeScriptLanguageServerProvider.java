@@ -32,7 +32,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
         Optional<LanguageServerDescription> value = pRemoval.getValue();
 
         //noinspection OptionalAssignedToNull
-        _stopServer(value == null ? null : value.orElse(null));
+        _stopServer(value == null ? null : value.orElse(null)); //NOSONAR null is a valid value
       })
       .build();
 
@@ -72,7 +72,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   {
     // Log Start
     String projectPath = pProject.getProjectDirectory().getPath();
-    LOGGER.info("Starting TypeScript Language Server for project " + projectPath);
+    LOGGER.log(Level.INFO, "Starting TypeScript Language Server for project {0}", projectPath);
 
     // Reset IO, because of new server
     InputOutput io = InputOutput.get("TypeScript Language Server for project " + ProjectUtils.getInformation(pProject).getDisplayName(), false);
@@ -139,7 +139,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 
               // Stop Server
               Optional<LanguageServerDescription> currentServer = PROJECT_LSP_CACHE.getIfPresent(projectPath);
-              if (currentServer != null && currentServer.isPresent())
+              if (currentServer != null && currentServer.isPresent()) //NOSONAR null is a valid value, even it is not recommended
                 _stopServer(currentServer.get());
 
               // Trigger Restart
