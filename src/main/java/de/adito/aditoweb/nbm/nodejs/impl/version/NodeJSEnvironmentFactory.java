@@ -7,6 +7,7 @@ import org.jetbrains.annotations.*;
 import org.openide.util.BaseUtilities;
 
 import java.io.*;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author w.glanzer, 08.03.2021
@@ -122,7 +123,7 @@ public class NodeJSEnvironmentFactory
      * @return the version
      */
     @NotNull
-    private String _readVersion() throws IOException, InterruptedException
+    private String _readVersion() throws IOException, InterruptedException, TimeoutException
     {
       return NodeJSExecutorImpl.getInternalUnboundExecutor(new File(".")).executeSync(new INodeJSEnvironment()
       {
