@@ -109,7 +109,9 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
         .withWorkingDirectory(workingDir)
         .withOutputStream(pDefaultOut)
         .withErrorStream(pErrorOut == null ? pDefaultOut : pErrorOut)
-        .withInputStream(pDefaultIn);
+        .withInputStream(pDefaultIn)
+        .withNoTimeout()
+        .ignoreExitStatus();
 
     // execute
     return CompletableFuture.supplyAsync(() -> builder.run().getExitValue(), processExecutor);
