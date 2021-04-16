@@ -97,9 +97,9 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
 
   @NotNull
   @Override
-  public Future<Integer> executeAsync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase,
-                                      @NotNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
-                                      @NotNull String... pParams) throws IOException
+  public CompletableFuture<Integer> executeAsync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase,
+                                                 @NotNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
+                                                 @NotNull String... pParams) throws IOException
   {
     // Invalid Environment
     _checkValid(pEnv);
@@ -112,7 +112,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
         .withInputStream(pDefaultIn);
 
     // execute
-    return processExecutor.submit(() -> builder.run().getExitValue());
+    return CompletableFuture.supplyAsync(() -> builder.run().getExitValue(), processExecutor);
   }
 
   /**
