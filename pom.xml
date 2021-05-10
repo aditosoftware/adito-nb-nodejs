@@ -37,7 +37,7 @@
     <dependency>
       <groupId>de.adito.nb-modules</groupId>
       <artifactId>nb-adito-interface</artifactId>
-      <version>1.6.1-SNAPSHOT</version>
+      <version>1.6.1</version>
     </dependency>
 
     <!-- ADITO Utils -->
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>de.adito.nb-modules</groupId>
       <artifactId>de-adito-netbeans-utilities</artifactId>
-      <version>${netbeans.version}-1.6.1-SNAPSHOT</version>
+      <version>${netbeans.version}-1.6.1</version>
     </dependency>
 
     <!-- Google Guava -->
@@ -118,6 +118,11 @@
     <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-netbeans-api-progress</artifactId>
+      <version>${netbeans.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.netbeans.api</groupId>
+      <artifactId>org-netbeans-api-progress-nb</artifactId>
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
