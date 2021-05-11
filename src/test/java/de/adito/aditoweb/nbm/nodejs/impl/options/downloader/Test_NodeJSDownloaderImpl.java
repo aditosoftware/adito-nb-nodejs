@@ -104,7 +104,7 @@ class Test_NodeJSDownloaderImpl
       // Delete downloaded directory
       if (binary != null && binary.exists())
       {
-        File fileToDelete = binary.getParentFile().getParentFile();
+        File fileToDelete = pSuf == NodeJSDownloaderImpl.OS_SUFFIX.WINDOWS_X64 ? binary.getParentFile() : binary.getParentFile().getParentFile();
         _LOGGER.info("Deleting previously used directory: " + fileToDelete.getAbsolutePath());
         FileUtils.deleteQuietly(fileToDelete);
       }
