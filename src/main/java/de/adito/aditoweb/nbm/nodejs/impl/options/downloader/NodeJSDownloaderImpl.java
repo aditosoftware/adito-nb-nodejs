@@ -68,6 +68,13 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
     return _findBinary(pInstallation, OS_SUFFIX.getCurrent());
   }
 
+  @Nullable
+  @Override
+  public File findInstallationFromNodeExecutable(@NotNull File pBinary)
+  {
+    return _findInstallationRoot(pBinary, OS_SUFFIX.getCurrent());
+  }
+
   @NotNull
   @Override
   public File downloadVersion(@NotNull String pVersion, @NotNull File pTarget) throws IOException
@@ -183,26 +190,44 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
   }
 
   /**
+   * Detects the appropriate installation root of the given nodejs binary
+   *
+   * @param pBinary binary
+   * @return the installation root or null if not found
+   */
+  @Nullable
+  private File _findInstallationRoot(@NotNull File pBinary, @NotNull OS_SUFFIX pOSType)
+  {
+    File file = pOSType.getInstallationExtractor().apply(pBinary);
+    if (file.exists() && file.canRead() && file.isDirectory())
+      return file;
+    return null;
+  }
+
+  /**
    * The suffix for OS specific download
    */
   @Getter
   protected enum OS_SUFFIX
   {
-    WINDOWS_X64("win-x64", "Windows (64 bit)", ".zip", pDir -> new File(pDir, "node.exe")),
-    LINUX_X64("linux-x64", "Linux (64 bit)", ".tar.gz", pDir -> new File(new File(pDir, "bin"), "node")),
-    MAC("darwin-x64", "MacOS", ".tar.gz", pDir -> new File(new File(pDir, "bin"), "node"));
+    WINDOWS_X64("win-x64", "Windows (64 bit)", ".zip", pDir -> new File(pDir, "node.exe"), File::getParentFile),
+    LINUX_X64("linux-x64", "Linux (64 bit)", ".tar.gz", pDir -> new File(new File(pDir, "bin"), "node"), pBin -> pBin.getParentFile().getParentFile()),
+    MAC("darwin-x64", "MacOS", ".tar.gz", pDir -> new File(new File(pDir, "bin"), "node"), pBin -> pBin.getParentFile().getParentFile());
 
     private final String suffix;
     private final String displayName;
     private final String fileEnding;
     private final UnaryOperator<File> binaryExtractor;
+    private final UnaryOperator<File> installationExtractor;
 
-    OS_SUFFIX(@NotNull String pSuffix, @NotNull String pDisplayName, @NotNull String pFileEnding, @NotNull UnaryOperator<File> pBinaryExtractor)
+    OS_SUFFIX(@NotNull String pSuffix, @NotNull String pDisplayName, @NotNull String pFileEnding,
+              @NotNull UnaryOperator<File> pBinaryExtractor, @NotNull UnaryOperator<File> pInstallationExtractor)
     {
       suffix = pSuffix;
       displayName = pDisplayName;
       fileEnding = pFileEnding;
       binaryExtractor = pBinaryExtractor;
+      installationExtractor = pInstallationExtractor;
     }
 
     /**

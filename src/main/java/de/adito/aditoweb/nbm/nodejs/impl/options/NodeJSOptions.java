@@ -1,11 +1,14 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options;
 
+import com.google.common.base.Strings;
+import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.observables.netbeans.PreferencesObservable;
 import io.reactivex.rxjava3.core.Observable;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.openide.util.NbPreferences;
 
+import java.io.File;
 import java.util.prefs.Preferences;
 
 /**
@@ -23,6 +26,20 @@ public class NodeJSOptions
    * Path to a valid NodeJS environment (binary)
    */
   private String path;
+
+  /**
+   * Evaluates, if the defined nodeJS installation (in path variable) is valid and readable
+   *
+   * @return true, if valid
+   */
+  public boolean isPathValid()
+  {
+    String path = NodeJSOptions.getInstance().getPath();
+    if (Strings.isNullOrEmpty(path))
+      return false;
+
+    return NodeJSEnvironmentFactory.create(new File(path)) != null;
+  }
 
   /**
    * Reads a new instance from preferences

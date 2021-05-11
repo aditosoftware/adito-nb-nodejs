@@ -37,6 +37,15 @@ public interface INodeJSDownloader
   File findNodeExecutableInInstallation(@NotNull File pInstallation);
 
   /**
+   * Detects the node installation folder from a binary
+   *
+   * @param pBinary binary
+   * @return the installation root
+   */
+  @Nullable
+  File findInstallationFromNodeExecutable(@NotNull File pBinary);
+
+  /**
    * Downloads a nodejs version to pTarget.
    *
    * @param pVersion Version to download (has to be a version from getAvailableVersions())

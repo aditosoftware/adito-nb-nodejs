@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSEnvironment;
+import de.adito.aditoweb.nbm.nodejs.impl.BundledNodeJS;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.swing.*;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.*;
-import java.util.stream.Collectors;
 
 /**
  * Panel to display the options
@@ -99,20 +99,32 @@ public class NodeJSOptionsPanel extends JPanel
   @NotNull
   private List<String> _getInstalledNodeJSVersions()
   {
+    List<String> result = new ArrayList<>();
+
+    // add bundled
+    File bundledPath = BundledNodeJS.getInstance().getBundledNodeJSContainer();
+    if (bundledPath.exists() && bundledPath.isDirectory())
+    {
+      File bin = INodeJSDownloader.getInstance().findNodeExecutableInInstallation(bundledPath);
+      if (bin != null)
+        result.add(bin.getAbsolutePath());
+    }
+
+    // installed in default downloader path
     File folder = new File(_DEFAULT_PATH);
     if (folder.exists() && folder.isDirectory())
     {
       File[] children = folder.listFiles();
       if (children != null)
-        return Arrays.stream(children)
+        Arrays.stream(children)
             .map(pChild -> INodeJSDownloader.getInstance().findNodeExecutableInInstallation(pChild))
             .filter(Objects::nonNull)
             .map(File::getAbsolutePath)
             .sorted(String.CASE_INSENSITIVE_ORDER)
-            .collect(Collectors.toList());
+            .forEachOrdered(result::add);
     }
 
-    return List.of();
+    return result;
   }
 
   /**

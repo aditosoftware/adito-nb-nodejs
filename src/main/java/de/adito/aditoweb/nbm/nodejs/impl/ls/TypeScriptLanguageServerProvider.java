@@ -22,6 +22,7 @@ import java.util.logging.*;
 @MimeRegistration(mimeType = "text/typescript", service = LanguageServerProvider.class)
 public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 {
+  public static final String NEEDED_MODULE = "typescript-language-server";
   private static final long STARTUP_DELAY = 10000;
   private static final RequestProcessor WORKER = new RequestProcessor(TypeScriptLanguageServerProvider.class.getName(), Integer.MAX_VALUE, false, false);
   private static final Logger LOGGER = Logger.getLogger(TypeScriptLanguageServerProvider.class.getName());
@@ -96,7 +97,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
         .map(pExec -> {
           try
           {
-            return pExec.execute(env, INodeJSExecBase.module("typescript-language-server", "lib/cli.js"), "--stdio");
+            return pExec.execute(env, INodeJSExecBase.module(NEEDED_MODULE, "lib/cli.js"), "--stdio");
           }
           catch (IOException e)
           {
