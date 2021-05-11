@@ -7,7 +7,7 @@ import org.openide.util.Pair;
 import java.io.*;
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 import java.util.function.*;
 import java.util.logging.*;
 import java.util.stream.*;
@@ -73,6 +73,7 @@ class Test_NodeJSDownloaderImpl
   {
     List<String> validDownloads = new ArrayList<>();
     List<String> invalidDownloads = new ArrayList<>();
+    ExecutorService executor = Executors.newFixedThreadPool(8);
 
     // test
     BiConsumer<String, NodeJSDownloaderImpl.OS_SUFFIX> testDownload = (pVersion, pSuf) -> {
@@ -104,14 +105,15 @@ class Test_NodeJSDownloaderImpl
     };
 
     // execute async
-    //noinspection FuseStreamOperations unreadable...
-    Set<CompletableFuture<?>> futures = downloader.getAvailableVersions().stream()
+    downloader.getAvailableVersions().stream()
         .flatMap(pVersion -> Stream.of(NodeJSDownloaderImpl.OS_SUFFIX.values()).map(pSuf -> Pair.of(pVersion, pSuf)))
-        .map(pPair -> CompletableFuture.runAsync(() -> testDownload.accept(pPair.first(), pPair.second())))
-        .collect(Collectors.toSet());
+        .forEach(pPair -> CompletableFuture.runAsync(() -> testDownload.accept(pPair.first(), pPair.second()), executor));
 
     // await all
-    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+    executor.shutdown();
+
+    //noinspection ResultOfMethodCallIgnored we do not need this
+    executor.awaitTermination(30, TimeUnit.MINUTES);
 
     // check
     Assertions.assertTrue(invalidDownloads.isEmpty());
