@@ -1,19 +1,21 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
-import com.google.common.cache.*;
-import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSExecBase;
+import de.adito.aditoweb.nbm.nodejs.impl.BundledNodeJS;
+import de.adito.observables.netbeans.FileFullObservable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.io.InputOutput;
-import org.netbeans.api.project.*;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.lsp.client.LanguageServerProviderAccessor;
 import org.netbeans.modules.lsp.client.spi.*;
 import org.openide.util.*;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
 
 /**
@@ -26,16 +28,8 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   private static final long STARTUP_DELAY = 10000;
   private static final RequestProcessor WORKER = new RequestProcessor(TypeScriptLanguageServerProvider.class.getName(), Integer.MAX_VALUE, false, false);
   private static final Logger LOGGER = Logger.getLogger(TypeScriptLanguageServerProvider.class.getName());
-  private static final Map<String, Disposable> PROJECT_DISPOSABLES_MAP = new HashMap<>();
-  private static final Cache<String, Optional<LanguageServerDescription>> PROJECT_LSP_CACHE = CacheBuilder.newBuilder()
-      .expireAfterAccess(15, TimeUnit.MINUTES)
-      .removalListener((RemovalListener<String, Optional<LanguageServerDescription>>) pRemoval -> {
-        Optional<LanguageServerDescription> value = pRemoval.getValue();
-
-        //noinspection OptionalAssignedToNull
-        _stopServer(value == null ? null : value.orElse(null)); //NOSONAR null is a valid value
-      })
-      .build();
+  private final AtomicReference<Optional<LanguageServerDescription>> currentRef = new AtomicReference<>(null);
+  private Disposable currentDisposable;
 
   @Override
   public LanguageServerDescription startServer(@NotNull Lookup pLookup)
@@ -44,60 +38,45 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     if (prj == null)
       return null;
 
-    try
+    synchronized (currentRef)
     {
-      String projectPath = prj.getProjectDirectory().getPath();
-      Optional<LanguageServerDescription> current = PROJECT_LSP_CACHE.get(projectPath, () -> _startServer(prj, pLookup.lookup(ServerRestarter.class)));
-      if (!_isAlive(current.orElse(null)))
+      Optional<LanguageServerDescription> current = currentRef.get();
+
+      //noinspection OptionalAssignedToNull
+      if (current == null || !_isAlive(current.orElse(null)))  //NOSONAR null is a valid value, even it is not recommended
       {
-        PROJECT_LSP_CACHE.invalidate(projectPath);
-        current = PROJECT_LSP_CACHE.get(projectPath, () -> _startServer(prj, pLookup.lookup(ServerRestarter.class)));
+        current = _startServer(pLookup.lookup(ServerRestarter.class));
+        currentRef.set(current);
       }
 
       return current.orElse(null);
-    }
-    catch (ExecutionException e)
-    {
-      return null;
     }
   }
 
   /**
    * Starts the server for the given project
    *
-   * @param pProject project
    * @return the server description
    */
   @NotNull
-  private Optional<LanguageServerDescription> _startServer(@NotNull Project pProject, @Nullable ServerRestarter pServerRestarter)
+  private Optional<LanguageServerDescription> _startServer(@Nullable ServerRestarter pServerRestarter)
   {
     // Log Start
-    String projectPath = pProject.getProjectDirectory().getPath();
-    LOGGER.log(Level.INFO, "Starting TypeScript Language Server for project {0}", projectPath);
+    LOGGER.log(Level.INFO, "Starting TypeScript Language Server");
 
     // Reset IO, because of new server
-    InputOutput io = InputOutput.get("TypeScript Language Server for project " + ProjectUtils.getInformation(pProject).getDisplayName(), false);
+    InputOutput io = InputOutput.get("TypeScript Language Server", false);
     io.reset();
 
     // restarts
-    _handleRestartOnChange(pProject, pServerRestarter);
-
-    // nodejs provider for environment
-    INodeJSProvider nodeJSProvider = pProject.getLookup().lookup(INodeJSProvider.class);
-    if (nodeJSProvider == null)
-      return Optional.empty();
-
-    // retrieve environment with blocking first, because we restart the server anyway, if changed
-    INodeJSEnvironment env = nodeJSProvider.current().blockingFirst().orElse(null);
-    if (env == null)
-      return Optional.empty();
+    _handleRestartOnChange(pServerRestarter);
 
     // execute
-    return INodeJSExecutor.findInstance(pProject)
+    return Optional.of(BundledNodeJS.getInstance().getBundledExecutor())
         .map(pExec -> {
           try
           {
-            return pExec.execute(env, INodeJSExecBase.module(NEEDED_MODULE, "lib/cli.js"), "--stdio");
+            return pExec.execute(BundledNodeJS.getInstance().getBundledEnvironment(), INodeJSExecBase.module(NEEDED_MODULE, "lib/cli.js"), "--stdio");
           }
           catch (IOException e)
           {
@@ -112,41 +91,33 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   }
 
   /**
-   * Cares about restarting the Language-Server, if necessary
+   * Cares about restarting the Language-Server, if necessary.
+   * Not threadsafe!
    *
-   * @param pProject         Project to handle
    * @param pServerRestarter Restarter, NULL if there is no possibility to restart
    */
-  private void _handleRestartOnChange(@NotNull Project pProject, @Nullable ServerRestarter pServerRestarter)
+  private void _handleRestartOnChange(@Nullable ServerRestarter pServerRestarter)
   {
-    String projectPath = pProject.getProjectDirectory().getPath();
-
     // remove old disposable
-    Disposable oldDisposable = PROJECT_DISPOSABLES_MAP.remove(projectPath);
-    if (oldDisposable != null && !oldDisposable.isDisposed())
-      oldDisposable.dispose();
+    if (currentDisposable != null && !currentDisposable.isDisposed())
+      currentDisposable.dispose();
 
     // create new, if necessary
     if (pServerRestarter != null)
-    {
-      INodeJSProvider provider = pProject.getLookup().lookup(INodeJSProvider.class);
-      if (provider != null)
-        PROJECT_DISPOSABLES_MAP.put(projectPath, provider
-            .current()
-            .skip(1) // we only want changes, not the current one
-            .distinctUntilChanged()
-            .subscribe(pEnvOpt -> {
-              LOGGER.info("Restarting TypeScript Language Server for project " + projectPath + " because environment changed");
+      currentDisposable = FileFullObservable.create(BundledNodeJS.getInstance().getBundledNodeJSContainer())
+          .skip(1) // we only want changes, not the current one
+          .throttleLast(2, TimeUnit.SECONDS)
+          .subscribe(pEnvOpt -> {
+            LOGGER.info("Restarting TypeScript Language Server");
 
-              // Stop Server
-              Optional<LanguageServerDescription> currentServer = PROJECT_LSP_CACHE.getIfPresent(projectPath);
-              if (currentServer != null && currentServer.isPresent()) //NOSONAR null is a valid value, even it is not recommended
-                _stopServer(currentServer.get());
+            // Stop Server
+            Optional<LanguageServerDescription> currentServer = currentRef.get();
+            if (currentServer != null && currentServer.isPresent()) //NOSONAR null is a valid value, even it is not recommended
+              _stopServer(currentServer.get());
 
-              // Trigger Restart
-              pServerRestarter.restart();
-            }));
-    }
+            // Trigger Restart
+            pServerRestarter.restart();
+          });
   }
 
   /**
