@@ -78,11 +78,12 @@ class Test_NodeJSDownloaderImpl
     // test
     BiConsumer<String, NodeJSDownloaderImpl.OS_SUFFIX> testDownload = (pVersion, pSuf) -> {
       File target = new File("target/nodejsdownload_test/" + pSuf.getSuffix() + "/");
+      File binary = null;
 
       try
       {
-        File bin = downloader.downloadVersion(pVersion, target, pSuf);
-        if (bin.exists() && bin.isFile())
+        binary = downloader.downloadVersion(pVersion, target, pSuf);
+        if (binary.exists() && binary.isFile())
         {
           Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).info("Download valid, binary exists and is valid: " + pVersion);
           validDownloads.add(pVersion);
@@ -100,8 +101,8 @@ class Test_NodeJSDownloaderImpl
       }
 
       // Delete downloaded directory
-      if (target.exists())
-        FileUtils.deleteQuietly(target);
+      if (binary != null && binary.exists())
+        FileUtils.deleteQuietly(binary.getParentFile().getParentFile());
     };
 
     // execute async
