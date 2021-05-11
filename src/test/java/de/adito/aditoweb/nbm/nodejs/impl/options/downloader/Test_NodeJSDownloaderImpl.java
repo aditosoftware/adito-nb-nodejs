@@ -18,6 +18,7 @@ import java.util.stream.*;
 class Test_NodeJSDownloaderImpl
 {
 
+  private static final Logger _LOGGER = Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName());
   private NodeJSDownloaderImpl downloader;
 
   @BeforeEach
@@ -85,24 +86,28 @@ class Test_NodeJSDownloaderImpl
         binary = downloader.downloadVersion(pVersion, target, pSuf);
         if (binary.exists() && binary.isFile())
         {
-          Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).info("Download valid, binary exists and is valid: " + pVersion);
+          _LOGGER.info("Download valid, binary exists and is valid: " + pVersion);
           validDownloads.add(pVersion);
         }
         else
         {
-          Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).warning("Download invalid, because binary does not exist or is invalid: " + pVersion);
+          _LOGGER.warning("Download invalid, because binary does not exist or is invalid: " + pVersion);
           invalidDownloads.add(pVersion);
         }
       }
       catch (Exception e)
       {
-        Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).log(Level.WARNING, "Download invalid, because of an exception: " + pVersion, e);
+        _LOGGER.log(Level.WARNING, "Download invalid, because of an exception: " + pVersion, e);
         invalidDownloads.add(pVersion);
       }
 
       // Delete downloaded directory
       if (binary != null && binary.exists())
-        FileUtils.deleteQuietly(binary.getParentFile().getParentFile());
+      {
+        File fileToDelete = binary.getParentFile().getParentFile();
+        _LOGGER.info("Deleting previously used directory: " + fileToDelete.getAbsolutePath());
+        FileUtils.deleteQuietly(fileToDelete);
+      }
     };
 
     // execute async
