@@ -35,11 +35,12 @@ public class NodeJSInstaller implements Runnable
   /**
    * Downloads all necessary libraries asynchronously
    */
+  @NbBundle.Messages("LBL_Progress_DownloadLibraries=Downloading Libraries...")
   private void _downloadLibraries()
   {
     // only show if ready, so the progresshandle will show up
     SwingUtilities.invokeLater(() -> RequestProcessor.getDefault().submit(() -> {
-      try (ProgressHandle handle = ProgressHandleFactory.createSystemHandle(NbBundle.getMessage(NodeJSInstaller.class, "LBL_Progress_DownloadLibraries"), null))
+      try (ProgressHandle handle = ProgressHandleFactory.createSystemHandle(Bundle.LBL_Progress_DownloadLibraries(), null))
       {
         // handle progress
         handle.start();
@@ -61,6 +62,7 @@ public class NodeJSInstaller implements Runnable
    *
    * @param pHandle Progress
    */
+  @NbBundle.Messages("LBL_Progress_Download_Execute=Downloading NodeJS {0}...")
   protected void downloadBundledNodeJS(@NotNull ProgressHandle pHandle) throws IOException
   {
     // do not download or update anything, if the nodejs container folder already exists and integrity is ok
@@ -70,7 +72,7 @@ public class NodeJSInstaller implements Runnable
       return;
 
     // download
-    pHandle.progress(NbBundle.getMessage(NodeJSInstaller.class, "LBL_Progress_Download_Execute", version));
+    pHandle.progress(Bundle.LBL_Progress_Download_Execute(version));
     INodeJSDownloader downloader = INodeJSDownloader.getInstance();
     File binFile = downloader.downloadVersion(version, target.getParentFile());
     File nodeVersionContainer = downloader.findInstallationFromNodeExecutable(binFile);
@@ -95,6 +97,10 @@ public class NodeJSInstaller implements Runnable
    *
    * @param pHandle Progress
    */
+  @NbBundle.Messages({
+      "LBL_Progress_Download_TypeScript=Downloading typescript-language-server...",
+      "LBL_Progress_Update_TypeScript=Updating typescript-language-server..."
+  })
   protected void downloadOrUpdateBundledTypeScript(@NotNull ProgressHandle pHandle) throws IOException, InterruptedException, TimeoutException
   {
     File target = BundledNodeJS.getInstance().getBundledNodeJSContainer();
@@ -111,11 +117,11 @@ public class NodeJSInstaller implements Runnable
     String module = TypeScriptLanguageServerProvider.NEEDED_MODULE;
 
     // Install
-    pHandle.progress(NbBundle.getMessage(NodeJSInstaller.class, "LBL_Progress_Download_TypeScript"));
+    pHandle.progress(Bundle.LBL_Progress_Download_TypeScript());
     executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(), module);
 
     // Update
-    pHandle.progress(NbBundle.getMessage(NodeJSInstaller.class, "LBL_Progress_Update_TypeScript"));
+    pHandle.progress(Bundle.LBL_Progress_Update_TypeScript());
     executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "update", "--prefix", target.getAbsolutePath(), module);
   }
 
