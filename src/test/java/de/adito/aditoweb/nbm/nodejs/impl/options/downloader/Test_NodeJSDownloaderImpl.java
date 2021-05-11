@@ -1,5 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options.downloader;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.openide.util.Pair;
 
@@ -8,7 +9,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import java.util.stream.*;
 
 /**
@@ -70,21 +71,36 @@ class Test_NodeJSDownloaderImpl
   @Test
   void test_download() throws Exception
   {
-    List<File> validDownloads = new ArrayList<>();
+    List<String> validDownloads = new ArrayList<>();
     List<String> invalidDownloads = new ArrayList<>();
 
     // test
     BiConsumer<String, NodeJSDownloaderImpl.OS_SUFFIX> testDownload = (pVersion, pSuf) -> {
+      File target = new File("target/nodejsdownload_test/" + pSuf.getSuffix() + "/");
+
       try
       {
-        File bin = downloader.downloadVersion(pVersion, new File("target/nodejsdownload_test/" + pSuf.getSuffix() + "/"), pSuf);
-        validDownloads.add(bin);
+        File bin = downloader.downloadVersion(pVersion, target, pSuf);
+        if (bin.exists() && bin.isFile())
+        {
+          Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).info("Download valid, binary exists and is valid: " + pVersion);
+          validDownloads.add(pVersion);
+        }
+        else
+        {
+          Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).warning("Download invalid, because binary does not exist or is invalid: " + pVersion);
+          invalidDownloads.add(pVersion);
+        }
       }
       catch (Exception e)
       {
-        Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).warning("Download invalid: " + pVersion);
+        Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).log(Level.WARNING, "Download invalid, because of an exception: " + pVersion, e);
         invalidDownloads.add(pVersion);
       }
+
+      // Delete downloaded directory
+      if (target.exists())
+        FileUtils.deleteQuietly(target);
     };
 
     // execute async
@@ -100,10 +116,5 @@ class Test_NodeJSDownloaderImpl
     // check
     Assertions.assertTrue(invalidDownloads.isEmpty());
     Assertions.assertFalse(validDownloads.isEmpty());
-    for (File downloadedBin : validDownloads)
-    {
-      Assertions.assertTrue(downloadedBin.exists());
-      Assertions.assertTrue(downloadedBin.isFile());
-    }
   }
 }
