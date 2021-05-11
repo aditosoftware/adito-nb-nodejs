@@ -32,6 +32,12 @@ class Test_NodeJSExecutorImpl
   }
 
   @Test
+  void test_npmVersion() throws Exception
+  {
+    Assertions.assertEquals("7.6.3", executor.executeSync(env, INodeJSExecBase.packageManager(), 2000, "--version"));
+  }
+
+  @Test
   void test_resolvBase()
   {
     Assertions.assertTrue(env.resolveExecBase(INodeJSExecBase.node()).exists());

@@ -2,6 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.options.downloader;
 
 import lombok.Getter;
 import org.apache.commons.io.IOUtils;
+import org.buildobjects.process.ProcBuilder;
 import org.jetbrains.annotations.*;
 import org.openide.util.BaseUtilities;
 import org.rauschig.jarchivelib.*;
@@ -101,15 +102,7 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
       throw new IOException("Failed to extract downloaded archive, because it does not exist (" + downloadedFile + ")");
 
     // Extract
-    Archiver factory = ArchiverFactory.createArchiver(downloadedFile);
-    factory.extract(downloadedFile, pTarget);
-
-    // Get Folder
-    File extractedFolder;
-    try (ArchiveStream stream = factory.stream(downloadedFile))
-    {
-      extractedFolder = new File(pTarget, stream.getNextEntry().getName());
-    }
+    File extractedFolder = _extractWithLinks(downloadedFile, pTarget);
 
     // Delete Download
     Files.delete(downloadedFile.toPath());
@@ -133,6 +126,45 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
   protected String getDownloadURL(@NotNull String pVersion, @NotNull OS_SUFFIX pOS)
   {
     return _NODEJS_URL + pVersion + "/node-" + pVersion + "-" + pOS.getSuffix() + pOS.getFileEnding();
+  }
+
+  /**
+   * Extracts the given file to pTarget and respects links in the downloaded zip
+   *
+   * @param pFile   File to extract
+   * @param pTarget Target folder
+   * @return the extracted folder
+   */
+  @NotNull
+  private File _extractWithLinks(@NotNull File pFile, @NotNull File pTarget) throws IOException
+  {
+    Archiver factory = ArchiverFactory.createArchiver(pFile);
+
+    //noinspection ResultOfMethodCallIgnored
+    pTarget.mkdirs();
+
+    try
+    {
+      // try "tar" command on linux and mac, because of symlinks
+      new ProcBuilder("tar", "-xzf", pFile.getAbsolutePath())
+          .withWorkingDirectory(pTarget)
+          .withNoTimeout()
+          .run();
+    }
+    catch (Exception e)
+    {
+      // if an exception happens, then use jarchivelib - we should now be on windows (and windows does not have something like symlinks)
+      factory.extract(pFile, pTarget);
+    }
+
+    // Get first extracted folder, because the node zip contains a subfolder..
+    File extractedFolder;
+    try (ArchiveStream stream = factory.stream(pFile))
+    {
+      extractedFolder = new File(pTarget, stream.getNextEntry().getName());
+    }
+
+    return extractedFolder;
   }
 
   /**
