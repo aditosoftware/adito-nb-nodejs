@@ -1,5 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.version;
 
+import com.google.common.base.Strings;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.NodeJSExecutorImpl;
 import lombok.ToString;
@@ -58,18 +59,17 @@ public class NodeJSEnvironmentFactory
     @Override
     public File resolveExecBase(@NotNull INodeJSExecBase pBase)
     {
-      // try with casual base path
-      File executable = new File(nodejsBinary.getParentFile(), pBase.getBasePath());
+      String extension = "";
+      if (BaseUtilities.isWindows())
+        extension = pBase.getWindowsExt();
+      else if (BaseUtilities.isUnix())
+        extension = pBase.getLinuxExt();
+      else if (BaseUtilities.isMac())
+        extension = pBase.getMacExt();
+
+      File executable = new File(nodejsBinary.getParentFile(), pBase.getBasePath() + (Strings.isNullOrEmpty(extension) ? "" : "." + extension));
       if (executable.exists())
         return executable;
-
-      // not found - maybe add .exe on windows?
-      if (BaseUtilities.isWindows())
-      {
-        executable = new File(nodejsBinary.getParentFile(), pBase.getBasePath() + ".exe");
-        if (executable.exists())
-          return executable;
-      }
 
       // not found
       throw new IllegalStateException("Unable to determine absolute path of execution base (" + pBase.getBasePath() + ", " +
