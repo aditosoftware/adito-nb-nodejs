@@ -74,7 +74,7 @@ class Test_NodeJSDownloaderImpl
   {
     List<String> validDownloads = new ArrayList<>();
     List<String> invalidDownloads = new ArrayList<>();
-    ExecutorService executor = Executors.newFixedThreadPool(8);
+    ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // test
     BiConsumer<String, NodeJSDownloaderImpl.OS_SUFFIX> testDownload = (pVersion, pSuf) -> {
