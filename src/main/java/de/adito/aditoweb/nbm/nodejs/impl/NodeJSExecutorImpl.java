@@ -115,6 +115,9 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
           .withNoTimeout()
           .ignoreExitStatus();
 
+      // log command
+      _logCommand(builder, pDefaultOut);
+
       return builder.run().getExitValue();
     }, processExecutor);
   }
@@ -141,6 +144,26 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
   private File _getCommandPath(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase)
   {
     return pBase.isRelativeToWorkingDir() ? new File(workingDir, pBase.getBasePath()) : pEnv.resolveExecBase(pBase);
+  }
+
+  /**
+   * Logs the command of the given proc builder to the given output stream
+   *
+   * @param pBuilder Builder
+   * @param pOut     Stream to log to
+   */
+  private void _logCommand(@NotNull ProcBuilder pBuilder, @NotNull OutputStream pOut)
+  {
+    try
+    {
+      pOut.write(pBuilder.getCommandLine().getBytes(StandardCharsets.UTF_8));
+      pOut.write('\n');
+      pOut.flush();
+    }
+    catch (Exception e)
+    {
+      // do nothing, just dont log
+    }
   }
 
 }
