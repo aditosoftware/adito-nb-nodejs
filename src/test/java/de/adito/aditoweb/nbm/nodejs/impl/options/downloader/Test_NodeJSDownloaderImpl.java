@@ -83,6 +83,7 @@ class Test_NodeJSDownloaderImpl
 
       try
       {
+        _LOGGER.info("Downloading version " + pVersion + " into " + target.getAbsolutePath() + " on " + pSuf.getDisplayName());
         binary = downloader.downloadVersion(pVersion, target, pSuf);
         if (binary.exists() && binary.isFile())
         {
