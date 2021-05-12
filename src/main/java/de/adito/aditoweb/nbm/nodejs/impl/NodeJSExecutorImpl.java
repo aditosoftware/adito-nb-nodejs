@@ -99,10 +99,12 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
   @Override
   public CompletableFuture<Integer> executeAsync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase,
                                                  @NotNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
-                                                 @NotNull String... pParams) throws IOException
+                                                 @NotNull String... pParams)
   {
-    // Invalid Environment
-    _checkValid(pEnv);
+    // execute
+    return CompletableFuture.supplyAsync(() -> {
+      // Invalid Environment
+      _checkValid(pEnv);
 
       // Prepare Process
       ProcBuilder builder = new ProcBuilder(_getCommandPath(pEnv, pBase).getAbsolutePath(), pParams)
@@ -113,8 +115,8 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
           .withNoTimeout()
           .ignoreExitStatus();
 
-    // execute
-    return CompletableFuture.supplyAsync(() -> builder.run().getExitValue(), processExecutor);
+      return builder.run().getExitValue();
+    }, processExecutor);
   }
 
   /**
