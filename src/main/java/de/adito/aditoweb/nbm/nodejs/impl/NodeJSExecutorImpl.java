@@ -104,14 +104,14 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     // Invalid Environment
     _checkValid(pEnv);
 
-    // Prepare Process
-    ProcBuilder builder = new ProcBuilder(_getCommandPath(pEnv, pBase).getAbsolutePath(), pParams)
-        .withWorkingDirectory(workingDir)
-        .withOutputStream(pDefaultOut)
-        .withErrorStream(pErrorOut == null ? pDefaultOut : pErrorOut)
-        .withInputStream(pDefaultIn)
-        .withNoTimeout()
-        .ignoreExitStatus();
+      // Prepare Process
+      ProcBuilder builder = new ProcBuilder(_getCommandPath(pEnv, pBase).getAbsolutePath(), pParams)
+          .withWorkingDirectory(workingDir)
+          .withOutputStream(pDefaultOut)
+          .withErrorStream(pErrorOut == null ? pDefaultOut : pErrorOut)
+          .withInputStream(pDefaultIn)
+          .withNoTimeout()
+          .ignoreExitStatus();
 
     // execute
     return CompletableFuture.supplyAsync(() -> builder.run().getExitValue(), processExecutor);
@@ -121,12 +121,11 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
    * Checks if the given environment is valid
    *
    * @param pEnv environment to check
-   * @throws IOException exception if invalid
    */
-  private void _checkValid(@NotNull INodeJSEnvironment pEnv) throws IOException
+  private void _checkValid(@NotNull INodeJSEnvironment pEnv)
   {
     if (!pEnv.isValid())
-      throw new IOException("Failed to execute command on nodejs, because version is invalid (" + pEnv + ")");
+      throw new IllegalStateException("Failed to execute command on nodejs, because version is invalid (" + pEnv + ")");
   }
 
   /**
