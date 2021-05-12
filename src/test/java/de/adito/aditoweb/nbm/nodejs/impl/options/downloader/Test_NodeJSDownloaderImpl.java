@@ -114,7 +114,8 @@ class Test_NodeJSDownloaderImpl
     };
 
     // execute async
-    downloader.getAvailableVersions().forEach(pVersion -> CompletableFuture.runAsync(() -> testDownload.accept(pVersion), executor));
+    List<String> availableVersions = downloader.getAvailableVersions();
+    availableVersions.forEach(pVersion -> CompletableFuture.runAsync(() -> testDownload.accept(pVersion), executor));
 
     // await all
     executor.shutdown();
@@ -124,6 +125,6 @@ class Test_NodeJSDownloaderImpl
 
     // check
     Assertions.assertTrue(invalidDownloads.isEmpty());
-    Assertions.assertFalse(validDownloads.isEmpty());
+    Assertions.assertTrue(validDownloads.containsAll(availableVersions), invalidDownloads::toString);
   }
 }
