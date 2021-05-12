@@ -65,8 +65,8 @@ class Test_NodeJSDownloaderImpl
     CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
 
     // check
-    Assertions.assertFalse(validURLs.isEmpty());
-    Assertions.assertTrue(invalidURLs.isEmpty());
+    Assertions.assertFalse(validURLs.isEmpty(), invalidURLs::toString);
+    Assertions.assertTrue(invalidURLs.isEmpty(), invalidURLs::toString);
   }
 
   @Test
@@ -124,7 +124,7 @@ class Test_NodeJSDownloaderImpl
     executor.awaitTermination(30, TimeUnit.MINUTES);
 
     // check
-    Assertions.assertTrue(invalidDownloads.isEmpty());
+    Assertions.assertTrue(invalidDownloads.isEmpty(), invalidDownloads::toString);
     Assertions.assertTrue(validDownloads.containsAll(availableVersions), invalidDownloads::toString);
   }
 }
