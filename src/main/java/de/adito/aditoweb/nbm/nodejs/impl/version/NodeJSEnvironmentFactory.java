@@ -125,7 +125,7 @@ public class NodeJSEnvironmentFactory
     @NotNull
     private String _readVersion() throws IOException, InterruptedException, TimeoutException
     {
-      return NodeJSExecutorImpl.getInternalUnboundExecutor(new File(".")).executeSync(new INodeJSEnvironment()
+      String result = NodeJSExecutorImpl.getInternalUnboundExecutor(new File(".")).executeSync(new INodeJSEnvironment()
       {
         @NotNull
         @Override
@@ -154,6 +154,12 @@ public class NodeJSEnvironmentFactory
           return true;
         }
       }, INodeJSExecBase.node(), 2000, "--version");
+
+      // only read last line, because this line contains the version
+      String[] lines = result.split("\n");
+      if (lines.length == 0)
+        return "";
+      return lines[lines.length - 1];
     }
   }
 
