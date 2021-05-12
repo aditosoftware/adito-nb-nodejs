@@ -6,6 +6,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
+import java.util.stream.Stream;
 
 /**
  * @author w.glanzer, 19.03.2021
@@ -28,17 +29,23 @@ class Test_NodeJSExecutorImpl
   @Test
   void test_executeSimple() throws Exception
   {
-    Assertions.assertEquals("v15.12.0", executor.executeSync(env, INodeJSExecBase.node(), 30000, "--version"));
+    Assertions.assertEquals("v15.12.0", Stream.of(executor.executeSync(env, INodeJSExecBase.node(), 30000, "--version").split("\n"))
+        .skip(1)
+        .findFirst()
+        .orElse(null));
   }
 
   @Test
   void test_npmVersion() throws Exception
   {
-    Assertions.assertEquals("7.6.3", executor.executeSync(env, INodeJSExecBase.packageManager(), 30000, "--version"));
+    Assertions.assertEquals("7.6.3", Stream.of(executor.executeSync(env, INodeJSExecBase.packageManager(), 30000, "--version").split("\n"))
+        .skip(1)
+        .findFirst()
+        .orElse(null));
   }
 
   @Test
-  void test_resolvBase()
+  void test_resolveBase()
   {
     Assertions.assertTrue(env.resolveExecBase(INodeJSExecBase.node()).exists());
     Assertions.assertTrue(env.resolveExecBase(INodeJSExecBase.packageManager()).exists());
