@@ -28,7 +28,7 @@ import java.util.function.*;
  *
  * @author w.glanzer, 08.03.2021
  */
-public class NodeJSOptionsPanel extends JPanel
+public class NodeJSOptionsPanel extends JPanel implements Scrollable
 {
   private static final String _DEFAULT_PATH = System.getProperty("user.home") + "/.nodejs-versions";
 
@@ -69,6 +69,36 @@ public class NodeJSOptionsPanel extends JPanel
 
     // Version reader
     tlu.add(2, 4, _createVersionLabel());
+  }
+
+  @Override
+  public Dimension getPreferredScrollableViewportSize()
+  {
+    return getPreferredSize();
+  }
+
+  @Override
+  public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction)
+  {
+    return 16;
+  }
+
+  @Override
+  public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction)
+  {
+    return 16;
+  }
+
+  @Override
+  public boolean getScrollableTracksViewportWidth()
+  {
+    return true;
+  }
+
+  @Override
+  public boolean getScrollableTracksViewportHeight()
+  {
+    return false;
   }
 
   /**
