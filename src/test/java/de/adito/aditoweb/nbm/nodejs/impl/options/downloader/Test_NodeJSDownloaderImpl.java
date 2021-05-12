@@ -8,7 +8,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.*;
+import java.util.function.Consumer;
 import java.util.logging.*;
 import java.util.stream.*;
 
@@ -77,14 +77,14 @@ class Test_NodeJSDownloaderImpl
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // test
-    BiConsumer<String, NodeJSDownloaderImpl.OS_SUFFIX> testDownload = (pVersion, pSuf) -> {
-      File target = new File("target/nodejsdownload_test/" + pSuf.getSuffix() + "/");
+    Consumer<String> testDownload = (pVersion) -> {
+      File target = new File("target/nodejsdownload_test/");
       File binary = null;
 
       try
       {
-        _LOGGER.info("Downloading version " + pVersion + " into " + target.getAbsolutePath() + " on " + pSuf.getDisplayName());
-        binary = downloader.downloadVersion(pVersion, target, pSuf);
+        _LOGGER.info("Downloading version " + pVersion + " into " + target.getAbsolutePath());
+        binary = downloader.downloadVersion(pVersion, target);
         if (binary.exists() && binary.isFile())
         {
           _LOGGER.info("Download valid, binary exists and is valid: " + pVersion);
@@ -114,9 +114,7 @@ class Test_NodeJSDownloaderImpl
     };
 
     // execute async
-    downloader.getAvailableVersions().stream()
-        .flatMap(pVersion -> Stream.of(NodeJSDownloaderImpl.OS_SUFFIX.values()).map(pSuf -> Pair.of(pVersion, pSuf)))
-        .forEach(pPair -> CompletableFuture.runAsync(() -> testDownload.accept(pPair.first(), pPair.second()), executor));
+    downloader.getAvailableVersions().forEach(pVersion -> CompletableFuture.runAsync(() -> testDownload.accept(pVersion), executor));
 
     // await all
     executor.shutdown();

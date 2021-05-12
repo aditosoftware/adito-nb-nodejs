@@ -79,7 +79,20 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
   @Override
   public File downloadVersion(@NotNull String pVersion, @NotNull File pTarget) throws IOException
   {
-    return downloadVersion(pVersion, pTarget, OS_SUFFIX.getCurrent());
+    return _downloadVersion(pVersion, pTarget, OS_SUFFIX.getCurrent());
+  }
+
+  /**
+   * Constructs a download url to download the appropriate version
+   *
+   * @param pVersion Version (from getAvailableVersions())
+   * @param pOS      OS-Type to download
+   * @return the URL
+   */
+  @NotNull
+  protected String getDownloadURL(@NotNull String pVersion, @NotNull OS_SUFFIX pOS)
+  {
+    return _NODEJS_URL + pVersion + "/node-" + pVersion + "-" + pOS.getSuffix() + pOS.getFileEnding();
   }
 
   /**
@@ -91,7 +104,7 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
    * @return the binary nodejs target
    */
   @NotNull
-  protected File downloadVersion(@NotNull String pVersion, @NotNull File pTarget, @NotNull OS_SUFFIX pOsType) throws IOException
+  private File _downloadVersion(@NotNull String pVersion, @NotNull File pTarget, @NotNull OS_SUFFIX pOsType) throws IOException
   {
     File downloadedFile = new File(pTarget, pVersion + pOsType.getFileEnding());
 
@@ -120,19 +133,6 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
       throw new IOException("Downloaded nodejs did not contain a valid nodejs binary (" + extractedFolder + ")");
 
     return binary;
-  }
-
-  /**
-   * Constructs a download url to download the appropriate version
-   *
-   * @param pVersion Version (from getAvailableVersions())
-   * @param pOS      OS-Type to download
-   * @return the URL
-   */
-  @NotNull
-  protected String getDownloadURL(@NotNull String pVersion, @NotNull OS_SUFFIX pOS)
-  {
-    return _NODEJS_URL + pVersion + "/node-" + pVersion + "-" + pOS.getSuffix() + pOS.getFileEnding();
   }
 
   /**
