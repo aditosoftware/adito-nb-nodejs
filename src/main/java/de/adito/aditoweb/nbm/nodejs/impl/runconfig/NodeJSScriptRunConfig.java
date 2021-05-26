@@ -2,11 +2,13 @@ package de.adito.aditoweb.nbm.nodejs.impl.runconfig;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.nbm.runconfig.api.*;
+import de.adito.nbm.runconfig.spi.IActiveConfigComponentProvider;
+import de.adito.observables.netbeans.LookupResultObservable;
 import io.reactivex.rxjava3.core.Observable;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.project.Project;
+import org.netbeans.api.project.*;
 import org.openide.windows.*;
 
 import java.io.OutputStream;
@@ -43,7 +45,12 @@ class NodeJSScriptRunConfig implements IRunConfig
   @Override
   public Observable<String> displayName()
   {
-    return Observable.just(scriptName);
+    return LookupResultObservable.create(project.getLookup(), ProjectInformation.class)
+        .map(pProjectInformations -> pProjectInformations.stream()
+            .findFirst()
+            .map(pInfo -> IActiveConfigComponentProvider.DISPLAY_NAME_SEPARATOR + pInfo.getDisplayName())
+            .orElse(""))
+        .map(pProjectNameSuffix -> scriptName + pProjectNameSuffix);
   }
 
   @Override
