@@ -76,7 +76,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
         .map(pExec -> {
           try
           {
-            return pExec.execute(BundledNodeJS.getInstance().getBundledEnvironment(), INodeJSExecBase.module(NEEDED_MODULE, "lib/cli.js"), "--stdio");
+            return pExec.execute(BundledNodeJS.getInstance().getBundledEnvironment(), INodeJSExecBase.node(), "node_modules/" + NEEDED_MODULE + "/lib/cli.js", "--stdio");
           }
           catch (IOException e)
           {

@@ -116,6 +116,12 @@ public class NodeJSInstaller implements Runnable
     INodeJSEnvironment environment = BundledNodeJS.getInstance().getBundledEnvironment();
     String module = TypeScriptLanguageServerProvider.NEEDED_MODULE;
 
+    pHandle.progress(Bundle.LBL_Progress_Download_TypeScript());
+    executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(),"npm");
+
+    pHandle.progress(Bundle.LBL_Progress_Download_TypeScript());
+    executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(), "typescript");
+
     // Install
     pHandle.progress(Bundle.LBL_Progress_Download_TypeScript());
     executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(), module);
