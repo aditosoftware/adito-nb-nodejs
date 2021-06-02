@@ -1,7 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSExecBase;
-import de.adito.aditoweb.nbm.nodejs.impl.BundledNodeJS;
+import de.adito.aditoweb.nbm.nodejs.impl.*;
 import de.adito.observables.netbeans.FileFullObservable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.*;
@@ -24,7 +24,6 @@ import java.util.logging.*;
 @MimeRegistration(mimeType = "text/typescript", service = LanguageServerProvider.class)
 public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 {
-  public static final String NEEDED_MODULE = "typescript-language-server";
   private static final long STARTUP_DELAY = 10000;
   private static final RequestProcessor WORKER = new RequestProcessor(TypeScriptLanguageServerProvider.class.getName(), Integer.MAX_VALUE, false, false);
   private static final Logger LOGGER = Logger.getLogger(TypeScriptLanguageServerProvider.class.getName());
@@ -76,7 +75,8 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
         .map(pExec -> {
           try
           {
-            return pExec.execute(BundledNodeJS.getInstance().getBundledEnvironment(), INodeJSExecBase.node(), "node_modules/" + NEEDED_MODULE + "/lib/cli.js", "--stdio");
+            return pExec.execute(BundledNodeJS.getInstance().getBundledEnvironment(), INodeJSExecBase.node(),
+                                 "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER + "/lib/cli.js", "--stdio");
           }
           catch (IOException e)
           {

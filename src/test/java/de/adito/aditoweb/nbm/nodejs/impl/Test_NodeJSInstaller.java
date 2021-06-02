@@ -1,6 +1,5 @@
 package de.adito.aditoweb.nbm.nodejs.impl;
 
-import de.adito.aditoweb.nbm.nodejs.impl.ls.TypeScriptLanguageServerProvider;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
@@ -55,7 +54,7 @@ class Test_NodeJSInstaller
     installer.downloadBundledNodeJS(handle);
     installer.downloadOrUpdateBundledTypeScript(handle);
 
-    File module = new File(target, "node_modules/" + TypeScriptLanguageServerProvider.NEEDED_MODULE);
+    File module = new File(target, "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER);
     Assertions.assertTrue(module.exists());
     Assertions.assertTrue(module.isDirectory());
   }

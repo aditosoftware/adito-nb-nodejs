@@ -1,7 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
-import de.adito.aditoweb.nbm.nodejs.impl.ls.TypeScriptLanguageServerProvider;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +12,7 @@ import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.*;
 
@@ -98,8 +98,8 @@ public class NodeJSInstaller implements Runnable
    * @param pHandle Progress
    */
   @NbBundle.Messages({
-      "LBL_Progress_Download_TypeScript=Downloading typescript-language-server...",
-      "LBL_Progress_Update_TypeScript=Updating typescript-language-server..."
+      "LBL_Progress_Download=Downloading {0}...",
+      "LBL_Progress_Update=Updating {0}..."
   })
   protected void downloadOrUpdateBundledTypeScript(@NotNull ProgressHandle pHandle) throws IOException, InterruptedException, TimeoutException
   {
@@ -112,23 +112,27 @@ public class NodeJSInstaller implements Runnable
     new File(target, "node_modules").mkdir();
 
     // prepare
+    List<String> packagesToInstall = IBundledPackages.getPreinstalledPackages();
+    pHandle.switchToDeterminate(packagesToInstall.size());
     INodeJSExecutor executor = BundledNodeJS.getInstance().getBundledExecutor();
     INodeJSEnvironment environment = BundledNodeJS.getInstance().getBundledEnvironment();
-    String module = TypeScriptLanguageServerProvider.NEEDED_MODULE;
 
-    pHandle.progress(Bundle.LBL_Progress_Download_TypeScript());
-    executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(),"npm");
+    // download and install all "preinstalled" packages, so they will be available at runtime
+    for (int i = 0; i < packagesToInstall.size(); i++)
+    {
+      String pkg = packagesToInstall.get(i);
 
-    pHandle.progress(Bundle.LBL_Progress_Download_TypeScript());
-    executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(), "typescript");
+      // Install
+      pHandle.progress(Bundle.LBL_Progress_Download(pkg));
+      executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(), pkg);
 
-    // Install
-    pHandle.progress(Bundle.LBL_Progress_Download_TypeScript());
-    executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(), module);
+      // Update
+      pHandle.progress(Bundle.LBL_Progress_Update(pkg));
+      executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "update", "--prefix", target.getAbsolutePath(), pkg);
 
-    // Update
-    pHandle.progress(Bundle.LBL_Progress_Update_TypeScript());
-    executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "update", "--prefix", target.getAbsolutePath(), module);
+      // Progress
+      pHandle.progress(i + 1);
+    }
   }
 
   /**
