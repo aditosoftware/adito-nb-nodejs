@@ -6,6 +6,7 @@ import org.buildobjects.process.ProcBuilder;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.BaseUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.io.*;
@@ -19,6 +20,7 @@ import java.util.concurrent.*;
 @ServiceProvider(service = INodeJSExecutor.class, path = "Projects/de-adito-project/Lookup")
 public class NodeJSExecutorImpl implements INodeJSExecutor
 {
+  private static final String _PATH_ENVIRONMENT = "PATH";
 
   private final File workingDir;
   private final ExecutorService processExecutor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
@@ -107,8 +109,20 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
       _checkValid(pEnv);
 
       // Prepare Process
-      ProcBuilder builder = new ProcBuilder(_getCommandPath(pEnv, pBase).getAbsolutePath(), pParams)
-          .withWorkingDirectory(workingDir)
+      ProcBuilder builder = new ProcBuilder(_getCommandPath(pEnv, pBase).getAbsolutePath(), pParams);
+
+      // set all environments variables
+      for (Map.Entry<String, String> entry : System.getenv().entrySet())
+      {
+        String key = entry.getKey();
+        // modify path with our node environment
+        if (key.equalsIgnoreCase(_PATH_ENVIRONMENT))
+          builder.withVar(_PATH_ENVIRONMENT, entry.getValue() + _getSeparator() + pEnv.getPath().getParent());
+        else
+          builder.withVar(entry.getKey(), entry.getValue());
+      }
+
+      builder.withWorkingDirectory(workingDir)
           .withOutputStream(pDefaultOut)
           .withErrorStream(pErrorOut == null ? pDefaultOut : pErrorOut)
           .withInputStream(pDefaultIn)
@@ -120,6 +134,14 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
 
       return builder.run().getExitValue();
     }, processExecutor);
+  }
+
+  @NotNull
+  private String _getSeparator()
+  {
+    if (BaseUtilities.isWindows())
+      return ";";
+    return ":";
   }
 
   /**
