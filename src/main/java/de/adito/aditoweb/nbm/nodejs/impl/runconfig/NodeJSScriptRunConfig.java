@@ -3,12 +3,13 @@ package de.adito.aditoweb.nbm.nodejs.impl.runconfig;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.nbm.runconfig.api.*;
 import de.adito.nbm.runconfig.spi.IActiveConfigComponentProvider;
-import de.adito.observables.netbeans.LookupResultObservable;
+import de.adito.observables.netbeans.*;
 import io.reactivex.rxjava3.core.Observable;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.project.*;
+import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.windows.*;
 
 import java.io.OutputStream;
@@ -45,12 +46,20 @@ class NodeJSScriptRunConfig implements IRunConfig
   @Override
   public Observable<String> displayName()
   {
-    return LookupResultObservable.create(project.getLookup(), ProjectInformation.class)
-        .map(pProjectInformations -> pProjectInformations.stream()
-            .findFirst()
-            .map(pInfo -> IActiveConfigComponentProvider.DISPLAY_NAME_SEPARATOR + pInfo.getDisplayName())
-            .orElse(""))
-        .map(pProjectNameSuffix -> scriptName + pProjectNameSuffix);
+    return OpenProjectsObservable.create()
+        .switchMap(pProjects -> {
+          if (pProjects.size() > 1)
+            return ProjectObservable.createInfos(project)
+                .map(ProjectInformation::getDisplayName)
+                .map(pName -> " (" + pName + ")");
+          return Observable.just("");
+        })
+        .map(pProjectName -> {
+          String text = scriptName;
+          if (pProjectName.trim().isEmpty())
+            return text;
+          return text + IActiveConfigComponentProvider.DISPLAY_NAME_SEPARATOR + pProjectName;
+        });
   }
 
   @Override
