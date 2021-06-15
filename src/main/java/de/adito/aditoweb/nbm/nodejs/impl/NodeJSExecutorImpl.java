@@ -117,7 +117,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
         String key = entry.getKey();
         // modify path with our node environment
         if (key.equalsIgnoreCase(_PATH_ENVIRONMENT))
-          builder.withVar(_PATH_ENVIRONMENT, entry.getValue() + _getSeparator() + pEnv.getPath().getParent());
+          builder.withVar(_PATH_ENVIRONMENT, pEnv.getPath().getParent() + _getSeparator() + entry.getValue());
         else
           builder.withVar(entry.getKey(), entry.getValue());
       }
