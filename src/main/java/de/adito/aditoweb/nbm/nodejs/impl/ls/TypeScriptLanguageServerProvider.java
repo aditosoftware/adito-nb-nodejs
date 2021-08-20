@@ -6,7 +6,7 @@ import de.adito.notification.INotificationFacade;
 import de.adito.observables.netbeans.FileFullObservable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.*;
-import org.netbeans.api.editor.mimelookup.MimeRegistration;
+import org.netbeans.api.editor.mimelookup.*;
 import org.netbeans.api.io.InputOutput;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.lsp.client.LanguageServerProviderAccessor;
@@ -22,7 +22,10 @@ import java.util.logging.*;
 /**
  * @author w.glanzer, 10.03.2021
  */
-@MimeRegistration(mimeType = "text/typescript", service = LanguageServerProvider.class)
+@MimeRegistrations({
+    @MimeRegistration(mimeType = "text/typescript", service = LanguageServerProvider.class),
+    @MimeRegistration(mimeType = "text/javascript", service = LanguageServerProvider.class),
+})
 public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 {
   private static final long STARTUP_DELAY = 10000;
