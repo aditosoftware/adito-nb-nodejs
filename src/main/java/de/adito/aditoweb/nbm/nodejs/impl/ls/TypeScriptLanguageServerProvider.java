@@ -1,7 +1,8 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
-import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSExecBase;
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.*;
+import de.adito.notification.INotificationFacade;
 import de.adito.observables.netbeans.FileFullObservable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.*;
@@ -30,6 +31,10 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   private final AtomicReference<Optional<LanguageServerDescription>> currentRef = new AtomicReference<>(null);
   private Disposable currentDisposable;
 
+  @NbBundle.Messages({
+      "Title_NoTypescript=Automatic code completion currently not available",
+      "Msg_NoTypescript=Currently automatic code completion not available, NodeJS environment has not been initialized yet"
+  })
   @Override
   public LanguageServerDescription startServer(@NotNull Lookup pLookup)
   {
@@ -45,6 +50,8 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
       if (current == null || !_isAlive(current.orElse(null)))  //NOSONAR null is a valid value, even it is not recommended
       {
         current = _startServer(pLookup.lookup(ServerRestarter.class));
+        if (!current.isPresent())
+          INotificationFacade.INSTANCE.notify(Bundle.Title_NoTypescript(), Bundle.Msg_NoTypescript(), false, null);
         currentRef.set(current);
       }
 
@@ -75,8 +82,20 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
         .map(pExec -> {
           try
           {
-            return pExec.execute(BundledNodeJS.getInstance().getBundledEnvironment(), INodeJSExecBase.node(),
-                                 "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER + "/lib/cli.js", "--stdio");
+            // check if NodeJS is available
+            BundledNodeJS bundled = BundledNodeJS.getInstance();
+            if (!bundled.isBundledEnvironmentAvailable())
+              return null;
+
+            INodeJSEnvironment bundledEnvironment = bundled.getBundledEnvironment();
+            String pathLSP = "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER + "/lib/cli.js";
+
+            // check if Typescript LSP is available
+            if (!new File(bundledEnvironment.getPath().getParent(), pathLSP).exists())
+              return null;
+
+            return pExec.execute(bundledEnvironment, INodeJSExecBase.node(),
+                                 pathLSP, "--stdio");
           }
           catch (IOException e)
           {
@@ -116,7 +135,14 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
               _stopServer(currentServer.get());
 
             // Trigger Restart
-            pServerRestarter.restart();
+            try
+            {
+              pServerRestarter.restart();
+            }
+            catch (Exception e)
+            {
+              LOGGER.log(Level.SEVERE, "", e);
+            }
           });
   }
 
