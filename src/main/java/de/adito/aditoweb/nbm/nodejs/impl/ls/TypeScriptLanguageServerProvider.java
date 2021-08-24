@@ -32,12 +32,9 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   private static final RequestProcessor WORKER = new RequestProcessor(TypeScriptLanguageServerProvider.class.getName(), Integer.MAX_VALUE, false, false);
   private static final Logger LOGGER = Logger.getLogger(TypeScriptLanguageServerProvider.class.getName());
   private final AtomicReference<Optional<LanguageServerDescription>> currentRef = new AtomicReference<>(null);
+  private final _NotificationHandler notificationHandler = new _NotificationHandler();
   private Disposable currentDisposable;
 
-  @NbBundle.Messages({
-      "Title_NoTypescript=Automatic code completion currently not available",
-      "Msg_NoTypescript=Currently automatic code completion not available, NodeJS environment has not been initialized yet"
-  })
   @Override
   public LanguageServerDescription startServer(@NotNull Lookup pLookup)
   {
@@ -54,7 +51,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
       {
         current = _startServer(pLookup.lookup(ServerRestarter.class));
         if (!current.isPresent())
-          INotificationFacade.INSTANCE.notify(Bundle.Title_NoTypescript(), Bundle.Msg_NoTypescript(), false, null);
+          notificationHandler.sendNotification();
         currentRef.set(current);
       }
 
@@ -196,6 +193,28 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     catch (Exception e)
     {
       return false;
+    }
+  }
+
+  /**
+   * Cares about showing notification balloon if lsp is not available
+   */
+  private static class _NotificationHandler
+  {
+    private static final long _GAP_BETWEEN_NOTIFICATIONS = 5000;
+    private long lastNotify;
+
+    @NbBundle.Messages({
+        "Title_NoTypescript=Automatic code completion currently not available",
+        "Msg_NoTypescript=Currently automatic code completion not available, NodeJS environment has not been initialized yet"
+    })
+    public void sendNotification()
+    {
+      if (System.currentTimeMillis() - lastNotify < _GAP_BETWEEN_NOTIFICATIONS)
+        return;
+
+      lastNotify = System.currentTimeMillis();
+      INotificationFacade.INSTANCE.notify(Bundle.Title_NoTypescript(), Bundle.Msg_NoTypescript(), false, null);
     }
   }
 
