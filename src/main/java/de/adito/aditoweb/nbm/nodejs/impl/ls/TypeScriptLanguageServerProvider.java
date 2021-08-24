@@ -94,9 +94,15 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
             String pathLSP = "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER + "/lib/cli.js";
 
             // check if Typescript LSP is available
-            if (!new File(bundledEnvironment.getPath().getParent(), pathLSP).exists())
+            try
+            {
+              bundledEnvironment.resolveExecBase(INodeJSExecBase.module(IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER, "lib/cli.js"));
+            }
+            catch (IllegalStateException e)
+            {
+              // no exec base found
               return null;
-
+            }
             return pExec.execute(bundledEnvironment, INodeJSExecBase.node(),
                                  pathLSP, "--stdio");
           }
