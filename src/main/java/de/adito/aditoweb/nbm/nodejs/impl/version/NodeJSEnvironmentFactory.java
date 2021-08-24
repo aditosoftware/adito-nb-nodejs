@@ -67,13 +67,22 @@ public class NodeJSEnvironmentFactory
       else if (BaseUtilities.isMac())
         extension = pBase.getMacExt();
 
-      File executable = new File(nodejsBinary.getParentFile(), pBase.getBasePath() + (Strings.isNullOrEmpty(extension) ? "" : "." + extension));
+      File parent = nodejsBinary.getParentFile();
+      String child = pBase.getBasePath() + (Strings.isNullOrEmpty(extension) ? "" : "." + extension);
+
+      // first take a look in the direct parent - mostly correct under Windows
+      File executable = new File(parent, child);
+      if (executable.exists())
+        return executable;
+
+      // second take a look in the grandparents directory - mostly correct under Unix / Mac
+      executable = new File(parent.getParentFile(), child);
       if (executable.exists())
         return executable;
 
       // not found
       throw new IllegalStateException("Unable to determine absolute path of execution base (" + pBase.getBasePath() + ", " +
-                                          nodejsBinary.getParentFile().getAbsolutePath() + ")");
+                                          parent.getAbsolutePath() + ")");
     }
 
     @NotNull
