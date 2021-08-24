@@ -90,9 +90,9 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
             INodeJSEnvironment bundledEnvironment = bundled.getBundledEnvironment();
             String pathLSP = "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER + "/lib/cli.js";
 
-            // check if Typescript LSP is available
             try
             {
+              // check if Typescript LSP is available
               bundledEnvironment.resolveExecBase(INodeJSExecBase.module(IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER, "lib/cli.js"));
             }
             catch (IllegalStateException e)
@@ -100,8 +100,8 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
               // no exec base found
               return null;
             }
-            return pExec.execute(bundledEnvironment, INodeJSExecBase.node(),
-                                 pathLSP, "--stdio");
+
+            return pExec.execute(bundledEnvironment, INodeJSExecBase.node(), pathLSP, "--stdio", "--log-level", "4");
           }
           catch (IOException e)
           {
