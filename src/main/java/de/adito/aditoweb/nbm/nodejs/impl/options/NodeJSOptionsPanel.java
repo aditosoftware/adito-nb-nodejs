@@ -14,7 +14,6 @@ import org.openide.util.NbBundle;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
-import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -32,7 +31,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
 {
   private static final String _DEFAULT_PATH = System.getProperty("user.home") + "/.nodejs-versions";
 
-  private final _PathSelection path;
+  private final PathSelectionPanel path;
   private NodeJSOptions options; //NOSONAR its just a swing panel
 
   @NbBundle.Messages({
@@ -63,7 +62,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
     tlu.add(0, 0, 2, 0, new LinedDecorator(Bundle.LBL_Installation(), null));
 
     // Path
-    path = new _PathSelection(Bundle.LBL_Chooser_LocateNodeJS(), JFileChooser.FILES_ONLY, _getInstalledNodeJSVersions(), _createDownloadButton());
+    path = new PathSelectionPanel(Bundle.LBL_Chooser_LocateNodeJS(), JFileChooser.FILES_ONLY, _getInstalledNodeJSVersions(), _createDownloadButton());
     tlu.add(0, 2, new JLabel(Bundle.LBL_Path() + ":"));
     tlu.add(2, 2, path);
 
@@ -295,104 +294,12 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
   }
 
   /**
-   * Component to select a path
-   */
-  private static class _PathSelection extends JPanel
-  {
-    private final JTextComponent path;
-    private final String fileChooserTitle;
-    private final int fileChooserType;
-    private JComboBox<String> entries;
-
-    public _PathSelection(@NotNull String pFileChooserTitle, int pFileChooserType, JButton... pAdditionalButtons)
-    {
-      super(new BorderLayout(5, 0));
-      fileChooserTitle = pFileChooserTitle;
-      fileChooserType = pFileChooserType;
-      path = new JTextField();
-      _init(path, pAdditionalButtons);
-    }
-
-    public _PathSelection(@NotNull String pFileChooserTitle, int pFileChooserType, @NotNull List<String> pEntries, JButton... pAdditionalButtons)
-    {
-      super(new BorderLayout(5, 0));
-      fileChooserTitle = pFileChooserTitle;
-      fileChooserType = pFileChooserType;
-      entries = new JComboBox<>(new DefaultComboBoxModel<>());
-      entries.setEditable(true);
-      path = (JTextComponent) entries.getEditor().getEditorComponent();
-      _init(entries, pAdditionalButtons);
-      setEntries(pEntries);
-    }
-
-    public void setEntries(@NotNull List<String> pEntries)
-    {
-      if (entries == null)
-        throw new IllegalArgumentException("You are setting entries, but this is not allowed in a non-combobox editor");
-      entries.setModel(new DefaultComboBoxModel<>(pEntries.toArray(new String[0])));
-    }
-
-    public void setValue(@NotNull String pValue)
-    {
-      if (entries != null)
-        entries.setSelectedItem(pValue);
-      else
-        path.setText(pValue);
-    }
-
-    @NotNull
-    public String getValue()
-    {
-      if (entries != null && entries.getSelectedItem() != null)
-        return (String) entries.getSelectedItem();
-      return path.getText();
-    }
-
-    public void addDocumentListener(@NotNull DocumentListener pListener)
-    {
-      path.getDocument().addDocumentListener(pListener);
-    }
-
-    private void _init(JComponent pComp, JButton... pAdditionalButtons)
-    {
-      JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-      panel.add(_createBrowseButton(this, this::getValue, this::setValue));
-      for (JButton btn : pAdditionalButtons)
-        panel.add(btn);
-      add(pComp, BorderLayout.CENTER);
-      add(panel, BorderLayout.EAST);
-    }
-
-    /**
-     * @return creates the browse button to search for a valid nodejs installation
-     */
-    @NbBundle.Messages({
-        "LBL_Browse=Browse...",
-    })
-    @NotNull
-    private JButton _createBrowseButton(@NotNull JComponent pParent, @NotNull Supplier<String> pDefaultPath, @NotNull Consumer<String> pOnFileSelected)
-    {
-      JButton btn = new JButton(Bundle.LBL_Browse());
-      btn.addActionListener(e -> {
-        JFileChooser chooser = new JFileChooser(pDefaultPath.get());
-        chooser.setFileHidingEnabled(false);
-        chooser.setDialogTitle(fileChooserTitle);
-        chooser.setFileSelectionMode(fileChooserType);
-        int result = chooser.showOpenDialog(pParent);
-        if (result == JFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null)
-          pOnFileSelected.accept(chooser.getSelectedFile().getAbsolutePath());
-      });
-      return btn;
-    }
-  }
-
-  /**
    * Panel for Download Dialog
    */
   private static class _DownloadPanel extends JPanel
   {
     private final JComboBox<String> versions;
-    private final _PathSelection path;
+    private final PathSelectionPanel path;
 
     @NbBundle.Messages({
         "LBL_TargetPath=Target Path: ",
@@ -422,7 +329,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
       tlu.add(2, 0, versions);
 
       // path
-      path = new _PathSelection(Bundle.LBL_Chooser_Download(), JFileChooser.DIRECTORIES_ONLY);
+      path = new PathSelectionPanel(Bundle.LBL_Chooser_Download(), JFileChooser.DIRECTORIES_ONLY);
       path.setValue(_DEFAULT_PATH);
       tlu.add(0, 2, new JLabel(Bundle.LBL_TargetPath()));
       tlu.add(2, 2, 3, 2, path);
