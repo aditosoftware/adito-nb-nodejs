@@ -4,7 +4,6 @@ import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
-import org.netbeans.api.progress.ProgressHandleFactory;
 
 import java.io.*;
 import java.util.concurrent.TimeoutException;
@@ -36,7 +35,7 @@ class Test_NodeCommands
         .thenReturn(new BundledNodeJS(() -> target));
 
     // download nodejs
-    new NodeJSInstaller().downloadBundledNodeJS(ProgressHandleFactory.createHandle("", null, null));
+    new NodeJSInstaller().downloadBundledNodeJS();
 
     // save
     executor = BundledNodeJS.getInstance().getBundledExecutor();

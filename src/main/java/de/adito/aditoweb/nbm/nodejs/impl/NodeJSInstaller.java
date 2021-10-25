@@ -40,15 +40,11 @@ public class NodeJSInstaller implements Runnable
   {
     // only show if ready, so the progresshandle will show up
     SwingUtilities.invokeLater(() -> RequestProcessor.getDefault().submit(() -> {
-      try (ProgressHandle handle = ProgressHandleFactory.createSystemHandle(Bundle.LBL_Progress_DownloadLibraries(), null))
+      try
       {
-        // handle progress
-        handle.start();
-        handle.switchToIndeterminate();
-
         // download and / or install
-        downloadBundledNodeJS(handle);
-        downloadOrUpdateBundledTypeScript(handle);
+        downloadBundledNodeJS();
+        downloadOrUpdateBundledTypeScript();
       }
       catch (Exception e)
       {
@@ -59,11 +55,9 @@ public class NodeJSInstaller implements Runnable
 
   /**
    * Downloads the latest nodejs version, if no version is specified
-   *
-   * @param pHandle Progress
    */
   @NbBundle.Messages("LBL_Progress_Download_Execute=Downloading NodeJS {0}...")
-  protected void downloadBundledNodeJS(@NotNull ProgressHandle pHandle) throws IOException
+  protected void downloadBundledNodeJS() throws IOException
   {
     // do not download or update anything, if the nodejs container folder already exists and integrity is ok
     File target = BundledNodeJS.getInstance().getBundledNodeJSContainer();
@@ -71,38 +65,44 @@ public class NodeJSInstaller implements Runnable
     if (_isIntegrityOK(target, version))
       return;
 
-    // download
-    pHandle.progress(Bundle.LBL_Progress_Download_Execute(version));
-    INodeJSDownloader downloader = INodeJSDownloader.getInstance();
-    File binFile = downloader.downloadVersion(version, target.getParentFile());
-    File nodeVersionContainer = downloader.findInstallationFromNodeExecutable(binFile);
+    try (ProgressHandle handle = ProgressHandleFactory.createSystemHandle(Bundle.LBL_Progress_DownloadLibraries(), null))
+    {
+      // handle progress
+      handle.start();
+      handle.switchToIndeterminate();
 
-    // rename to target
-    if (nodeVersionContainer != null)
-      if (nodeVersionContainer.renameTo(target))
-        binFile = downloader.findNodeExecutableInInstallation(target);
+      // download
+      handle.progress(Bundle.LBL_Progress_Download_Execute(version));
 
-    // update integrity
-    _updateIntegrity(target, version);
+      INodeJSDownloader downloader = INodeJSDownloader.getInstance();
+      File binFile = downloader.downloadVersion(version, target.getParentFile());
+      File nodeVersionContainer = downloader.findInstallationFromNodeExecutable(binFile);
 
-    // update options to use new binary
-    if (binFile != null && !NodeJSOptions.getInstance().isPathValid())
-      NodeJSOptions.update(NodeJSOptions.getInstance().toBuilder()
-                               .path(binFile.getAbsolutePath())
-                               .build());
+      // rename to target
+      if (nodeVersionContainer != null)
+        if (nodeVersionContainer.renameTo(target))
+          binFile = downloader.findNodeExecutableInInstallation(target);
+
+      // update integrity
+      _updateIntegrity(target, version);
+
+      // update options to use new binary
+      if (binFile != null && !NodeJSOptions.getInstance().isPathValid())
+        NodeJSOptions.update(NodeJSOptions.getInstance().toBuilder()
+                                 .path(binFile.getAbsolutePath())
+                                 .build());
+    }
   }
 
   /**
    * Downloads the latest typescript-language-server
-   *
-   * @param pHandle Progress
    */
   @NbBundle.Messages({
       "LBL_Progress_Download=Downloading {0}...",
       "LBL_Progress_Update=Updating {0}...",
       "LBL_Progress_Analyze=Analyzing {0}..."
   })
-  protected void downloadOrUpdateBundledTypeScript(@NotNull ProgressHandle pHandle) throws IOException, InterruptedException, TimeoutException
+  protected void downloadOrUpdateBundledTypeScript() throws IOException, InterruptedException, TimeoutException
   {
     File target = BundledNodeJS.getInstance().getBundledNodeJSContainer();
     if (!target.exists())
@@ -114,32 +114,25 @@ public class NodeJSInstaller implements Runnable
 
     // prepare
     List<String> packagesToInstall = IBundledPackages.getPreinstalledPackages();
-    pHandle.switchToDeterminate(packagesToInstall.size());
     INodeJSExecutor executor = BundledNodeJS.getInstance().getBundledExecutor();
     INodeJSEnvironment environment = BundledNodeJS.getInstance().getBundledEnvironment();
 
     // download and install all "preinstalled" packages, so they will be available at runtime
-    for (int i = 0; i < packagesToInstall.size(); i++)
+    for (String pkg : packagesToInstall)
     {
-      String pkg = packagesToInstall.get(i);
-      pHandle.progress(Bundle.LBL_Progress_Analyze(pkg));
-
       // Install, if not already installed
       if (!NodeCommands.list(executor, environment, target.getAbsolutePath(), pkg))
       {
-        pHandle.progress(Bundle.LBL_Progress_Download(pkg));
+        _LOGGER.info(Bundle.LBL_Progress_Download(pkg));
         NodeCommands.install(executor, environment, target.getAbsolutePath(), pkg);
       }
 
       // Update if installed but outdated
       else if (NodeCommands.outdated(executor, environment, target.getAbsolutePath(), pkg))
       {
-        pHandle.progress(Bundle.LBL_Progress_Update(pkg));
+        _LOGGER.info(Bundle.LBL_Progress_Update(pkg));
         NodeCommands.update(executor, environment, target.getAbsolutePath(), pkg);
       }
-
-      // Progress
-      pHandle.progress(i + 1);
     }
   }
 
