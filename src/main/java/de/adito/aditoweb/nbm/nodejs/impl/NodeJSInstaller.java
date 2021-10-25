@@ -120,15 +120,12 @@ public class NodeJSInstaller implements Runnable
     // download and install all "preinstalled" packages, so they will be available at runtime
     for (String pkg : packagesToInstall)
     {
-      // Install, if not already installed
-      if (!NodeCommands.list(executor, environment, target.getAbsolutePath(), pkg))
-      {
-        _LOGGER.info(Bundle.LBL_Progress_Download(pkg));
-        NodeCommands.install(executor, environment, target.getAbsolutePath(), pkg);
-      }
+      // Install always, otherwise npm gets overridden
+      _LOGGER.info(Bundle.LBL_Progress_Download(pkg));
+      NodeCommands.install(executor, environment, target.getAbsolutePath(), pkg);
 
       // Update if installed but outdated
-      else if (NodeCommands.outdated(executor, environment, target.getAbsolutePath(), pkg))
+      if (NodeCommands.outdated(executor, environment, target.getAbsolutePath(), pkg))
       {
         _LOGGER.info(Bundle.LBL_Progress_Update(pkg));
         NodeCommands.update(executor, environment, target.getAbsolutePath(), pkg);

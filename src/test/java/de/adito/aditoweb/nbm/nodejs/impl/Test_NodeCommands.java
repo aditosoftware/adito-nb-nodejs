@@ -16,13 +16,13 @@ class Test_NodeCommands
 
   private static final String _MODULE_TO_INSTALL = "big.js";
   private static final String _OLD_MODULE_VERSION = "6.0.3";
-  private static File target;
-  private static INodeJSExecutor executor;
-  private static INodeJSEnvironment environment;
-  private static MockedStatic<BundledNodeJS> nodejsMock;
+  private File target;
+  private INodeJSExecutor executor;
+  private INodeJSEnvironment environment;
+  private MockedStatic<BundledNodeJS> nodejsMock;
 
-  @BeforeAll
-  static void beforeAll() throws IOException
+  @BeforeEach
+  void beforeEach() throws IOException, TimeoutException, InterruptedException
   {
     target = new File("./target/bundled_nodejs_commands");
 
@@ -35,26 +35,19 @@ class Test_NodeCommands
         .thenReturn(new BundledNodeJS(() -> target));
 
     // download nodejs
-    new NodeJSInstaller().downloadBundledNodeJS();
+    NodeJSInstaller installer = new NodeJSInstaller();
+    installer.downloadBundledNodeJS();
+    installer.downloadOrUpdateBundledTypeScript();
 
     // save
     executor = BundledNodeJS.getInstance().getBundledExecutor();
     environment = BundledNodeJS.getInstance().getBundledEnvironment();
   }
 
-  @AfterAll
-  static void afterAll()
+  @AfterEach
+  void afterEach()
   {
     nodejsMock.close();
-  }
-
-  @AfterEach
-  void tearDown()
-  {
-    // clean previously downloaded libraries
-    FileUtils.deleteQuietly(new File(target, "node_modules"));
-    FileUtils.deleteQuietly(new File(target, "package.json"));
-    FileUtils.deleteQuietly(new File(target, "package-lock.json"));
   }
 
   @Test
