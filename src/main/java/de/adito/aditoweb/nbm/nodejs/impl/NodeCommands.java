@@ -80,7 +80,11 @@ public class NodeCommands
   {
     List<String> arguments = new ArrayList<>(Arrays.asList(pDependencies));
     arguments.addAll(0, List.of("list", "--prefix", pPath));
-    return pExecutor.execute(pEnvironment, INodeJSExecBase.packageManager(), arguments.toArray(new String[0])).waitFor() == 0;
+    String result = pExecutor.executeSync(pEnvironment, INodeJSExecBase.packageManager(), 30000, arguments.toArray(new String[0]));
+    return Arrays.stream(result.split("\n"))
+        .skip(1) //the first line is the command line, that should be skipped
+        .filter(pLine -> !pLine.trim().isEmpty())
+        .noneMatch(pLine -> pLine.trim().toLowerCase(Locale.ROOT).endsWith("(empty)"));
   }
 
 }
