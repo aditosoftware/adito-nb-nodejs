@@ -99,7 +99,8 @@ public class NodeJSInstaller implements Runnable
    */
   @NbBundle.Messages({
       "LBL_Progress_Download=Downloading {0}...",
-      "LBL_Progress_Update=Updating {0}..."
+      "LBL_Progress_Update=Updating {0}...",
+      "LBL_Progress_Analyze=Analyzing {0}..."
   })
   protected void downloadOrUpdateBundledTypeScript(@NotNull ProgressHandle pHandle) throws IOException, InterruptedException, TimeoutException
   {
@@ -121,14 +122,21 @@ public class NodeJSInstaller implements Runnable
     for (int i = 0; i < packagesToInstall.size(); i++)
     {
       String pkg = packagesToInstall.get(i);
+      pHandle.progress(Bundle.LBL_Progress_Analyze(pkg));
 
-      // Install
-      pHandle.progress(Bundle.LBL_Progress_Download(pkg));
-      executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "install", "--prefix", target.getAbsolutePath(), pkg);
+      // Install, if not already installed
+      if (!NodeCommands.list(executor, environment, target.getAbsolutePath(), pkg))
+      {
+        pHandle.progress(Bundle.LBL_Progress_Download(pkg));
+        NodeCommands.install(executor, environment, target.getAbsolutePath(), pkg);
+      }
 
-      // Update
-      pHandle.progress(Bundle.LBL_Progress_Update(pkg));
-      executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, "update", "--prefix", target.getAbsolutePath(), pkg);
+      // Update if installed but outdated
+      else if (NodeCommands.outdated(executor, environment, target.getAbsolutePath(), pkg))
+      {
+        pHandle.progress(Bundle.LBL_Progress_Update(pkg));
+        NodeCommands.update(executor, environment, target.getAbsolutePath(), pkg);
+      }
 
       // Progress
       pHandle.progress(i + 1);
