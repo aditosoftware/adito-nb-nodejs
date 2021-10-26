@@ -1,19 +1,19 @@
 package de.adito.aditoweb.nbm.nodejs.impl;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.*;
-import org.openide.util.*;
+import org.openide.util.NbBundle;
 import org.openide.windows.OnShowing;
 
-import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.logging.*;
 
 /**
@@ -25,6 +25,11 @@ public class NodeJSInstaller implements Runnable
 
   private static final String _INSTALLER_INTEGRITYCHECK_FILE = ".installer_integrity";
   private static final Logger _LOGGER = Logger.getLogger(NodeJSInstaller.class.getName());
+  private static final ExecutorService _EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+                                                                                         .setDaemon(true)
+                                                                                         .setNameFormat("tNodeJSInstaller-%d")
+                                                                                         .setPriority(Thread.MIN_PRIORITY)
+                                                                                         .build());
 
   @Override
   public void run()
@@ -38,8 +43,7 @@ public class NodeJSInstaller implements Runnable
   @NbBundle.Messages("LBL_Progress_DownloadLibraries=Downloading Libraries...")
   private void _downloadLibraries()
   {
-    // only show if ready, so the progresshandle will show up
-    SwingUtilities.invokeLater(() -> RequestProcessor.getDefault().submit(() -> {
+    _EXECUTOR.execute(() -> {
       try
       {
         // download and / or install
@@ -50,7 +54,7 @@ public class NodeJSInstaller implements Runnable
       {
         _LOGGER.log(Level.WARNING, "", e);
       }
-    }));
+    });
   }
 
   /**
