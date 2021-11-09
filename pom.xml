@@ -44,6 +44,11 @@
       <artifactId>de-adito-runconfig-api</artifactId>
       <version>${netbeans.version}-1.6.2</version>
     </dependency>
+    <dependency>
+      <groupId>de.adito.nbm</groupId>
+      <artifactId>de-adito-metrics-api</artifactId>
+      <version>${netbeans.version}-1.6.0-2</version>
+    </dependency>
 
     <!-- ADITO Utils -->
     <dependency>

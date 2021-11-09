@@ -1,10 +1,12 @@
 package de.adito.aditoweb.nbm.nodejs.impl;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import de.adito.aditoweb.nbm.metrics.api.IMetricProxyFactory;
+import de.adito.aditoweb.nbm.metrics.api.types.*;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.*;
 import org.netbeans.api.progress.*;
 import org.openide.util.NbBundle;
 import org.openide.windows.OnShowing;
@@ -30,6 +32,7 @@ public class NodeJSInstaller implements Runnable
                                                                                          .setNameFormat("tNodeJSInstaller-%d")
                                                                                          .setPriority(Thread.MIN_PRIORITY)
                                                                                          .build());
+  private final _NodeJSDownloadRetryHandler retryHandler = IMetricProxyFactory.proxy(new _NodeJSDownloadRetryHandler());
 
   @Override
   public void run()
@@ -108,7 +111,8 @@ public class NodeJSInstaller implements Runnable
   })
   protected void downloadOrUpdateBundledTypeScript() throws IOException, InterruptedException, TimeoutException
   {
-    File target = BundledNodeJS.getInstance().getBundledNodeJSContainer();
+    BundledNodeJS bundledNode = BundledNodeJS.getInstance();
+    File target = bundledNode.getBundledNodeJSContainer();
     if (!target.exists())
       return;
 
@@ -118,8 +122,13 @@ public class NodeJSInstaller implements Runnable
 
     // prepare
     List<String> packagesToInstall = IBundledPackages.getPreinstalledPackages();
-    INodeJSExecutor executor = BundledNodeJS.getInstance().getBundledExecutor();
-    INodeJSEnvironment environment = BundledNodeJS.getInstance().getBundledEnvironment();
+    INodeJSExecutor executor = bundledNode.getBundledExecutor();
+
+    // try it multiple times, sometimes no NodeJS is available
+    if (!bundledNode.isBundledEnvironmentAvailable())
+      retryHandler.retryBundledNodeJsDownload();
+
+    INodeJSEnvironment environment = bundledNode.getBundledEnvironment();
 
     // download and install all "preinstalled" packages, so they will be available at runtime
     for (String pkg : packagesToInstall)
@@ -188,4 +197,22 @@ public class NodeJSInstaller implements Runnable
     }
   }
 
+  /**
+   * Extra class, so we can count and analyze the retries for downloading bundled nodejs
+   */
+  private class _NodeJSDownloadRetryHandler
+  {
+    @Counted(name = "nodejs.bundled.download.retryhandler")
+    public void retryBundledNodeJsDownload() throws IOException
+    {
+      BundledNodeJS bundledNode = BundledNodeJS.getInstance();
+
+      int countRetries = 0;
+      while (!bundledNode.isBundledEnvironmentAvailable() && countRetries < 3)
+      {
+        downloadBundledNodeJS();
+        countRetries++;
+      }
+    }
+  }
 }
