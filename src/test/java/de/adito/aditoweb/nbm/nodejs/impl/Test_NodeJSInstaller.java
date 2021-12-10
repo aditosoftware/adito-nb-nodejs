@@ -3,8 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
-import org.mockito.Mockito;
-import org.netbeans.api.progress.*;
+import org.mockito.*;
 
 import java.io.*;
 
@@ -15,6 +14,7 @@ class Test_NodeJSInstaller
 {
 
   private static File target;
+  private static MockedStatic<BundledNodeJS> nodejsMock;
   private NodeJSInstaller installer;
 
   @BeforeAll
@@ -26,9 +26,15 @@ class Test_NodeJSInstaller
     FileUtils.deleteDirectory(target);
 
     // mock
-    Mockito.mockStatic(BundledNodeJS.class)
-        .when(BundledNodeJS::getInstance)
+    nodejsMock = Mockito.mockStatic(BundledNodeJS.class);
+    nodejsMock.when(BundledNodeJS::getInstance)
         .thenReturn(new BundledNodeJS(() -> target));
+  }
+
+  @AfterAll
+  static void afterAll()
+  {
+    nodejsMock.close();
   }
 
   @BeforeEach
@@ -40,7 +46,7 @@ class Test_NodeJSInstaller
   @Test
   void test_downloadBundledNodeJS() throws Exception
   {
-    installer.downloadBundledNodeJS(ProgressHandleFactory.createHandle("", null, null));
+    installer.downloadBundledNodeJS();
 
     Assertions.assertTrue(target.exists());
     Assertions.assertTrue(target.isDirectory());
@@ -50,9 +56,8 @@ class Test_NodeJSInstaller
   @Test
   void test_downloadOrUpdateBundledTypeScript() throws Exception
   {
-    ProgressHandle handle = ProgressHandleFactory.createHandle("", null, null);
-    installer.downloadBundledNodeJS(handle);
-    installer.downloadOrUpdateBundledTypeScript(handle);
+    installer.downloadBundledNodeJS();
+    installer.downloadOrUpdateBundledTypeScript();
 
     File module = new File(target, "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER);
     Assertions.assertTrue(module.exists());

@@ -65,6 +65,22 @@ public class BundledNodeJS
   }
 
   /**
+   * @return true if bundled nodejs environment is available
+   */
+  public boolean isBundledEnvironmentAvailable()
+  {
+    try
+    {
+      getBundledEnvironment();
+      return true;
+    }
+    catch (Exception e)
+    {
+      return false;
+    }
+  }
+
+  /**
    * @return the bundled environment version
    */
   @NotNull

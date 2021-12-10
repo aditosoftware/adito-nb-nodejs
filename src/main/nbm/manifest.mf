@@ -5,6 +5,23 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.0.4</p>
+  <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
+  <ul>
+    <li>Fix: Exception if bundled NodeJS environment not available and typescript is updated</li>
+  </ul>
+  <p style="font-weight: bold;">v1.0.3</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+  <ul>
+    <li>Only update or install nodejs on application startup if necessary</li>
+    <li>Updated Lombok to be able to run with JDK 16</li>
+  </ul>
+  <p style="font-weight: bold;">v1.0.2</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+  <ul>
+    <li>Improved error handling if language server or nodejs is currently not available</li>
+    <li>Improved logging of language server</li>
+  </ul>
   <p style="font-weight: bold;">v1.0.1</p>
   <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
   <ul>

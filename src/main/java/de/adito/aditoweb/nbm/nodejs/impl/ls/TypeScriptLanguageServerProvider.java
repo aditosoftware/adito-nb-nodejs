@@ -1,7 +1,8 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
-import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSExecBase;
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.*;
+import de.adito.notification.INotificationFacade;
 import de.adito.observables.netbeans.FileFullObservable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.*;
@@ -31,6 +32,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   private static final RequestProcessor WORKER = new RequestProcessor(TypeScriptLanguageServerProvider.class.getName(), Integer.MAX_VALUE, false, false);
   private static final Logger LOGGER = Logger.getLogger(TypeScriptLanguageServerProvider.class.getName());
   private final AtomicReference<Optional<LanguageServerDescription>> currentRef = new AtomicReference<>(null);
+  private final _NotificationHandler notificationHandler = new _NotificationHandler();
   private Disposable currentDisposable;
 
   @Override
@@ -48,6 +50,8 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
       if (current == null || !_isAlive(current.orElse(null)))  //NOSONAR null is a valid value, even it is not recommended
       {
         current = _startServer(pLookup.lookup(ServerRestarter.class));
+        if (!current.isPresent())
+          notificationHandler.sendNotification();
         currentRef.set(current);
       }
 
@@ -78,8 +82,26 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
         .map(pExec -> {
           try
           {
-            return pExec.execute(BundledNodeJS.getInstance().getBundledEnvironment(), INodeJSExecBase.node(),
-                                 "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER + "/lib/cli.js", "--stdio");
+            // check if NodeJS is available
+            BundledNodeJS bundled = BundledNodeJS.getInstance();
+            if (!bundled.isBundledEnvironmentAvailable())
+              return null;
+
+            INodeJSEnvironment bundledEnvironment = bundled.getBundledEnvironment();
+            String pathLSP = "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER + "/lib/cli.js";
+
+            try
+            {
+              // check if Typescript LSP is available
+              bundledEnvironment.resolveExecBase(INodeJSExecBase.module(IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER, "lib/cli.js"));
+            }
+            catch (IllegalStateException e)
+            {
+              // no exec base found
+              return null;
+            }
+
+            return pExec.execute(bundledEnvironment, INodeJSExecBase.node(), pathLSP, "--stdio", "--log-level", "4");
           }
           catch (IOException e)
           {
@@ -119,7 +141,14 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
               _stopServer(currentServer.get());
 
             // Trigger Restart
-            pServerRestarter.restart();
+            try
+            {
+              pServerRestarter.restart();
+            }
+            catch (Exception e)
+            {
+              LOGGER.log(Level.SEVERE, "", e);
+            }
           });
   }
 
@@ -164,6 +193,28 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     catch (Exception e)
     {
       return false;
+    }
+  }
+
+  /**
+   * Cares about showing notification balloon if lsp is not available
+   */
+  private static class _NotificationHandler
+  {
+    private static final long _GAP_BETWEEN_NOTIFICATIONS = 5000;
+    private long lastNotify;
+
+    @NbBundle.Messages({
+        "Title_NoTypescript=Automatic code completion currently not available",
+        "Msg_NoTypescript=Currently automatic code completion not available, NodeJS environment has not been initialized yet"
+    })
+    public void sendNotification()
+    {
+      if (System.currentTimeMillis() - lastNotify < _GAP_BETWEEN_NOTIFICATIONS)
+        return;
+
+      lastNotify = System.currentTimeMillis();
+      INotificationFacade.INSTANCE.notify(Bundle.Title_NoTypescript(), Bundle.Msg_NoTypescript(), false, null);
     }
   }
 
