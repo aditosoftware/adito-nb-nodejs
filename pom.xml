@@ -14,7 +14,7 @@
   <packaging>nbm</packaging>
 
   <properties>
-    <netbeans.version>RELEASE122</netbeans.version>
+    <netbeans.version>RELEASE125</netbeans.version>
   </properties>
 
   <dependencyManagement>
@@ -22,12 +22,12 @@
       <dependency>
         <groupId>org.netbeans.api</groupId>
         <artifactId>org-openide-filesystems</artifactId>
-        <version>RELEASE122-1.6.0-1</version>
+        <version>RELEASE125-1.9.0</version>
       </dependency>
       <dependency>
         <groupId>org.netbeans.api</groupId>
         <artifactId>org-openide-util</artifactId>
-        <version>RELEASE122-1.6.0</version>
+        <version>RELEASE125-1.9.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -37,29 +37,29 @@
     <dependency>
       <groupId>de.adito.nb-modules</groupId>
       <artifactId>nb-adito-interface</artifactId>
-      <version>1.6.2</version>
+      <version>1.9.0</version>
     </dependency>
     <dependency>
       <groupId>de.adito.nbm</groupId>
       <artifactId>de-adito-runconfig-api</artifactId>
-      <version>${netbeans.version}-1.6.2</version>
+      <version>${netbeans.version}-1.9.0</version>
     </dependency>
     <dependency>
       <groupId>de.adito.nbm</groupId>
       <artifactId>de-adito-metrics-api</artifactId>
-      <version>${netbeans.version}-1.6.0-2</version>
+      <version>${netbeans.version}-1.9.0</version>
     </dependency>
 
     <!-- ADITO Utils -->
     <dependency>
       <groupId>de.adito.util</groupId>
       <artifactId>reactive</artifactId>
-      <version>1.1.0</version>
+      <version>1.1.5</version>
     </dependency>
     <dependency>
       <groupId>de.adito.nb-modules</groupId>
       <artifactId>de-adito-netbeans-utilities</artifactId>
-      <version>${netbeans.version}-1.6.2-3</version>
+      <version>${netbeans.version}-1.9.1-SNAPSHOT</version>
     </dependency>
 
     <!-- Google Guava -->
