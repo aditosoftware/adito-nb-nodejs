@@ -12,8 +12,9 @@ import java.util.List;
 public interface IBundledPackages
 {
 
-  String TYPESCRIPT = "typescript";
-  String TYPESCRIPT_LANGUAGE_SERVER = "typescript-language-server";
+  String TYPESCRIPT = "typescript@4.5.2";
+  String TYPESCRIPT_LANGUAGE_SERVER_NAME = "typescript-language-server";
+  String TYPESCRIPT_LANGUAGE_SERVER = TYPESCRIPT_LANGUAGE_SERVER_NAME + "@0.7.1";
   String NPM = "npm";
 
   /**

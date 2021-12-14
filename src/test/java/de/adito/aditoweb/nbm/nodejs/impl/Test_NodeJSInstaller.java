@@ -59,7 +59,7 @@ class Test_NodeJSInstaller
     installer.downloadBundledNodeJS();
     installer.downloadOrUpdateBundledTypeScript();
 
-    File module = new File(target, "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER);
+    File module = new File(target, "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER_NAME);
     Assertions.assertTrue(module.exists());
     Assertions.assertTrue(module.isDirectory());
   }
