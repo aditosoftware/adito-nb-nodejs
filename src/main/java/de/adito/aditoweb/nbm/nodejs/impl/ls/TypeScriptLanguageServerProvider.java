@@ -8,7 +8,6 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.editor.mimelookup.*;
 import org.netbeans.api.io.InputOutput;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.lsp.client.LanguageServerProviderAccessor;
 import org.netbeans.modules.lsp.client.spi.*;
 import org.openide.util.*;
@@ -38,10 +37,6 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   @Override
   public LanguageServerDescription startServer(@NotNull Lookup pLookup)
   {
-    Project prj = pLookup.lookup(Project.class);
-    if (prj == null)
-      return null;
-
     synchronized (currentRef)
     {
       Optional<LanguageServerDescription> current = currentRef.get();
@@ -88,12 +83,12 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
               return null;
 
             INodeJSEnvironment bundledEnvironment = bundled.getBundledEnvironment();
-            String pathLSP = "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER + "/lib/cli.js";
+            String pathLSP = "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER_NAME + "/lib/cli.js";
 
             try
             {
               // check if Typescript LSP is available
-              bundledEnvironment.resolveExecBase(INodeJSExecBase.module(IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER, "lib/cli.js"));
+              bundledEnvironment.resolveExecBase(INodeJSExecBase.module(IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER_NAME, "lib/cli.js"));
             }
             catch (IllegalStateException e)
             {
@@ -133,6 +128,14 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
           .skip(1) // we only want changes, not the current one
           .throttleLast(2, TimeUnit.SECONDS)
           .subscribe(pEnvOpt -> {
+            if (pEnvOpt.isPresent())
+            {
+              // if only package.json or package-lock.json changed, the lsp must not be restarted
+              String fileName = pEnvOpt.get().getName();
+              if (fileName.contains("package") && fileName.endsWith("json"))
+                return;
+            }
+
             LOGGER.info("Restarting TypeScript Language Server");
 
             // Stop Server
