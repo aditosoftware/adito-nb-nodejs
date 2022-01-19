@@ -5,6 +5,11 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.1.0</p>
+  <p style="margin-left: 10px; font-weight: bold;">MAJOR</p>
+  <ul>
+    <li>Added JavaScript- and TypeScript-Client for Language Server Protocol</li>
+  </ul>
   <p style="font-weight: bold;">v1.0.4</p>
   <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
   <ul>
