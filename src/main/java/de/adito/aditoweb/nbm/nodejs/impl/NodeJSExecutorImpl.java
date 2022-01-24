@@ -122,6 +122,11 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
           builder.withVar(entry.getKey(), entry.getValue());
       }
 
+      // add all system properties
+      System.getProperties()
+          // dots are not allowed as key => replacing with underscore
+          .forEach((pKey, pValue) -> builder.withVar(((String) pKey).replaceAll("\\.", "_").toUpperCase(), (String) pValue));
+
       builder.withWorkingDirectory(workingDir)
           .withOutputStream(pDefaultOut)
           .withErrorStream(pErrorOut == null ? pDefaultOut : pErrorOut)
