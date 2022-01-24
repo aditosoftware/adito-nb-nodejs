@@ -5,6 +5,11 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.0.5</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+  <ul>
+    <li>Add Java system properties to NodeJS execution process as environment variables</li>
+  </ul>
   <p style="font-weight: bold;">v1.0.4</p>
   <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
   <ul>
