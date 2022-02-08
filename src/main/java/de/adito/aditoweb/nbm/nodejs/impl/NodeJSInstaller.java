@@ -6,6 +6,7 @@ import de.adito.aditoweb.nbm.metrics.api.types.*;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.progress.*;
 import org.openide.util.NbBundle;
@@ -87,8 +88,12 @@ public class NodeJSInstaller implements Runnable
 
       // rename to target
       if (nodeVersionContainer != null)
-        if (nodeVersionContainer.renameTo(target))
-          binFile = downloader.findNodeExecutableInInstallation(target);
+      {
+        FileUtils.moveDirectory(nodeVersionContainer, target);
+        binFile = downloader.findNodeExecutableInInstallation(target);
+      }
+      else
+        throw new IllegalStateException("Could not found nodeVersionContainer in " + binFile);
 
       // update integrity
       _updateIntegrity(target, version);
