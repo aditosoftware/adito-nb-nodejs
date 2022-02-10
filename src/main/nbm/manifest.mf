@@ -5,6 +5,12 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.0.6</p>
+  <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
+  <ul>
+    <li>Fix: Timeout that occurrs during installation or update of the typescript language server</li>
+    <li>Fix: NodeJS could not be installed, because a rename operation failed</li>
+  </ul>
   <p style="font-weight: bold;">v1.0.5</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
   <ul>
