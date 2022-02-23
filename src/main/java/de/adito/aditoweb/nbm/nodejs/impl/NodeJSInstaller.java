@@ -121,17 +121,17 @@ public class NodeJSInstaller implements Runnable
     if (!target.exists())
       return;
 
-    // Create node_modules folder to install the typescript module in the correct directory
-    //noinspection ResultOfMethodCallIgnored
-    new File(target, "node_modules").mkdir();
+      // Create node_modules folder to install the typescript module in the correct directory
+      //noinspection ResultOfMethodCallIgnored
+      new File(target, "node_modules").mkdir();
 
-    // prepare
-    List<String> packagesToInstall = IBundledPackages.getPreinstalledPackages();
-    INodeJSExecutor executor = bundledNode.getBundledExecutor();
+      // prepare
+      List<String> packagesToInstall = IBundledPackages.getPreinstalledPackages();
+      INodeJSExecutor executor = bundledNode.getBundledExecutor();
 
-    // try it multiple times, sometimes no NodeJS is available
-    if (!bundledNode.isBundledEnvironmentAvailable())
-      retryHandler.retryBundledNodeJsDownload();
+      // try it multiple times, sometimes no NodeJS is available
+      if (!bundledNode.isBundledEnvironmentAvailable())
+        retryHandler.retryBundledNodeJsDownload();
 
     INodeJSEnvironment environment = bundledNode.getBundledEnvironment();
 
@@ -148,6 +148,9 @@ public class NodeJSInstaller implements Runnable
         _LOGGER.info(Bundle.LBL_Progress_Update(pkg));
         NodeCommands.update(executor, environment, target.getAbsolutePath(), pkg);
       }
+
+      if (changes)
+        bundledNode.fireBundledEnvironmentChanged();
     }
   }
 

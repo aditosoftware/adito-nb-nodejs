@@ -3,7 +3,6 @@ package de.adito.aditoweb.nbm.nodejs.impl.ls;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.*;
 import de.adito.notification.INotificationFacade;
-import de.adito.observables.netbeans.FileFullObservable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.editor.mimelookup.*;
@@ -14,7 +13,6 @@ import org.openide.util.*;
 
 import java.io.*;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
 
@@ -124,18 +122,8 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 
     // create new, if necessary
     if (pServerRestarter != null)
-      currentDisposable = FileFullObservable.create(BundledNodeJS.getInstance().getBundledNodeJSContainer())
-          .skip(1) // we only want changes, not the current one
-          .throttleLast(2, TimeUnit.SECONDS)
-          .subscribe(pEnvOpt -> {
-            if (pEnvOpt.isPresent())
-            {
-              // if only package.json or package-lock.json changed, the lsp must not be restarted
-              String fileName = pEnvOpt.get().getName();
-              if (fileName.contains("package") && fileName.endsWith("json"))
-                return;
-            }
-
+      currentDisposable = BundledNodeJS.getInstance().observeBundledEnvironment()
+          .subscribe(pTime -> {
             LOGGER.info("Restarting TypeScript Language Server");
 
             // Stop Server
