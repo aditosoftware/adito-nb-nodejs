@@ -5,6 +5,15 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.1.3</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+    <ul>
+      <li>Added progress handle during download of bundled nodejs modules</li>
+    </ul>
+  <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
+    <ul>
+       li>Fix: npm install taking too long</li>
+    </ul>
   <p style="font-weight: bold;">v1.1.2</p>
   <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
     <ul>
