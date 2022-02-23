@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -16,6 +18,7 @@ public class BundledNodeJS
 
   private static BundledNodeJS _INSTANCE;
   private final INodeJSRootProvider rootProvider;
+  private final BehaviorSubject<Long> installFinishedSubject = BehaviorSubject.create();
 
   @NotNull
   public static BundledNodeJS getInstance()
@@ -62,6 +65,19 @@ public class BundledNodeJS
     if (environment == null || !environment.isValid())
       throw new IllegalStateException("bundled environment is invalid");
     return environment;
+  }
+
+  /**
+   * If bundled nodejs environment has changed
+   */
+  public void fireBundledEnvironmentChanged()
+  {
+    installFinishedSubject.onNext(System.currentTimeMillis());
+  }
+
+  public Observable<Long> observeBundledEnvironment()
+  {
+    return installFinishedSubject;
   }
 
   /**
