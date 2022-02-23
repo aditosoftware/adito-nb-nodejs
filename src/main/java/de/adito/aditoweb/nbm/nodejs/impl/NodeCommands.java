@@ -79,12 +79,12 @@ public class NodeCommands
       throws IOException, InterruptedException, TimeoutException
   {
     List<String> arguments = new ArrayList<>(Arrays.asList(pDependencies));
-    arguments.addAll(0, List.of("list", "--prefix", pPath));
+    arguments.addAll(0, List.of("list", "-p", "--prefix", pPath));
     String result = pExecutor.executeSync(pEnvironment, INodeJSExecBase.packageManager(), -1, arguments.toArray(new String[0]));
     return Arrays.stream(result.split("\n"))
         .skip(1) //the first line is the command line, that should be skipped
         .filter(pLine -> !pLine.trim().isEmpty())
-        .noneMatch(pLine -> pLine.trim().toLowerCase(Locale.ROOT).endsWith("(empty)"));
+        .count() == pDependencies.length;
   }
 
 }

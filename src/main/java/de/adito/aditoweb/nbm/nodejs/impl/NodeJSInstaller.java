@@ -2,13 +2,13 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.adito.aditoweb.nbm.metrics.api.IMetricProxyFactory;
-import de.adito.aditoweb.nbm.metrics.api.types.*;
+import de.adito.aditoweb.nbm.metrics.api.types.Counted;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.*;
-import org.netbeans.api.progress.*;
+import org.jetbrains.annotations.NotNull;
+import org.netbeans.api.progress.ProgressHandle;
 import org.openide.util.NbBundle;
 import org.openide.windows.OnShowing;
 
@@ -73,14 +73,14 @@ public class NodeJSInstaller implements Runnable
     if (_isIntegrityOK(target, version))
       return;
 
-    try (ProgressHandle handle = ProgressHandleFactory.createSystemHandle(Bundle.LBL_Progress_DownloadLibraries(), null))
+    try (ProgressHandle handle = ProgressHandle.createSystemHandle(Bundle.LBL_Progress_DownloadLibraries(), null))
     {
       // handle progress
       handle.start();
       handle.switchToIndeterminate();
 
       // download
-      handle.progress(Bundle.LBL_Progress_Download_Execute(version));
+      handle.setDisplayName(Bundle.LBL_Progress_Download_Execute(version));
 
       INodeJSDownloader downloader = INodeJSDownloader.getInstance();
       File binFile = downloader.downloadVersion(version, target.getParentFile());
@@ -110,16 +110,22 @@ public class NodeJSInstaller implements Runnable
    * Downloads the latest typescript-language-server
    */
   @NbBundle.Messages({
+      "LBL_Progress_Checking=Checking NodeJS installation...",
       "LBL_Progress_Download=Downloading {0}...",
       "LBL_Progress_Update=Updating {0}...",
       "LBL_Progress_Analyze=Analyzing {0}..."
   })
   protected void downloadOrUpdateBundledTypeScript() throws IOException, InterruptedException, TimeoutException
   {
-    BundledNodeJS bundledNode = BundledNodeJS.getInstance();
-    File target = bundledNode.getBundledNodeJSContainer();
-    if (!target.exists())
-      return;
+    try (ProgressHandle handle = ProgressHandle.createSystemHandle(Bundle.LBL_Progress_Checking(), null))
+    {
+      // handle progress
+      handle.start();
+      handle.switchToIndeterminate();
+      BundledNodeJS bundledNode = BundledNodeJS.getInstance();
+      File target = bundledNode.getBundledNodeJSContainer();
+      if (!target.exists())
+        return;
 
       // Create node_modules folder to install the typescript module in the correct directory
       //noinspection ResultOfMethodCallIgnored
@@ -133,20 +139,29 @@ public class NodeJSInstaller implements Runnable
       if (!bundledNode.isBundledEnvironmentAvailable())
         retryHandler.retryBundledNodeJsDownload();
 
-    INodeJSEnvironment environment = bundledNode.getBundledEnvironment();
+      INodeJSEnvironment environment = bundledNode.getBundledEnvironment();
+      boolean install = !NodeCommands.list(executor, environment, target.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
 
-    // download and install all "preinstalled" packages, so they will be available at runtime
-    for (String pkg : packagesToInstall)
-    {
-      // Install always, otherwise npm gets overridden
-      _LOGGER.info(Bundle.LBL_Progress_Download(pkg));
-      NodeCommands.install(executor, environment, target.getAbsolutePath(), pkg);
-
-      // Update if installed but outdated
-      if (NodeCommands.outdated(executor, environment, target.getAbsolutePath(), pkg))
+      boolean changes = false;
+      // download and install all "preinstalled" packages, so they will be available at runtime
+      for (String pkg : packagesToInstall)
       {
-        _LOGGER.info(Bundle.LBL_Progress_Update(pkg));
-        NodeCommands.update(executor, environment, target.getAbsolutePath(), pkg);
+        if (install)
+        {
+          changes = true;
+          _LOGGER.info(Bundle.LBL_Progress_Download(pkg));
+          handle.setDisplayName(Bundle.LBL_Progress_Download(pkg));
+          NodeCommands.install(executor, environment, target.getAbsolutePath(), pkg);
+        }
+
+        // Update if installed but outdated
+        if (NodeCommands.outdated(executor, environment, target.getAbsolutePath(), pkg))
+        {
+          changes = true;
+          _LOGGER.info(Bundle.LBL_Progress_Update(pkg));
+          handle.setDisplayName(Bundle.LBL_Progress_Update(pkg));
+          NodeCommands.update(executor, environment, target.getAbsolutePath(), pkg);
+        }
       }
 
       if (changes)
