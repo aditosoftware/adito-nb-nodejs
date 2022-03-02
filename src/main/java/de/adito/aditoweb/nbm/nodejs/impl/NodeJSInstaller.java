@@ -73,6 +73,9 @@ public class NodeJSInstaller implements Runnable
     if (_isIntegrityOK(target, version))
       return;
 
+    if (target.exists())
+      FileUtils.deleteDirectory(target);
+
     try (ProgressHandle handle = ProgressHandle.createSystemHandle(Bundle.LBL_Progress_DownloadLibraries(), null))
     {
       // handle progress
