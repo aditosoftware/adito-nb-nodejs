@@ -6,12 +6,11 @@ import de.adito.notification.INotificationFacade;
 import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.editor.mimelookup.*;
-import org.netbeans.api.io.InputOutput;
 import org.netbeans.modules.lsp.client.LanguageServerProviderAccessor;
 import org.netbeans.modules.lsp.client.spi.*;
 import org.openide.util.*;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
@@ -25,8 +24,6 @@ import java.util.logging.*;
 })
 public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 {
-  private static final long STARTUP_DELAY = 10000;
-  private static final RequestProcessor WORKER = new RequestProcessor(TypeScriptLanguageServerProvider.class.getName(), Integer.MAX_VALUE, false, false);
   private static final Logger LOGGER = Logger.getLogger(TypeScriptLanguageServerProvider.class.getName());
   private final AtomicReference<Optional<LanguageServerDescription>> currentRef = new AtomicReference<>(null);
   private final _NotificationHandler notificationHandler = new _NotificationHandler();
@@ -63,10 +60,6 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     // Log Start
     LOGGER.log(Level.INFO, "Starting TypeScript Language Server");
 
-    // Reset IO, because of new server
-    InputOutput io = InputOutput.get("TypeScript Language Server", false);
-    io.reset();
-
     // restarts
     _handleRestartOnChange(pServerRestarter);
 
@@ -102,10 +95,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
             return null;
           }
         })
-        .map(pProcess -> {
-          WORKER.post(new _InputOutputWatcher(pProcess, io));
-          return LanguageServerDescription.create(pProcess.getInputStream(), pProcess.getOutputStream(), pProcess);
-        });
+        .map(pProcess -> LanguageServerDescription.create(pProcess.getInputStream(), pProcess.getOutputStream(), pProcess));
   }
 
   /**
@@ -206,65 +196,6 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 
       lastNotify = System.currentTimeMillis();
       INotificationFacade.INSTANCE.notify(Bundle.Title_NoTypescript(), Bundle.Msg_NoTypescript(), false, null);
-    }
-  }
-
-  /**
-   * Cares about showing and printing errors in InputOutput
-   */
-  private static class _InputOutputWatcher implements Runnable
-  {
-    private final Process process;
-    private final InputOutput io;
-
-    public _InputOutputWatcher(@NotNull Process pProcess, @NotNull InputOutput pIo)
-    {
-      process = pProcess;
-      io = pIo;
-    }
-
-    @Override
-    public void run()
-    {
-      long start = System.currentTimeMillis();
-      try (Reader r = new InputStreamReader(process.getErrorStream()))
-      {
-        int read;
-        while ((read = r.read()) != (-1))
-          io.getErr().write("" + (char) read);
-      }
-      catch (IOException e)
-      {
-        LOGGER.log(Level.SEVERE, "", e);
-      }
-      finally
-      {
-        _closeSilently(io.getErr());
-        _closeSilently(io.getOut());
-        _closeSilently(io.getIn());
-      }
-
-      // show input/output if it was killed too early
-      long end = System.currentTimeMillis();
-      if (!process.isAlive() && (process.exitValue() != 0 || (end - start) < STARTUP_DELAY))
-        io.show();
-    }
-
-    /**
-     * Closes the closeable silently and only loggs errors
-     *
-     * @param pCloseable Object to close
-     */
-    private void _closeSilently(@NotNull Closeable pCloseable)
-    {
-      try
-      {
-        pCloseable.close();
-      }
-      catch (IOException e)
-      {
-        LOGGER.log(Level.WARNING, "", e);
-      }
     }
   }
 }
