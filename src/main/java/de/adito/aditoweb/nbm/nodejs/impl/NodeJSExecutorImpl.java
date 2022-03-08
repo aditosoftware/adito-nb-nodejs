@@ -2,6 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
+import de.adito.notification.INotificationFacade;
 import org.buildobjects.process.ProcBuilder;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
@@ -13,6 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author w.glanzer, 08.03.2021
@@ -63,7 +65,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
     // create and start
-    Future<Integer> process = executeAsync(pEnv, pBase, baos, baos, null, pParams);
+    Future<Integer> process = _executeAsync(pEnv, pBase, baos, baos, null, false, pParams);
 
     try
     {
@@ -103,8 +105,52 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
                                                  @NotNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
                                                  @NotNull String... pParams)
   {
-    // execute
-    return CompletableFuture.supplyAsync(() -> {
+    return _executeAsync(pEnv, pBase, pDefaultOut, pErrorOut, pDefaultIn, true, pParams);
+  }
+
+  private CompletableFuture<Integer> _executeAsync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase,
+                                                   @NotNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
+                                                   boolean pFlushDuringExecution, @NotNull String... pParams)
+  {
+    if (pErrorOut == null)
+      pErrorOut = pDefaultOut;
+
+    OutputStream finalDefaultOut;
+    OutputStream finalErrorOut;
+    // 1. Flushing output
+    if (pFlushDuringExecution)
+    {
+      // flush output every 500 ms
+      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder()
+                                                                                          .setDaemon(true)
+                                                                                          .setNameFormat("tNodeJsExecutorFlusher-" +
+                                                                                                             String.join(" ", pParams) + "-%d")
+                                                                                          .build());
+
+      finalDefaultOut = new OutputStreamWrapper(pDefaultOut, scheduler::shutdownNow);
+      finalErrorOut = new OutputStreamWrapper(pErrorOut, scheduler::shutdownNow);
+      scheduler.scheduleWithFixedDelay(() -> {
+        try
+        {
+          finalDefaultOut.flush();
+          finalErrorOut.flush();
+        }
+        catch (IOException pE)
+        {
+          INotificationFacade.INSTANCE.error(pE);
+        }
+      }, 500, 500, TimeUnit.MILLISECONDS);
+    }
+    else
+    {
+      finalDefaultOut = pDefaultOut;
+      finalErrorOut = pErrorOut;
+    }
+
+    // 2. execute
+    AtomicReference<Thread> executionThreadRef = new AtomicReference<>(null);
+    CompletableFuture<Integer> executionFuture = CompletableFuture.supplyAsync(() -> {
+      executionThreadRef.set(Thread.currentThread());
       // Invalid Environment
       _checkValid(pEnv);
 
@@ -128,17 +174,84 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
           .forEach((pKey, pValue) -> builder.withVar(((String) pKey).replaceAll("\\.", "_").toUpperCase(), (String) pValue));
 
       builder.withWorkingDirectory(workingDir)
-          .withOutputStream(pDefaultOut)
-          .withErrorStream(pErrorOut == null ? pDefaultOut : pErrorOut)
+          .withOutputStream(finalDefaultOut)
+          .withErrorStream(finalErrorOut)
           .withInputStream(pDefaultIn)
           .withNoTimeout()
           .ignoreExitStatus();
 
       // log command
-      _logCommand(builder, pDefaultOut);
+      _logCommand(builder, finalDefaultOut);
 
       return builder.run().getExitValue();
     }, processExecutor);
+
+    // 3. future which is returned. If this future is cancelled, the thread of the execution future is interrupted, so the execution future finishes
+    // normally
+    CompletableFuture<Integer> waitingFuture = CompletableFuture.supplyAsync(() -> {
+      while (true)
+      {
+        try
+        {
+          if (executionFuture.isDone())
+            return executionFuture.get();
+
+          //noinspection BusyWait
+          Thread.sleep(50);
+        }
+        catch (Exception e) // NOSONAR thread should not be interrupted
+        {
+          INotificationFacade.INSTANCE.error(e);
+        }
+      }
+    }, processExecutor);
+
+    waitingFuture.handle((pExit, pThrowable) -> {
+      if (executionThreadRef.get() != null && executionThreadRef.get().isAlive())
+        executionThreadRef.get().interrupt();
+
+      return pExit;
+    });
+
+    // 4. Cleaning up future
+    CompletableFuture<Integer> cleanUpFuture = executionFuture;
+    if (pFlushDuringExecution)
+    {
+      // Print the exit-code
+      cleanUpFuture = executionFuture.handle((pExit, pThrowable) -> {
+        try
+        {
+          String message = "\nProcess finished";
+          if (pExit != null)
+            message = message + " with exit code " + pExit;
+          finalDefaultOut.write(message.getBytes(StandardCharsets.UTF_8));
+
+          if (pThrowable != null)
+            finalErrorOut.write(pThrowable.getMessage().getBytes(StandardCharsets.UTF_8));
+        }
+        catch (IOException pE)
+        {
+          INotificationFacade.INSTANCE.error(pE);
+        }
+
+        return pExit;
+      });
+    }
+
+    // 5. shutdown scheduler and close streams
+    cleanUpFuture.whenComplete((pExit, pThrowable) -> {
+      try
+      {
+        finalDefaultOut.close();
+        finalErrorOut.close();
+      }
+      catch (Exception pE)
+      {
+        INotificationFacade.INSTANCE.error(pE);
+      }
+    });
+
+    return waitingFuture;
   }
 
   @NotNull
@@ -190,6 +303,56 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     catch (Exception e)
     {
       // do nothing, just dont log
+    }
+  }
+
+  /**
+   * Delegating OutputStream, which executes a runnable if the stream is closed
+   */
+  private static class OutputStreamWrapper extends OutputStream
+  {
+    private final OutputStream delegate;
+    private Runnable onClosed;
+
+    public OutputStreamWrapper(@NotNull OutputStream pDelegate, @NotNull Runnable pOnClosed)
+    {
+      delegate = pDelegate;
+      onClosed = pOnClosed;
+    }
+
+    @Override
+    public void write(@NotNull byte[] b) throws IOException
+    {
+      delegate.write(b);
+    }
+
+    @Override
+    public void write(@NotNull byte[] b, int off, int len) throws IOException
+    {
+      delegate.write(b, off, len);
+    }
+
+    @Override
+    public void flush() throws IOException
+    {
+      delegate.flush();
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+      if (onClosed != null)
+        onClosed.run();
+
+      onClosed = null;
+      flush();
+      delegate.close();
+    }
+
+    @Override
+    public void write(int b) throws IOException
+    {
+      delegate.write(b);
     }
   }
 

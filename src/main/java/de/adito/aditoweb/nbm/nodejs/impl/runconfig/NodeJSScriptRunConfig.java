@@ -1,20 +1,24 @@
 package de.adito.aditoweb.nbm.nodejs.impl.runconfig;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
+import de.adito.aditoweb.nbm.nodejs.impl.actions.io.*;
 import de.adito.nbm.runconfig.api.*;
 import de.adito.nbm.runconfig.spi.IActiveConfigComponentProvider;
+import de.adito.notification.INotificationFacade;
 import de.adito.observables.netbeans.*;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.*;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.project.*;
-import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.windows.*;
 
-import java.io.OutputStream;
+import javax.swing.*;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * RunConfig to execute a single nodejs script
@@ -63,32 +67,38 @@ class NodeJSScriptRunConfig implements IRunConfig
   }
 
   @Override
-  public void executeAsnyc(@NotNull ProgressHandle pProgressHandle) throws Exception
+  public void executeAsnyc(@NotNull ProgressHandle pProgressHandle)
   {
     INodeJSExecutor executor = INodeJSExecutor.findInstance(project).orElse(null);
     if (executor != null)
     {
-      InputOutput io = _createIO();
-      OutputStream out = new WriterOutputStream(io.getOut(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
-      OutputStream err = new WriterOutputStream(io.getErr(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
+      Subject<Optional<CompletableFuture<Integer>>> futureObservable = BehaviorSubject.createDefault(Optional.empty());
+
+      Action[] actions = new Action[2];
+      actions[0] = new StartAction(futureObservable, () -> run(false, executor, futureObservable, actions));
+      actions[1] = new StopAction(futureObservable);
 
       // execute nonblocking, so that other runconfigs can be run in parallel
-      executor.executeAsync(environment, INodeJSExecBase.packageManager(), out, err, null, "run", scriptName)
-          .handle((pExitCode, pEx) -> {
-            try
-            {
-              out.flush();
-              out.close();
-              err.flush();
-              err.close();
-            }
-            catch (Exception ex)
-            {
-              // do nothing
-            }
+      run(true, executor, futureObservable, actions);
+    }
+  }
 
-            return pExitCode;
-          });
+  private void run(boolean pNew, @NotNull INodeJSExecutor pExecutor, @NotNull Subject<Optional<CompletableFuture<Integer>>> pSubject,
+                   @NotNull Action[] pActions)
+  {
+    InputOutput io = _createIO(pNew, pActions);
+    OutputStream out = new WriterOutputStream(io.getOut(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
+    OutputStream err = new WriterOutputStream(io.getErr(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
+
+    try
+    {
+      CompletableFuture<Integer> future = pExecutor.executeAsync(environment, INodeJSExecBase.packageManager(), out, err, null, "run", scriptName);
+      pSubject.onNext(Optional.of(future));
+      future.whenComplete((pExit, pEx) -> pSubject.onNext(Optional.of(future)));
+    }
+    catch (IOException pEx)
+    {
+      INotificationFacade.INSTANCE.error(pEx);
     }
   }
 
@@ -97,9 +107,10 @@ class NodeJSScriptRunConfig implements IRunConfig
    * @return a new IO instance to write to
    */
   @NotNull
-  private InputOutput _createIO()
+  private InputOutput _createIO(boolean pNewIo, Action... pActions)
   {
-    InputOutput io = IOProvider.get("nodejs_runconfig_executor").getIO("NodeJS Script: " + scriptName, false);
+    InputOutput io = IOProvider.get("nodejs_runconfig_executor").getIO("NodeJS Script: " + scriptName, pNewIo,
+                                                                       pActions, null);
 
     try
     {
