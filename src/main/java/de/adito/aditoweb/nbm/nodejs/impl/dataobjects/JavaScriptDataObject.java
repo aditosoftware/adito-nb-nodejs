@@ -40,9 +40,8 @@ public class JavaScriptDataObject extends MultiDataObject
   protected Node createNodeDelegate()
   {
     if (nodeDelegate == null)
-    {
-      return new JSNodeDelegate(this);
-    }
+      nodeDelegate = new JSNodeDelegate(this);
+
     return nodeDelegate;
   }
 
@@ -61,17 +60,19 @@ public class JavaScriptDataObject extends MultiDataObject
     private final DataObject dataObject;
     @NotNull
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private String displayName = "";
+    @NotNull
+    private String displayName;
 
     public JSNodeDelegate(@NotNull DataObject pDataObject)
     {
       super(pDataObject, Children.LEAF);
       dataObject = pDataObject;
+      displayName = dataObject.getPrimaryFile().getNameExt();
       Project owner = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
       IJSNodeNameProvider.findInstance(owner)
           .ifPresent(pNodeNameProvider -> disposable.add(pNodeNameProvider.getDisplayName(dataObject)
-                                                                                              .subscribe(pNameOpt -> pNameOpt
-                                                                                                  .ifPresent(this::updateDisplayName))));
+                                                             .subscribe(pNameOpt -> pNameOpt
+                                                                 .ifPresent(this::updateDisplayName))));
     }
 
     private void updateDisplayName(String pName)
@@ -83,6 +84,7 @@ public class JavaScriptDataObject extends MultiDataObject
     }
 
     @Override
+    @NotNull
     public String getDisplayName()
     {
       return displayName;
