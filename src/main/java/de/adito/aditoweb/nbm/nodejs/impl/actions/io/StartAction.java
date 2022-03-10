@@ -3,6 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.actions.io;
 import de.adito.aditoweb.nbm.vaadinicons.IVaadinIconsProvider;
 import de.adito.swing.icon.IconAttributes;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import org.jetbrains.annotations.NotNull;
 import org.openide.util.*;
 
@@ -19,6 +20,8 @@ import java.util.concurrent.CompletableFuture;
 public class StartAction extends AbstractAction
 {
   private final Runnable reRun;
+  @SuppressWarnings({"FieldCanBeLocal", "unused"})
+  private final Disposable disposable; // strong ref
 
   @NbBundle.Messages("CTL_StartAction=Start Script")
   public StartAction(@NotNull Observable<Optional<CompletableFuture<Integer>>> pObservable,
@@ -28,7 +31,7 @@ public class StartAction extends AbstractAction
                                                                                                                   new IconAttributes(16f))));
     reRun = pReRun;
 
-    pObservable.subscribe(pOpt -> SwingUtilities.invokeLater(() -> setEnabled(!pOpt.isPresent() || (pOpt.get().isDone()
+    disposable = pObservable.subscribe(pOpt -> SwingUtilities.invokeLater(() -> setEnabled(!pOpt.isPresent() || (pOpt.get().isDone()
         || pOpt.get().isCompletedExceptionally())))
     );
   }
