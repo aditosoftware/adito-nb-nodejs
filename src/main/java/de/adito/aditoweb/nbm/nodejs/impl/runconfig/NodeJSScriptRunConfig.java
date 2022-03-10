@@ -75,20 +75,31 @@ class NodeJSScriptRunConfig implements IRunConfig
       Subject<Optional<CompletableFuture<Integer>>> futureObservable = BehaviorSubject.createDefault(Optional.empty());
 
       Action[] actions = new Action[2];
-      actions[0] = new StartAction(futureObservable, () -> run(false, executor, futureObservable, actions));
+      InputOutput io = _createIO(actions);
+
+      actions[0] = new StartAction(futureObservable, () -> run(io, executor, futureObservable));
       actions[1] = new StopAction(futureObservable);
 
       // execute nonblocking, so that other runconfigs can be run in parallel
-      run(true, executor, futureObservable, actions);
+      run(io, executor, futureObservable);
     }
   }
 
-  private void run(boolean pNew, @NotNull INodeJSExecutor pExecutor, @NotNull Subject<Optional<CompletableFuture<Integer>>> pSubject,
-                   @NotNull Action[] pActions)
+  private void run(@NotNull InputOutput pIo, @NotNull INodeJSExecutor pExecutor, @NotNull Subject<Optional<CompletableFuture<Integer>>> pSubject)
   {
-    InputOutput io = _createIO(pNew, pActions);
-    OutputStream out = new WriterOutputStream(io.getOut(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
-    OutputStream err = new WriterOutputStream(io.getErr(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
+    try
+    {
+      pIo.getOut().reset();
+      pIo.getErr().reset();
+      pIo.select();
+    }
+    catch (IOException pE)
+    {
+      INotificationFacade.INSTANCE.error(pE);
+    }
+
+    OutputStream out = new WriterOutputStream(pIo.getOut(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
+    OutputStream err = new WriterOutputStream(pIo.getErr(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
 
     try
     {
@@ -107,9 +118,9 @@ class NodeJSScriptRunConfig implements IRunConfig
    * @return a new IO instance to write to
    */
   @NotNull
-  private InputOutput _createIO(boolean pNewIo, Action... pActions)
+  private InputOutput _createIO(Action... pActions)
   {
-    InputOutput io = IOProvider.get("nodejs_runconfig_executor").getIO("NodeJS Script: " + scriptName, pNewIo,
+    InputOutput io = IOProvider.get("nodejs_runconfig_executor").getIO("NodeJS Script: " + scriptName, true,
                                                                        pActions, null);
 
     try
