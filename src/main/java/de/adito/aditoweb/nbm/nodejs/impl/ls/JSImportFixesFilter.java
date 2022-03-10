@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.openide.filesystems.FileObject;
 import org.openide.util.lookup.ServiceProvider;
 
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 import static de.adito.aditoweb.nbm.nodejs.impl.dataobjects.JavaScriptDataObject.JS_EXTENSION;
 
@@ -18,7 +18,8 @@ import static de.adito.aditoweb.nbm.nodejs.impl.dataobjects.JavaScriptDataObject
 @ServiceProvider(service = ILSPFixesFilter.class)
 public class JSImportFixesFilter implements ILSPFixesFilter
 {
-  private static final Pattern _PATTERN_TYPES = Pattern.compile("Import '(.+)' from module \"@aditosoftware/jdito-types/dist/definition_\\1\"");
+  private static final Pattern _PATTERN_IMPORT = Pattern.compile("Import '(.+)' from module \"(.*)\"");
+  private static final String _JDITO_MODULE = "@aditosoftware/jdito-types";
 
   @Override
   public boolean canFilter(@NotNull FileObject pFileObject)
@@ -29,6 +30,15 @@ public class JSImportFixesFilter implements ILSPFixesFilter
   @Override
   public boolean filter(@NotNull FileObject pFileObject, @NotNull String pFixText)
   {
-    return !_PATTERN_TYPES.matcher(pFixText).matches();
+    Matcher matcher = _PATTERN_IMPORT.matcher(pFixText);
+    if (matcher.find())
+    {
+      String group = matcher.group(2);
+      if (group.equals(_JDITO_MODULE))
+        return true;
+
+      return !group.contains(_JDITO_MODULE);
+    }
+    return true;
   }
 }
