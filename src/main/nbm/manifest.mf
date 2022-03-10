@@ -5,6 +5,21 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.2.0</p>
+  <p style="margin-left: 10px; font-weight: bold;">MAJOR</p>
+    <ul>
+      <li>NodeJS Scripts can now be stopped and restarted</li>
+    </ul>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+    <ul>
+      <li>Removed unnecessary output window of the language server</li>
+      <li>Output of NodeJS script is flushed at a regular interval to avoid missing messages</li>
+    </ul>
+  <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
+    <ul>
+       <li>Fix: Removed duplicate jdito import hints</li>
+       <li>Fix: js file has no display name if it is not part of an ADITO model</li>
+    </ul>
   <p style="font-weight: bold;">v1.1.3</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
     <ul>
