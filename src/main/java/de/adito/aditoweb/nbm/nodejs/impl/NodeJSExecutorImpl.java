@@ -8,7 +8,7 @@ import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.BaseUtilities;
-import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,10 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author w.glanzer, 08.03.2021
  */
-@ServiceProvider(service = INodeJSExecutor.class, path = "Projects/de-adito-project/Lookup")
+@ServiceProviders({
+    @ServiceProvider(service = INodeJSExecutor.class, path = "Projects/de-adito-project/Lookup"), //backwards compatibility to 2022.0.0
+    @ServiceProvider(service = INodeJSExecutor.class, path = "Projects/de-adito-project/StaticLookup"),
+})
 public class NodeJSExecutorImpl implements INodeJSExecutor
 {
   private static final String _PATH_ENVIRONMENT = "PATH";

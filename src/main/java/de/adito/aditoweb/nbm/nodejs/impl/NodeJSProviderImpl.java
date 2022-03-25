@@ -5,10 +5,9 @@ import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.observables.netbeans.FileObservable;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.*;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.Project;
-import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.*;
 
 import java.io.File;
 import java.util.Optional;
@@ -17,8 +16,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author w.glanzer, 05.03.2021
  */
-@ServiceProvider(service = INodeJSProvider.class, path = "Projects/de-adito-project/Lookup")
-public class NodeJSProviderImpl implements INodeJSProvider, Disposable
+@ServiceProviders({
+    @ServiceProvider(service = INodeJSProvider.class, path = "Projects/de-adito-project/Lookup"), //backwards compatibility to 2022.0.0
+    @ServiceProvider(service = INodeJSProvider.class, path = "Projects/de-adito-project/StaticLookup"),
+})
+public class NodeJSProviderImpl implements INodeJSProvider
 {
   private final Project project;
 
