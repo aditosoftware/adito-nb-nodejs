@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 public class NodeJSProviderImpl implements INodeJSProvider, Disposable
 {
   private final Project project;
-  private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
   @SuppressWarnings("unused") // ServiceProvider
   public NodeJSProviderImpl()
@@ -48,18 +47,6 @@ public class NodeJSProviderImpl implements INodeJSProvider, Disposable
 
         // we will throttle, so that the listening server wont trigger too often
         .throttleLatest(500, TimeUnit.MILLISECONDS);
-  }
-
-  @Override
-  public void dispose()
-  {
-    compositeDisposable.dispose();
-  }
-
-  @Override
-  public boolean isDisposed()
-  {
-    return compositeDisposable.isDisposed();
   }
 
   /**
