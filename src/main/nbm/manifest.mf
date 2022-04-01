@@ -5,6 +5,16 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.2.1</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+    <ul>
+      <li>Added support for finding NodeJS environments of unopened projects</li>
+    </ul>
+  <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
+    <ul>
+       <li>Fix: Reinstall NodeJS if npm directory does not exist</li>
+       <li>Fix: NodeJS environment can sometimes be incorrectly considered as invalid</li>
+    </ul>
   <p style="font-weight: bold;">v1.2.0</p>
   <p style="margin-left: 10px; font-weight: bold;">MAJOR</p>
     <ul>
