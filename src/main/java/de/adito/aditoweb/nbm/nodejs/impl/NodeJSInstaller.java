@@ -9,7 +9,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
-import org.openide.util.NbBundle;
+import org.openide.util.*;
 import org.openide.windows.OnShowing;
 
 import java.io.*;
@@ -71,7 +71,15 @@ public class NodeJSInstaller implements Runnable
     File target = BundledNodeJS.getInstance().getBundledNodeJSContainer();
     String version = BundledNodeJS.getInstance().getBundledVersion();
     if (_isIntegrityOK(target, version))
-      return;
+    {
+      if (BaseUtilities.isWindows())
+      {
+        if (new File(target, "node_modules/npm").exists())
+          return;
+      }
+      else
+        return;
+    }
 
     if (target.exists())
       FileUtils.deleteDirectory(target);
@@ -146,17 +154,19 @@ public class NodeJSInstaller implements Runnable
       boolean install = !NodeCommands.list(executor, environment, target.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
 
       boolean changes = false;
+
+      if (install)
+      {
+        changes = true;
+        String display = String.join(", ", packagesToInstall);
+        _LOGGER.info(Bundle.LBL_Progress_Download(display));
+        handle.setDisplayName(Bundle.LBL_Progress_Download(display));
+        NodeCommands.install(executor, environment, target.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
+      }
+
       // download and install all "preinstalled" packages, so they will be available at runtime
       for (String pkg : packagesToInstall)
       {
-        if (install)
-        {
-          changes = true;
-          _LOGGER.info(Bundle.LBL_Progress_Download(pkg));
-          handle.setDisplayName(Bundle.LBL_Progress_Download(pkg));
-          NodeCommands.install(executor, environment, target.getAbsolutePath(), pkg);
-        }
-
         // Update if installed but outdated
         if (NodeCommands.outdated(executor, environment, target.getAbsolutePath(), pkg))
         {
