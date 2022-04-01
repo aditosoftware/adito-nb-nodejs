@@ -8,6 +8,7 @@ import org.jetbrains.annotations.*;
 import org.openide.util.BaseUtilities;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -42,6 +43,8 @@ public class NodeJSEnvironmentFactory
   private static class _BinaryEnvironment implements INodeJSEnvironment
   {
     private final File nodejsBinary;
+    private Boolean valid = null;
+    private Long validCheckBinaryLastModified = null;
 
     public _BinaryEnvironment(@NotNull File pNodejsBinary)
     {
@@ -107,9 +110,14 @@ public class NodeJSEnvironmentFactory
     @Override
     public boolean isValid()
     {
+      if (valid == Boolean.TRUE && Objects.equals(validCheckBinaryLastModified, nodejsBinary.lastModified()))
+        return true;
+
       try
       {
-        return !_readVersion().isEmpty();
+        valid = !_readVersion().isEmpty();
+        validCheckBinaryLastModified = nodejsBinary.lastModified();
+        return valid;
       }
       catch (Exception e)
       {
