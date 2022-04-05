@@ -62,10 +62,11 @@ public class NodeJSProviderImpl implements INodeJSProvider
         .map(pOptions -> Optional.ofNullable(pOptions.getPath()))
         .distinctUntilChanged()
 
-        // check if file exists
-        .map(pPathOpt -> pPathOpt
+        // observe if file exists
+        .switchMap(pPathOpt -> pPathOpt
             .map(File::new)
-            .filter(File::exists));
+            .map(FileObservable::createForPlainFile)
+            .orElseGet(() -> Observable.just(Optional.empty())));
   }
 
   /**
