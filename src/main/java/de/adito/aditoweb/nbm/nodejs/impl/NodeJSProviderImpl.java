@@ -11,7 +11,6 @@ import org.openide.util.lookup.*;
 
 import java.io.File;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author w.glanzer, 05.03.2021
@@ -40,15 +39,12 @@ public class NodeJSProviderImpl implements INodeJSProvider
   @Override
   public Observable<Optional<INodeJSEnvironment>> current()
   {
-    return Observable.combineLatest(_observeNodeJSVersion(), _observePackageJson(), _observeTSConfig(),
-                                    (pNodeJSOpt, pPackageJsonOpt, pTSConfigOpt) -> {
+    return Observable.combineLatest(_observeNodeJSVersion(), _observePackageJson(),
+                                    (pNodeJSOpt, pPackageJsonOpt) -> {
                                       if (pNodeJSOpt.isPresent() && pPackageJsonOpt.isPresent())
                                         return Optional.ofNullable(NodeJSEnvironmentFactory.create(pNodeJSOpt.get()));
-                                      return Optional.<INodeJSEnvironment>empty();
-                                    })
-
-        // we will throttle, so that the listening server wont trigger too often
-        .throttleLatest(500, TimeUnit.MILLISECONDS);
+                                      return Optional.empty();
+                                    });
   }
 
   /**
@@ -77,16 +73,6 @@ public class NodeJSProviderImpl implements INodeJSProvider
   {
     assert project != null;
     return FileObservable.createForPlainFile(new File(project.getProjectDirectory().getPath(), "package.json"));
-  }
-
-  /**
-   * @return Observable that contains the current tsconfig.json
-   */
-  @NotNull
-  private Observable<Optional<File>> _observeTSConfig()
-  {
-    assert project != null;
-    return FileObservable.createForPlainFile(new File(project.getProjectDirectory().getPath(), "tsconfig.json"));
   }
 
 }
