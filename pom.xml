@@ -59,7 +59,7 @@
     <dependency>
       <groupId>de.adito.nb-modules</groupId>
       <artifactId>de-adito-netbeans-utilities</artifactId>
-      <version>${netbeans.version}-1.9.1-SNAPSHOT</version>
+      <version>${netbeans.version}-1.9.2-SNAPSHOT</version>
     </dependency>
 
     <!-- Google Guava -->

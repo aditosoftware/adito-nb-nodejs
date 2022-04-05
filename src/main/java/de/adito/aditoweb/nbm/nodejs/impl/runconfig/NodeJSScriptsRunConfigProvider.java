@@ -77,7 +77,7 @@ public class NodeJSScriptsRunConfigProvider implements ISystemRunConfigProvider
   @NotNull
   private Observable<List<IRunConfig>> _createRunConfigsForProject(@NotNull Project pProject, @NotNull INodeJSEnvironment pEnvironment)
   {
-    return FileObservable.create(new File(pProject.getProjectDirectory().getPath(), "package.json"))
+    return FileObservable.createForPlainFile(new File(pProject.getProjectDirectory().getPath(), "package.json"))
         .map(pFileOpt -> pFileOpt
             .map(PackageParser::parseScripts)
             .orElse(Map.of()))

@@ -75,7 +75,7 @@ public class NodeJSProviderImpl implements INodeJSProvider
   private Observable<Optional<File>> _observePackageJson()
   {
     assert project != null;
-    return FileObservable.create(new File(project.getProjectDirectory().getPath(), "package.json"));
+    return FileObservable.createForPlainFile(new File(project.getProjectDirectory().getPath(), "package.json"));
   }
 
   /**
@@ -85,7 +85,7 @@ public class NodeJSProviderImpl implements INodeJSProvider
   private Observable<Optional<File>> _observeTSConfig()
   {
     assert project != null;
-    return FileObservable.create(new File(project.getProjectDirectory().getPath(), "tsconfig.json"));
+    return FileObservable.createForPlainFile(new File(project.getProjectDirectory().getPath(), "tsconfig.json"));
   }
 
 }
