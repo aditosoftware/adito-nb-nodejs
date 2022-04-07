@@ -4,11 +4,14 @@ import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.IJSNodeNameP
 import io.reactivex.rxjava3.disposables.*;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.*;
+import org.netbeans.core.spi.multiview.MultiViewElement;
+import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.textmate.lexer.api.GrammarRegistration;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
-import org.openide.util.NbBundle;
+import org.openide.util.*;
+import org.openide.windows.TopComponent;
 
 import java.io.IOException;
 
@@ -33,7 +36,7 @@ public class JavaScriptDataObject extends MultiDataObject
   public JavaScriptDataObject(FileObject pf, MultiFileLoader loader) throws IOException
   {
     super(pf, loader);
-    registerEditor("text/javascript", false);
+    registerEditor("text/javascript", true);
   }
 
   @Override
@@ -49,6 +52,19 @@ public class JavaScriptDataObject extends MultiDataObject
   protected int associateLookup()
   {
     return 1;
+  }
+
+  @MultiViewElement.Registration(
+      displayName = "#LBL_JAVASCRIPT_EDITOR",
+      mimeType = "text/javascript",
+      persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+      preferredID = "JavaScript",
+      position = 1000
+  )
+  @NbBundle.Messages("LBL_JAVASCRIPT_EDITOR=Source")
+  public static MultiViewEditorElement createEditor(Lookup lkp)
+  {
+    return new MultiViewEditorElement(lkp);
   }
 
   /**
