@@ -1,9 +1,12 @@
 package de.adito.aditoweb.nbm.nodejs.impl.dataobjects;
 
+import org.netbeans.core.spi.multiview.MultiViewElement;
+import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.textmate.lexer.api.GrammarRegistration;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
-import org.openide.util.NbBundle;
+import org.openide.util.*;
+import org.openide.windows.TopComponent;
 
 import java.io.IOException;
 
@@ -23,7 +26,7 @@ public class TypeScriptDataObject extends MultiDataObject
   public TypeScriptDataObject(FileObject pf, MultiFileLoader loader) throws IOException
   {
     super(pf, loader);
-    registerEditor("text/typescript", false);
+    registerEditor("text/typescript", true);
   }
 
   @Override
@@ -32,4 +35,16 @@ public class TypeScriptDataObject extends MultiDataObject
     return 1;
   }
 
+  @MultiViewElement.Registration(
+      displayName = "#LBL_TYPESCRIPT_EDITOR",
+      mimeType = "text/typescript",
+      persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+      preferredID = "TypeScript",
+      position = 1000
+  )
+  @NbBundle.Messages("LBL_TYPESCRIPT_EDITOR=Source")
+  public static MultiViewEditorElement createEditor(Lookup lkp)
+  {
+    return new MultiViewEditorElement(lkp);
+  }
 }
