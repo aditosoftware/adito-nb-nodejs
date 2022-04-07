@@ -5,6 +5,11 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.3.0</p>
+  <p style="margin-left: 10px; font-weight: bold;">MAJOR</p>
+    <ul>
+      <li>Included local history for javascript and typescript files</li>
+    </ul>
   <p style="font-weight: bold;">v1.2.1</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
     <ul>
