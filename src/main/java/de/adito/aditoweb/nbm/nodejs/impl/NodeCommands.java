@@ -29,6 +29,7 @@ public class NodeCommands
     List<String> arguments = new ArrayList<>(Arrays.asList(pDependencies));
     arguments.addAll(0, List.of("install", "--prefix", pPath));
     pExecutor.executeSync(pEnvironment, INodeJSExecBase.packageManager(), -1, arguments.toArray(new String[0]));
+    DesignerBusUtils.fireModuleChange();
   }
 
   /**
@@ -45,6 +46,7 @@ public class NodeCommands
     List<String> arguments = new ArrayList<>(Arrays.asList(pDependencies));
     arguments.addAll(0, List.of("update", "--prefix", pPath));
     pExecutor.executeSync(pEnvironment, INodeJSExecBase.packageManager(), -1, arguments.toArray(new String[0]));
+    DesignerBusUtils.fireModuleChange();
   }
 
   /**

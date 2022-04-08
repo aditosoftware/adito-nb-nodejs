@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
+import de.adito.aditoweb.nbm.nodejs.impl.DesignerBusUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.openide.awt.*;
@@ -43,6 +44,7 @@ public class NPMInstallCommandAction extends AbstractNodeJSCommandAction
             // do nothing
           }
 
+          DesignerBusUtils.fireModuleChange();
           return pExitCode;
         });
   }
