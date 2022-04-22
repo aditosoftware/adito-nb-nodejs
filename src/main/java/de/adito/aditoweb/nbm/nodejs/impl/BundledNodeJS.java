@@ -18,7 +18,7 @@ public class BundledNodeJS
 
   private static BundledNodeJS _INSTANCE;
   private final INodeJSRootProvider rootProvider;
-  private final BehaviorSubject<Long> installFinishedSubject = BehaviorSubject.create();
+  private final BehaviorSubject<Long> installFinishedSubject = BehaviorSubject.createDefault(System.currentTimeMillis());
 
   @NotNull
   public static BundledNodeJS getInstance()

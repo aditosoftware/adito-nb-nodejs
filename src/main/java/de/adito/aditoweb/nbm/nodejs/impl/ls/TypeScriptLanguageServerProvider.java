@@ -113,6 +113,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     // create new, if necessary
     if (pServerRestarter != null)
       currentDisposable = BundledNodeJS.getInstance().observeBundledEnvironment()
+          .skip(1) // ignore initial value, we only want real changes
           .subscribe(pTime -> {
             LOGGER.info("Restarting TypeScript Language Server");
 

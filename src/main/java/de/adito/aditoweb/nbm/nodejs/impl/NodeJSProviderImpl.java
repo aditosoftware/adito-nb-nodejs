@@ -2,6 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
+import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.observables.netbeans.FileObservable;
 import io.reactivex.rxjava3.core.Observable;
@@ -48,7 +49,7 @@ public class NodeJSProviderImpl implements INodeJSProvider
   }
 
   /**
-   * @return Observable that contains the current nodejs version specified in options
+   * @return Observable that contains the current nodejs version specified in options (or bundled, if specified is invalid)
    */
   @NotNull
   private Observable<Optional<File>> _observeNodeJSVersion()
@@ -62,7 +63,19 @@ public class NodeJSProviderImpl implements INodeJSProvider
         .switchMap(pPathOpt -> pPathOpt
             .map(File::new)
             .map(FileObservable::createForPlainFile)
-            .orElseGet(() -> Observable.just(Optional.empty())));
+            .orElseGet(() -> Observable.just(Optional.empty())))
+
+        // if specified version is invalid -> use bundled
+        .switchMap(pOptionsOpt -> pOptionsOpt
+            .filter(File::exists)
+            .map(pFile -> Observable.just(Optional.of(pFile)))
+            .orElseGet(() -> BundledNodeJS.getInstance().observeBundledEnvironment()
+                .map(pL -> {
+                  BundledNodeJS node = BundledNodeJS.getInstance();
+                  if (node.isBundledEnvironmentAvailable())
+                    return Optional.ofNullable(INodeJSDownloader.getInstance().findNodeExecutableInInstallation(node.getBundledNodeJSContainer()));
+                  return Optional.empty();
+                })));
   }
 
   /**
