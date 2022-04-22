@@ -1,17 +1,12 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
-import de.adito.aditoweb.nbm.nodejs.impl.DesignerBusUtils;
-import org.apache.commons.io.output.WriterOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.openide.awt.*;
-import org.openide.util.*;
-import org.openide.windows.InputOutput;
+import org.openide.util.NbBundle;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 /**
  * @author w.glanzer, 11.05.2021
@@ -26,27 +21,9 @@ public class NPMInstallCommandAction extends AbstractNodeJSCommandAction
   @NotNull
   @Override
   protected CompletableFuture<?> performAction(@NotNull INodeJSEnvironment pEnvironment, @NotNull INodeJSExecutor pExecutor,
-                                               @NotNull Supplier<InputOutput> pInputOutputSupplier) throws IOException
+                                               @NotNull OutputStream pOut, @NotNull OutputStream pErr) throws IOException
   {
-    OutputStream out = new WriterOutputStream(pInputOutputSupplier.get().getOut(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
-    OutputStream err = new WriterOutputStream(pInputOutputSupplier.get().getErr(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
-    return pExecutor.executeAsync(pEnvironment, INodeJSExecBase.packageManager(), out, err, null, "install")
-        .handle((pExitCode, pEx) -> {
-          try
-          {
-            out.flush();
-            out.close();
-            err.flush();
-            err.close();
-          }
-          catch (Exception ex)
-          {
-            // do nothing
-          }
-
-          DesignerBusUtils.fireModuleChange();
-          return pExitCode;
-        });
+    return pExecutor.executeAsync(pEnvironment, INodeJSExecBase.packageManager(), pOut, pErr, null, "install");
   }
 
   @NotNull
@@ -60,12 +37,6 @@ public class NPMInstallCommandAction extends AbstractNodeJSCommandAction
   public String getName()
   {
     return Bundle.CTL_NPMInstallAction();
-  }
-
-  @Override
-  public HelpCtx getHelpCtx()
-  {
-    return null;
   }
 
 }

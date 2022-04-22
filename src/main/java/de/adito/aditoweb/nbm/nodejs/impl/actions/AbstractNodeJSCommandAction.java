@@ -3,14 +3,18 @@ package de.adito.aditoweb.nbm.nodejs.impl.actions;
 import com.google.common.base.Suppliers;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.common.IProjectQuery;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
+import de.adito.aditoweb.nbm.nodejs.impl.DesignerBusUtils;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.progress.*;
 import org.netbeans.api.project.Project;
 import org.openide.nodes.Node;
-import org.openide.util.NbBundle;
+import org.openide.util.*;
 import org.openide.util.actions.NodeAction;
 import org.openide.windows.*;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -43,11 +47,30 @@ abstract class AbstractNodeJSCommandAction extends NodeAction
 
     try
     {
+      OutputStream out = new WriterOutputStream(ioSupplier.get().getOut(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
+      OutputStream err = new WriterOutputStream(ioSupplier.get().getErr(), StandardCharsets.UTF_8); //NOSONAR will be closed in future
+
       // execute
-      performAction(env, exec, ioSupplier).handle((pV, pT) -> {
-        handle.finish();
-        return null;
-      });
+      performAction(env, exec, out, err)
+          .handle((pExitCode, pEx) -> {
+            try
+            {
+              out.flush();
+              out.close();
+              err.flush();
+              err.close();
+            }
+            catch (Exception ex)
+            {
+              // do nothing
+            }
+
+            DesignerBusUtils.fireModuleChange();
+            return pExitCode;
+          }).handle((pV, pT) -> {
+            handle.finish();
+            return null;
+          });
     }
     catch (Exception e)
     {
@@ -65,17 +88,22 @@ abstract class AbstractNodeJSCommandAction extends NodeAction
     return findCurrentEnvironment(pNodes) != null && findCurrentExecutor(pNodes) != null;
   }
 
+  @Override
+  public HelpCtx getHelpCtx()
+  {
+    return null;
+  }
+
   /**
    * Performs the action with a valid environment
    *
-   * @param pEnvironment         Environment
-   * @param pExecutor            Executor
-   * @param pInputOutputSupplier Supplier to provide an input/output, if necessary
+   * @param pEnvironment Environment
+   * @param pExecutor    Executor
    * @return a future determining the state
    */
   @NotNull
   protected abstract CompletableFuture<?> performAction(@NotNull INodeJSEnvironment pEnvironment, @NotNull INodeJSExecutor pExecutor,
-                                                        @NotNull Supplier<InputOutput> pInputOutputSupplier) throws Exception;
+                                                        @NotNull OutputStream pOut, @NotNull OutputStream pErr) throws Exception;
 
   /**
    * @return the displayable command, showing in progress
