@@ -5,6 +5,18 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.3.1</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+    <ul>
+      <li>
+        Added new commands in package.json dropdown:
+        <ul>
+          <li><b>npm clean-install</b>: This command is similar to npm install, except it is meant to be used in any situation where you want to make sure you're doing a clean install of your dependencies</li>
+          <li><b>npm outdated</b>: This command will check the registry to see if any installed packages are currently outdated. Only the direct dependencies of the root project are shown</li>
+          <li><b>npm publish</b>: Publishes a package to the registry so that it can be installed by name</li>
+        </ul>
+      </li>
+    </ul>
   <p style="font-weight: bold;">v1.3.0</p>
   <p style="margin-left: 10px; font-weight: bold;">MAJOR</p>
     <ul>
