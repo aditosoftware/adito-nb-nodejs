@@ -227,7 +227,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
         {
           String message = "\nProcess finished";
           if (pExit != null)
-            message = message + " with exit code " + pExit;
+            message = message + " with exit code " + pExit + "\n";
           finalDefaultOut.write(message.getBytes(StandardCharsets.UTF_8));
 
           if (pThrowable != null)
