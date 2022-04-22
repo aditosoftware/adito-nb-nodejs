@@ -174,7 +174,7 @@ public class NodeJSEnvironmentFactory
 
       // only read last line, because this line contains the version
       String[] lines = result.split("\n");
-      if (lines.length == 0)
+      if (lines.length < 2)
         return "";
       return lines[lines.length - 1];
     }
