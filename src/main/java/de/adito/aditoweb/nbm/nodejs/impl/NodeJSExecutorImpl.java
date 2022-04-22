@@ -205,6 +205,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
         catch (Exception e) // NOSONAR thread should not be interrupted
         {
           INotificationFacade.INSTANCE.error(e);
+          return Integer.MAX_VALUE; // return max -> we do not know the exit value, because something bad happened during creation time of our process
         }
       }
     }, processExecutor);
