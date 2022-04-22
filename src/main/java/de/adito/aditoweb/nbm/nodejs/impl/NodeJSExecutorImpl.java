@@ -246,7 +246,9 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     cleanUpFuture.whenComplete((pExit, pThrowable) -> {
       try
       {
+        finalDefaultOut.flush();
         finalDefaultOut.close();
+        finalErrorOut.flush();
         finalErrorOut.close();
       }
       catch (Exception pE)
