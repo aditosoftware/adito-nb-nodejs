@@ -1,6 +1,8 @@
 package de.adito.aditoweb.nbm.nodejs.impl.dataobjects;
 
 import org.jetbrains.annotations.NotNull;
+import org.netbeans.core.spi.multiview.MultiViewElement;
+import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.textmate.lexer.api.GrammarRegistration;
 import org.openide.actions.ToolsAction;
 import org.openide.filesystems.*;
@@ -8,6 +10,7 @@ import org.openide.loaders.*;
 import org.openide.nodes.*;
 import org.openide.util.*;
 import org.openide.util.actions.Presenter;
+import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -30,7 +33,7 @@ public class JSONDataObject extends MultiDataObject
   public JSONDataObject(FileObject pf, MultiFileLoader loader) throws IOException
   {
     super(pf, loader);
-    registerEditor("text/json", false);
+    registerEditor("text/json", true);
   }
 
   @Override
@@ -43,6 +46,19 @@ public class JSONDataObject extends MultiDataObject
   protected Node createNodeDelegate()
   {
     return new _JSONNode(super.createNodeDelegate());
+  }
+
+  @MultiViewElement.Registration(
+      displayName = "#LBL_JSON_EDITOR",
+      mimeType = "text/json",
+      persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+      preferredID = "Json",
+      position = 1000
+  )
+  @NbBundle.Messages("LBL_JSON_EDITOR=Source")
+  public static MultiViewEditorElement createEditor(Lookup lkp)
+  {
+    return new MultiViewEditorElement(lkp);
   }
 
   /**
