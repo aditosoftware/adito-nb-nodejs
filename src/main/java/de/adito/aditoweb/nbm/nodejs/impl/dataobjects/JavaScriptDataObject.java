@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.dataobjects;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.IJSNodeNameProvider;
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.nodes.INodeProvider;
 import io.reactivex.rxjava3.disposables.*;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.*;
@@ -13,7 +14,9 @@ import org.openide.nodes.*;
 import org.openide.util.*;
 import org.openide.windows.TopComponent;
 
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
+import java.util.Objects;
 
 import static de.adito.aditoweb.nbm.nodejs.impl.dataobjects.JavaScriptDataObject.JS_EXTENSION;
 
@@ -79,6 +82,9 @@ public class JavaScriptDataObject extends MultiDataObject
     @NotNull
     private String displayName;
 
+    private Node node;
+    private NodeListener listener;
+
     public JSNodeDelegate(@NotNull DataObject pDataObject)
     {
       super(pDataObject, Children.LEAF);
@@ -109,6 +115,12 @@ public class JavaScriptDataObject extends MultiDataObject
     @Override
     public void dispose()
     {
+      if (node != null && listener != null)
+      {
+        node.removeNodeListener(listener);
+        node = null;
+        listener = null;
+      }
       disposable.dispose();
     }
 
@@ -116,6 +128,39 @@ public class JavaScriptDataObject extends MultiDataObject
     public boolean isDisposed()
     {
       return disposable.isDisposed();
+    }
+
+    @Override
+    public PropertySet[] getPropertySets()
+    {
+      INodeProvider provider = Lookup.getDefault().lookup(INodeProvider.class);
+      FileObject fo = getLookup().lookup(FileObject.class);
+      if (provider != null && fo != null)
+      {
+        if (node == null)
+        {
+          node = provider.findNodeFromLinkedFo(fo);
+
+          // Add listener because property sets of the origin node can be changed
+          listener = new NodeAdapter()
+          {
+            @Override
+            public void propertyChange(PropertyChangeEvent ev)
+            {
+              if (Objects.equals(ev.getPropertyName(), Node.PROP_PROPERTY_SETS))
+                firePropertySetsChange(null, null);
+            }
+          };
+
+          if (node != null)
+            node.addNodeListener(listener);
+        }
+
+        if (node != null)
+          return node.getPropertySets();
+      }
+
+      return super.getPropertySets();
     }
   }
 }
