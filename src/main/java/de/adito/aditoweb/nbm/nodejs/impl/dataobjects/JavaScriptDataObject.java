@@ -1,6 +1,8 @@
 package de.adito.aditoweb.nbm.nodejs.impl.dataobjects;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.IJSNodeNameProvider;
+import de.adito.observables.netbeans.OpenProjectsObservable;
+import io.reactivex.rxjava3.core.Observable;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.nodes.INodeProvider;
 import io.reactivex.rxjava3.disposables.*;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +18,7 @@ import org.openide.windows.TopComponent;
 
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Objects;
 
 import static de.adito.aditoweb.nbm.nodejs.impl.dataobjects.JavaScriptDataObject.JS_EXTENSION;
@@ -91,10 +94,15 @@ public class JavaScriptDataObject extends MultiDataObject
       dataObject = pDataObject;
       displayName = dataObject.getPrimaryFile().getNameExt();
       Project owner = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
-      IJSNodeNameProvider.findInstance(owner)
-          .ifPresent(pNodeNameProvider -> disposable.add(pNodeNameProvider.getDisplayName(dataObject)
-                                                             .subscribe(pNameOpt -> pNameOpt
-                                                                 .ifPresent(this::updateDisplayName))));
+      disposable.add(OpenProjectsObservable.create()
+                         .map(pProjects -> {
+                           if (pProjects.contains(owner))
+                             return IJSNodeNameProvider.findInstance(owner);
+                           return Optional.<IJSNodeNameProvider>empty();
+                         })
+                         .switchMap(pOpt -> pOpt.map(pNodeNameProvider -> pNodeNameProvider.getDisplayName(dataObject))
+                             .orElse(Observable.empty()))
+                         .subscribe(pNameOpt -> pNameOpt.ifPresent(this::updateDisplayName)));
     }
 
     private void updateDisplayName(String pName)
