@@ -5,6 +5,23 @@ OpenIDE-Module-Display-Category: ADITO / Editors
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.3.2</p>
+  <p style="margin-left: 10px; font-weight: bold;">MAJOR</p>
+    <ul>
+      <li>Introduced actions for commenting and uncommenting the currently selected lines in js and ts files</li>
+    </ul>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+    <ul>
+      <li>Added bundled NodeJS as fallback if NodeJS path specified in options is invalid</li>
+      <li>Added local history for JSON files</li>
+    </ul>
+  <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
+    <ul>
+      <li>Fix: Endless loop if NodeJS command fails on startup</li>
+      <li>Fix: Trailing output of a NodeJS process may be lost</li>
+      <li>Fix: The name of js files is not updated if file is opened before the project</li>
+      <li>Fix: NodeJS environment can sometimes be incorrectly considered as invalid</li>
+    </ul>
   <p style="font-weight: bold;">v1.3.1</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
     <ul>
