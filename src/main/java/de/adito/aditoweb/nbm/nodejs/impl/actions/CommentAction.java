@@ -16,7 +16,7 @@ public class CommentAction extends BaseAction
   public CommentAction()
   {
     super("Comment");
-    putValue(BaseAction.ICON_RESOURCE_PROPERTY, "org/netbeans/modules/editor/resources/comment.png");
+    putValue(BaseAction.ICON_RESOURCE_PROPERTY, "de/adito/aditoweb/nbm/nodejs/impl/actions/comment.svg");
   }
 
   @Override

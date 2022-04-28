@@ -17,7 +17,7 @@ public class UnCommentAction extends BaseAction
   public UnCommentAction()
   {
     super("Uncomment");
-    putValue(BaseAction.ICON_RESOURCE_PROPERTY, "org/netbeans/modules/editor/resources/uncomment.png");
+    putValue(BaseAction.ICON_RESOURCE_PROPERTY, "de/adito/aditoweb/nbm/nodejs/impl/actions/uncomment.svg");
   }
 
   @Override
