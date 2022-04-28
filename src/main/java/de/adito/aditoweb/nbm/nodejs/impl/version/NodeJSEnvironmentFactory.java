@@ -115,14 +115,15 @@ public class NodeJSEnvironmentFactory
 
       try
       {
-        valid = !_readVersion().isEmpty();
         validCheckBinaryLastModified = nodejsBinary.lastModified();
-        return valid;
+        valid = resolveExecBase(INodeJSExecBase.node()).exists();
       }
       catch (Exception e)
       {
-        return false;
+        valid = false;
       }
+
+      return valid;
     }
 
     /**
