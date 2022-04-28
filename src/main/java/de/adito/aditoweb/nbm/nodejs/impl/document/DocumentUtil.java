@@ -43,9 +43,10 @@ public class DocumentUtil
   public static int getLineFirstNonWhiteSpaceForLine(@NotNull LineDocument pLineDocument, int pLineOffset) throws BadLocationException
   {
     int lineStartFromIndex = LineDocumentUtils.getLineStartFromIndex(pLineDocument, pLineOffset);
-    if (lineStartFromIndex > 0)
+    if (lineStartFromIndex >= 0)
     {
-      return LineDocumentUtils.getLineFirstNonWhitespace(pLineDocument, lineStartFromIndex);
+      // Math.max in case the line only contains whitespaces -> getLineFirstNonWhitespace returns -1, but the start of the line should be returned
+      return Math.max(lineStartFromIndex, LineDocumentUtils.getLineFirstNonWhitespace(pLineDocument, lineStartFromIndex));
     }
     else
     {
