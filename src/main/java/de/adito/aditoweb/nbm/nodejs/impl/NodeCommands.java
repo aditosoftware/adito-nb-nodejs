@@ -64,7 +64,9 @@ public class NodeCommands
     List<String> arguments = new ArrayList<>(Arrays.asList(pDependencies));
     arguments.addAll(0, List.of("outdated", "--prefix", pPath));
     String result = pExecutor.executeSync(pEnvironment, INodeJSExecBase.packageManager(), -1, arguments.toArray(new String[0]));
-    return result.trim().split("\n").length > 1; // something is outdated, if we get more than one line (the first line is the command line, that should be skipped)
+    return Arrays.stream(result.trim().split("\n"))
+        .filter(NodeCommands::filterOutputLine)
+        .count() > 1; // something is outdated, if we get more than one line (the first line is the command line, that should be skipped)
   }
 
   /**
@@ -85,8 +87,15 @@ public class NodeCommands
     String result = pExecutor.executeSync(pEnvironment, INodeJSExecBase.packageManager(), -1, arguments.toArray(new String[0]));
     return Arrays.stream(result.split("\n"))
         .skip(1) //the first line is the command line, that should be skipped
-        .filter(pLine -> !pLine.trim().isEmpty())
+        .filter(NodeCommands::filterOutputLine)
         .count() == pDependencies.length;
   }
 
+  private static boolean filterOutputLine(@NotNull String pLine)
+  {
+    pLine = pLine.toLowerCase(Locale.ROOT);
+    return !pLine.trim().isEmpty()
+        && !pLine.startsWith("npm warn")
+        && !pLine.startsWith("npm err");
+  }
 }
