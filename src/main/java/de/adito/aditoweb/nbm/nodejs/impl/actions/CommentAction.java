@@ -44,20 +44,25 @@ public class CommentAction extends BaseAction
         target.getToolkit().beep();
         return;
       }
-      doc.runAtomic(() -> {
-        try
-        {
-          List<Integer> selectedLineIndizes = DocumentUtil.getSelectedLineOffsets(target, ld);
-          for (Integer lineIndex : selectedLineIndizes)
-          {
-            target.getDocument().insertString(DocumentUtil.getLineFirstNonWhiteSpaceForLine(ld, lineIndex), "//", null);
-          }
-        }
-        catch (BadLocationException e)
-        {
-          target.getToolkit().beep();
-        }
-      });
+      insertCommnets(target, doc, ld);
     }
+  }
+
+  static void insertCommnets(JTextComponent target, AtomicLockDocument doc, LineDocument ld)
+  {
+    doc.runAtomic(() -> {
+      try
+      {
+        List<Integer> selectedLineIndizes = DocumentUtil.getSelectedLineOffsets(target, ld);
+        for (Integer lineIndex : selectedLineIndizes)
+        {
+          target.getDocument().insertString(DocumentUtil.getLineFirstNonWhiteSpaceForLine(ld, lineIndex), "//", null);
+        }
+      }
+      catch (BadLocationException e)
+      {
+        target.getToolkit().beep();
+      }
+    });
   }
 }

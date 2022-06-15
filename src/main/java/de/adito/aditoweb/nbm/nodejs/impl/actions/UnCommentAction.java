@@ -47,24 +47,29 @@ public class UnCommentAction extends BaseAction
         target.getToolkit().beep();
         return;
       }
-      doc.runAtomic(() -> {
-        try
+      uncommentCode(target, doc, ld);
+    }
+  }
+
+  static void uncommentCode(JTextComponent target, AtomicLockDocument doc, LineDocument ld)
+  {
+    doc.runAtomic(() -> {
+      try
+      {
+        List<Integer> selectedLineIndizes = DocumentUtil.getSelectedLineOffsets(target, ld);
+        for (Integer lineIndex : selectedLineIndizes)
         {
-          List<Integer> selectedLineIndizes = DocumentUtil.getSelectedLineOffsets(target, ld);
-          for (Integer lineIndex : selectedLineIndizes)
+          int startIndex = DocumentUtil.getLineFirstNonWhiteSpaceForLine(ld, lineIndex);
+          if (target.getDocument().getText(startIndex, 2).equals("//"))
           {
-            int startIndex = DocumentUtil.getLineFirstNonWhiteSpaceForLine(ld, lineIndex);
-            if (target.getDocument().getText(startIndex, 2).equals("//"))
-            {
-              target.getDocument().remove(startIndex, 2);
-            }
+            target.getDocument().remove(startIndex, 2);
           }
         }
-        catch (BadLocationException e)
-        {
-          target.getToolkit().beep();
-        }
-      });
-    }
+      }
+      catch (BadLocationException e)
+      {
+        target.getToolkit().beep();
+      }
+    });
   }
 }
