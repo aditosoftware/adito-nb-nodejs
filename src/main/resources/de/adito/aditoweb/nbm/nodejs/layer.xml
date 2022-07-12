@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+  <folder name="Editors">
+    <folder name="text">
+      <folder name="javascript">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="de.adito.aditoweb.nbm.nodejs.Bundle"/>
+        <folder name="CodeTemplates">
+          <folder name="Defaults">
+            <file name="codetemplates.xml" url="codetemplates.xml">
+              <attr name="SystemFileSystem.localizingBundle" stringvalue="de.adito.aditoweb.nbm.nodejs.Bundle"/>
+            </file>
+          </folder>
+        </folder>
+      </folder>
+      <folder name="typescript">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="de.adito.aditoweb.nbm.nodejs.Bundle"/>
+        <folder name="CodeTemplates">
+        </folder>
+      </folder>
+    </folder>
+  </folder>
 
   <folder name="Keymaps">
     <folder name="AditoKeymap">

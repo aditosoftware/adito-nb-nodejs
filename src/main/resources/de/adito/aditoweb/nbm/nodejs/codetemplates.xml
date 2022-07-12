@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE codetemplates PUBLIC "-//NetBeans//DTD Editor Code Templates settings 1.0//EN" "http://www.netbeans.org/dtds/EditorCodeTemplates-1_0.dtd">
+<codetemplates>
+    <codetemplate abbreviation="if" descriptionId="ct_if" xml:space="preserve">
+        <code><![CDATA[if (${expr}) {
+    ${cursor}
+}]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="ife" descriptionId="ct_ife" xml:space="preserve">
+        <code><![CDATA[if (${expr}) {
+    ${code default=""}
+} else {
+    ${cursor}
+}]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="func" descriptionId="ct_function" xml:space="preserve">
+        <code><![CDATA[/**
+ * ${1 default="Comment"}
+ */
+function ${name}(${parameters}) {
+    ${cursor}
+}]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="function" descriptionId="ct_function" xml:space="preserve">
+        <code><![CDATA[/**
+ * ${1 default="Comment"}
+ */
+function ${name}(${parameters}) {
+    ${cursor}
+}]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="try" descriptionId="ct_try" xml:space="preserve">
+        <code><![CDATA[try {
+    ${code default=""}
+} catch (${exception}) { 
+    ${catchcode default=""}
+}
+]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="forv" descriptionId="ct_forv" xml:space="preserve">
+        <code><![CDATA[for (var ${v} in ${object}) {
+    ${cursor}
+}]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="switch" descriptionId="ct_switch" xml:space="preserve">
+        <code><![CDATA[switch (${v}) {
+    case ${c1}:
+        ${cursor}
+        break;
+    default:
+        break;
+}
+]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="for" descriptionId="ct_for" xml:space="preserve">
+        <code><![CDATA[for (${var default="i"} = 0; ${var} < ${max}; ${var}++) {
+    ${cursor}
+}]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="jsons" xml:space="preserve"><code><![CDATA[JSON.stringify(${cursor})]]></code></codetemplate>
+    <codetemplate abbreviation="logv" xml:space="preserve"><code><![CDATA[logging.log('${variable}: ' + ${variable});]]></code></codetemplate>
+    <codetemplate abbreviation="rs" xml:space="preserve"><code><![CDATA[result.string(${cursor});]]></code></codetemplate>
+    <codetemplate abbreviation="logt" xml:space="preserve"><code><![CDATA[logging.log("${cursor}" + datetime.toDate(datetime.date(), "dd.MM.yyyy HH:mm:ss.SSS", "Europe/Berlin"));]]></code></codetemplate>
+    <codetemplate abbreviation="jsonp" xml:space="preserve"><code><![CDATA[JSON.parse(${cursor})]]></code></codetemplate>
+    <codetemplate abbreviation="log" xml:space="preserve"><code><![CDATA[logging.log(${cursor});]]></code></codetemplate>
+    <codetemplate abbreviation="varsp" xml:space="preserve"><code><![CDATA[vars.get("$param.${cursor}");]]></code></codetemplate>
+    <codetemplate abbreviation="funci" xml:space="preserve"><code><![CDATA[function (${parameters}) {
+    ${cursor}
+}]]></code></codetemplate>
+    <codetemplate abbreviation="loge" xml:space="preserve"><code><![CDATA[logging.log(exception, logging.ERROR, [
+    "${CustomeErrorMsg}",
+    "${LibFunction}",
+    exception["rhinoException"] ? exception["rhinoException"].toString() : (exception.name + ": " + exception.message + " " + exception.stack)
+]);]]></code></codetemplate>
+    <codetemplate abbreviation="logj" xml:space="preserve"><code><![CDATA[logging.log('${variable}: ' + JSON.stringify(${variable}, null, " "));]]></code></codetemplate>
+    <codetemplate abbreviation="varse" xml:space="preserve"><code><![CDATA[vars.exists("${variable}") && vars.get("${variable}")]]></code></codetemplate>
+    <codetemplate abbreviation="varsf" xml:space="preserve"><code><![CDATA[vars.get("$field.${cursor}");]]></code></codetemplate>
+    <codetemplate abbreviation="vars" xml:space="preserve"><code><![CDATA[vars.get("${variable}")]]></code></codetemplate>
+    <codetemplate abbreviation="trye" xml:space="preserve"><code><![CDATA[try {
+    ${code default=""}
+} catch (${exception}) {
+    logging.log(exception, logging.ERROR, [
+        "${CustomeErrorMsg}",
+        "${LibFunction}",
+        exception["rhinoException"] ? exception["rhinoException"].toString() : (exception.name + ": " + exception.message + " " + exception.stack)
+    ]);
+}]]></code></codetemplate>
+    <codetemplate abbreviation="ro" xml:space="preserve"><code><![CDATA[result.object(${cursor});]]></code></codetemplate>
+</codetemplates>
