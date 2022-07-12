@@ -6,6 +6,11 @@ OpenIDE-Module-Layer: de/adito/aditoweb/nbm/nodejs/layer.xml
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.4.2</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+    <ul>
+      <li>Introduced codetemplates for js and ts files</li>
+    </ul>
   <p style="font-weight: bold;">v1.4.1</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
     <ul>
