@@ -1,9 +1,10 @@
 package de.adito.aditoweb.nbm.nodejs.impl.dataobjects;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.IJSNodeNameProvider;
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.nodes.INodeProvider;
+import de.adito.aditoweb.nbm.nodejs.impl.util.FileAttributeObservable;
 import de.adito.observables.netbeans.OpenProjectsObservable;
 import io.reactivex.rxjava3.core.Observable;
-import de.adito.aditoweb.nbm.nbide.nbaditointerface.nodes.INodeProvider;
 import io.reactivex.rxjava3.disposables.*;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.*;
@@ -16,10 +17,10 @@ import org.openide.nodes.*;
 import org.openide.util.*;
 import org.openide.windows.TopComponent;
 
+import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
-import java.util.Optional;
-import java.util.Objects;
+import java.util.*;
 
 import static de.adito.aditoweb.nbm.nodejs.impl.dataobjects.JavaScriptDataObject.JS_EXTENSION;
 
@@ -35,14 +36,26 @@ import static de.adito.aditoweb.nbm.nodejs.impl.dataobjects.JavaScriptDataObject
 @GrammarRegistration(mimeType = "text/javascript", grammar = "JavaScript.tmLanguage.json")
 public class JavaScriptDataObject extends MultiDataObject
 {
-
   public static final String JS_EXTENSION = "js";
+  private static final String _EDITABLE_ATTRIBUTE = "ADITOeditableOnGUI";
   private Node nodeDelegate = null;
 
   public JavaScriptDataObject(FileObject pf, MultiFileLoader loader) throws IOException
   {
     super(pf, loader);
     registerEditor("text/javascript", true);
+  }
+
+  /**
+   * Returns an observable containing a flag that describes, if this javascript is editable or not
+   *
+   * @return true if this file should be editable
+   */
+  @NotNull
+  public Observable<Boolean> editableOnGUI()
+  {
+    return FileAttributeObservable.create(getPrimaryFile(), _EDITABLE_ATTRIBUTE)
+        .map(pOpt -> !pOpt.orElse(true).equals(false));
   }
 
   @Override
@@ -70,7 +83,49 @@ public class JavaScriptDataObject extends MultiDataObject
   @NbBundle.Messages("LBL_JAVASCRIPT_EDITOR=Source")
   public static MultiViewEditorElement createEditor(Lookup lkp)
   {
-    return new MultiViewEditorElement(lkp);
+    return new _EditorElement(lkp);
+  }
+
+  /**
+   * MultiViewEditor-Element-Impl
+   */
+  private static class _EditorElement extends MultiViewEditorElement
+  {
+    private final JavaScriptDataObject dataObject;
+    private Disposable disposable;
+
+    public _EditorElement(Lookup lookup)
+    {
+      super(lookup);
+      dataObject = getLookup().lookup(JavaScriptDataObject.class);
+    }
+
+    @Override
+    public void componentOpened()
+    {
+      super.componentOpened();
+      disposable = dataObject.editableOnGUI().subscribe(pEditable -> {
+        JEditorPane pane = super.getEditorPane();
+        if (pane != null)
+          pane.setEditable(pEditable);
+      });
+    }
+
+    @Override
+    public void componentClosed()
+    {
+      super.componentClosed();
+      disposable.dispose();
+    }
+
+    @Override
+    public JEditorPane getEditorPane()
+    {
+      JEditorPane pane = super.getEditorPane();
+      if (pane != null)
+        pane.setEditable(dataObject.editableOnGUI().blockingFirst());
+      return pane;
+    }
   }
 
   /**
