@@ -17,6 +17,7 @@ import org.openide.windows.*;
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -103,7 +104,8 @@ class NodeJSScriptRunConfig implements IRunConfig
 
     try
     {
-      CompletableFuture<Integer> future = pExecutor.executeAsync(environment, INodeJSExecBase.packageManager(), out, err, null, "run", scriptName);
+      String npmScript = Paths.get(environment.getPath().getParent(), "node_modules", "npm", "bin", "npm-cli.js").toString();
+      CompletableFuture<Integer> future = pExecutor.executeAsync(environment, INodeJSExecBase.node(), out, err, null, npmScript, "run", scriptName);
       pSubject.onNext(Optional.of(future));
       future.whenComplete((pExit, pEx) -> pSubject.onNext(Optional.of(future)));
     }
