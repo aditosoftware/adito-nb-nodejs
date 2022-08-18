@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.*;
 
 /**
  * @author w.glanzer, 08.03.2021
@@ -154,6 +154,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     // 2. execute
     AtomicReference<Thread> executionThreadRef = new AtomicReference<>(null);
     AtomicReference<Process> processRef = new AtomicReference<>(null);
+    AtomicBoolean isRunning = new AtomicBoolean(true);
     CompletableFuture<Integer> executionFuture = CompletableFuture.supplyAsync(() -> {
       executionThreadRef.set(Thread.currentThread());
       // Invalid Environment
@@ -189,7 +190,9 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
       // log command
       _logCommand(builder, finalDefaultOut);
 
-      return builder.run().getExitValue();
+      ProcResult res = builder.run();
+      isRunning.set(false);
+      return res.getExitValue();
     }, processExecutor);
 
     // 3. future which is returned. If this future is cancelled, the thread of the execution future is interrupted, so the execution future finishes
@@ -214,7 +217,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     }, processExecutor);
 
     waitingFuture.handle((pExit, pThrowable) -> {
-      if (executionThreadRef.get() != null && executionThreadRef.get().isAlive())
+      if (executionThreadRef.get() != null && executionThreadRef.get().isAlive() && isRunning.get())
       {
         try
         {
