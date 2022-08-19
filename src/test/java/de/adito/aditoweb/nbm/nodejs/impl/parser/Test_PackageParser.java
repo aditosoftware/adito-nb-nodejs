@@ -35,7 +35,7 @@ class Test_PackageParser
   @Test
   void test_parseScripts_invalid()
   {
-    Assertions.assertEquals(Map.of(), PackageParser.parseScripts(new StringReader("{ scripts: {  äö / \"")));
+    Assertions.assertEquals(Map.of(), PackageParser.parseScripts(new StringReader("{ scripts: {  Ã¤Ã¶ / \"")));
   }
 
 }

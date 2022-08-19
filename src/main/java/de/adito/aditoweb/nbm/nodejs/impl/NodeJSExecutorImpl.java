@@ -3,7 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.notification.INotificationFacade;
-import org.buildobjects.process.ProcBuilder;
+import org.buildobjects.process.*;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileUtil;
@@ -14,7 +14,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.*;
 
 /**
  * @author w.glanzer, 08.03.2021
@@ -152,6 +153,8 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
 
     // 2. execute
     AtomicReference<Thread> executionThreadRef = new AtomicReference<>(null);
+    AtomicReference<Process> processRef = new AtomicReference<>(null);
+    AtomicBoolean isRunning = new AtomicBoolean(true);
     CompletableFuture<Integer> executionFuture = CompletableFuture.supplyAsync(() -> {
       executionThreadRef.set(Thread.currentThread());
       // Invalid Environment
@@ -181,12 +184,15 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
           .withErrorStream(finalErrorOut)
           .withInputStream(pDefaultIn)
           .withNoTimeout()
+          .withOnCreationHandler(processRef::set)
           .ignoreExitStatus();
 
       // log command
       _logCommand(builder, finalDefaultOut);
 
-      return builder.run().getExitValue();
+      ProcResult res = builder.run();
+      isRunning.set(false);
+      return res.getExitValue();
     }, processExecutor);
 
     // 3. future which is returned. If this future is cancelled, the thread of the execution future is interrupted, so the execution future finishes
@@ -211,8 +217,18 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     }, processExecutor);
 
     waitingFuture.handle((pExit, pThrowable) -> {
-      if (executionThreadRef.get() != null && executionThreadRef.get().isAlive())
-        executionThreadRef.get().interrupt();
+      if (executionThreadRef.get() != null && executionThreadRef.get().isAlive() && isRunning.get())
+      {
+        try
+        {
+          if (processRef.get() != null)
+            new SendCtrlC().send(processRef.get().pid());
+        }
+        catch (IOException ex)
+        {
+          executionThreadRef.get().interrupt();
+        }
+      }
 
       return pExit;
     });
