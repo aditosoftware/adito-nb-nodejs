@@ -222,7 +222,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
         try
         {
           if (processRef.get() != null)
-            new SendCtrlC().send(processRef.get().pid());
+            SendCtrlC.getInstance().send(processRef.get().pid());
         }
         catch (IOException ex)
         {

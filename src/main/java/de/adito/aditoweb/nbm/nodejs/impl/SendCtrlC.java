@@ -9,13 +9,28 @@ import java.util.regex.Pattern;
 /**
  * @author p.neub, 18.08.2022
  */
-public final class SendCtrlC
+public class SendCtrlC
 {
   private static final Pattern WRONG_PREFIX_MATCHER = Pattern.compile("/[A-Z]:/.*");
+  private static SendCtrlC instance;
 
   private final String nativePath;
 
   public SendCtrlC()
+  {
+    nativePath = getNativePath();
+  }
+
+  public void send(long pProcessId) throws IOException
+  {
+    String pid = String.valueOf(pProcessId);
+    if (System.getProperty("os.name").toLowerCase().startsWith("windows"))
+      new ProcessBuilder(Paths.get(nativePath, "sendctrlc.x64.exe").toString(), pid).start();
+    else
+      new ProcessBuilder("kill", "-2", pid).start();
+  }
+
+  protected String getNativePath()
   {
     URL pJarFile = SendCtrlC.class.getProtectionDomain().getCodeSource().getLocation();
     String[] split = pJarFile.toExternalForm().split("!");
@@ -32,15 +47,18 @@ public final class SendCtrlC
 
     pathToExe = URLDecoder.decode(pathToExe, StandardCharsets.UTF_8);
     Path jarDir = Paths.get(pathToExe).getParent();
-    nativePath = Paths.get(jarDir.toString(), "/ext/de.adito.aditoweb.nbm.nodejs/native").toString();
+    return Paths.get(jarDir.toString(), "/ext/de.adito.aditoweb.nbm.nodejs/native").toString();
   }
 
-  public void send(long pProcessId) throws IOException
+  public static SendCtrlC getInstance()
   {
-    String pid = String.valueOf(pProcessId);
-    if (System.getProperty("os.name").toLowerCase().startsWith("windows"))
-      new ProcessBuilder(Paths.get(nativePath, "sendctrlc.x64.exe").toString(), pid).start();
-    else
-      new ProcessBuilder("kill", "-2", pid).start();
+    if (instance == null)
+      instance = new SendCtrlC();
+    return instance;
+  }
+
+  public static void setInstance(SendCtrlC pInstance)
+  {
+    instance = pInstance;
   }
 }
