@@ -1,0 +1,138 @@
+package de.adito.aditoweb.nbm.nodejs.impl.options;
+
+import org.jetbrains.annotations.*;
+
+import java.util.function.*;
+
+/**
+ * Allows easier handling of column name and type in a tableModel. Also allows for easy reordering of columns
+ *
+ * @author m.kaspera, 01.09.2022
+ */
+public class TableModelColumn
+{
+
+  @NotNull
+  private final String name;
+  @NotNull
+  private final Class<?> classType;
+  @Nullable
+  private final IsEditableFn isEditableFn;
+  @Nullable
+  private final GetValueFn getValueFn;
+  @Nullable
+  private final SetValueFn setValueFn;
+
+  /**
+   *
+   * @param pName Name of the column
+   * @param pClassType type of class that the column consists of
+   * @param pIsEditableFn function for determining if a certain cell in the table is editable
+   * @param pGetValueFn function for getting the value of cell of this column
+   * @param pSetValueFn function for setting the value of a cell of this column
+   */
+  private TableModelColumn(@NotNull String pName, @NotNull Class<?> pClassType, @Nullable IsEditableFn pIsEditableFn, @Nullable GetValueFn pGetValueFn,
+                           @Nullable SetValueFn pSetValueFn)
+  {
+    name = pName;
+    classType = pClassType;
+    isEditableFn = pIsEditableFn;
+    getValueFn = pGetValueFn;
+    setValueFn = pSetValueFn;
+  }
+
+  @NotNull
+  public String getName()
+  {
+    return name;
+  }
+
+  @NotNull
+  public Class<?> getClassType()
+  {
+    return classType;
+  }
+
+  public boolean isEditable(int pIndex)
+  {
+    if (isEditableFn == null)
+      return false;
+    return isEditableFn.apply(pIndex);
+  }
+
+  @Nullable
+  public Object getValue(int pIndex)
+  {
+    if (getValueFn == null)
+      return null;
+    return getValueFn.apply(pIndex);
+  }
+
+  public void setValue(@NotNull Object pObj, int pIndex)
+  {
+    if (setValueFn != null)
+      setValueFn.accept(pObj, pIndex);
+  }
+
+  public static class TableColumnBuilder
+  {
+
+    private String name;
+    private Class<?> classType;
+    private IsEditableFn isEditableFn;
+    private GetValueFn getValueFn;
+    private SetValueFn setValueFn;
+
+    public TableColumnBuilder setName(@NotNull String pName)
+    {
+      name = pName;
+      return this;
+    }
+
+    public TableColumnBuilder setClassType(@NotNull Class<?> pType)
+    {
+      classType = pType;
+      return this;
+    }
+
+    public TableColumnBuilder setIsEditableFn(@NotNull IsEditableFn pEditableFn)
+    {
+      isEditableFn = pEditableFn;
+      return this;
+    }
+
+    public TableColumnBuilder setGetValueFn(@NotNull GetValueFn pGetValueFn)
+    {
+      getValueFn = pGetValueFn;
+      return this;
+    }
+
+    public TableColumnBuilder setSetValueFn(@NotNull SetValueFn pSetValueFn)
+    {
+      setValueFn = pSetValueFn;
+      return this;
+    }
+
+    public TableModelColumn build()
+    {
+      if (name == null)
+        throw new IllegalStateException("Argument 'name' can not be null");
+      if (classType == null)
+        throw new IllegalStateException("Argument 'classType' can not be null");
+      return new TableModelColumn(name, classType, isEditableFn, getValueFn, setValueFn);
+    }
+
+  }
+
+  public interface IsEditableFn extends Function<Integer, Boolean>
+  {
+  }
+
+  public interface GetValueFn extends Function<Integer, Object>
+  {
+  }
+
+  public interface SetValueFn extends BiConsumer<Object, Integer>
+  {
+  }
+}

@@ -1,13 +1,17 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSEnvironment;
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.project.IProjectVisibility;
 import de.adito.aditoweb.nbm.nodejs.impl.BundledNodeJS;
+import de.adito.aditoweb.nbm.nodejs.impl.ls.IgnoredWarningsFacade;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.swing.*;
 import info.clearthought.layout.*;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.progress.BaseProgressUtils;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.*;
 import org.openide.util.NbBundle;
 
@@ -15,12 +19,12 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.*;
+import java.util.function.BooleanSupplier;
 
 /**
  * Panel to display the options
@@ -37,7 +41,8 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
   @NbBundle.Messages({
       "LBL_Path=Path to Executable",
       "LBL_Installation=Installation",
-      "LBL_Chooser_LocateNodeJS=Locate NodeJS Executable"
+      "LBL_Chooser_LocateNodeJS=Locate NodeJS Executable",
+      "LBL_IgnoredWarnings=Ignored Warnings"
   })
   public NodeJSOptionsPanel()
   {
@@ -46,13 +51,19 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
     double fill = TableLayoutConstants.FILL;
     double pref = TableLayoutConstants.PREFERRED;
     int gap = 5;
+    int categoryGap = 20;
 
     double[] cols = {pref, gap, fill};
     double[] rows = {pref,
                      gap,
                      pref,
                      gap,
-                     pref};
+                     pref,
+                     categoryGap,
+                     pref,
+                     gap,
+                     fill,
+                     gap};
 
 
     setLayout(new TableLayout(cols, rows));
@@ -68,6 +79,8 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
 
     // Version reader
     tlu.add(2, 4, _createVersionLabel());
+    tlu.add(0, 6, 2, 6, new LinedDecorator(Bundle.LBL_IgnoredWarnings(), null));
+    tlu.add(0, 8, 2, 8, new IgnoredWarningsPanel());
   }
 
   @Override

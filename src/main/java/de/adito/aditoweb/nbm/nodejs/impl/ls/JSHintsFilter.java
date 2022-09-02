@@ -32,8 +32,10 @@ public class JSHintsFilter implements ILSPHintsFilter
   public boolean filter(@NotNull FileObject pFileObject, @Nullable String pId, @NotNull String pDescription, @NotNull String pSeverity, @Nullable PositionBounds pRange)
   {
     // Filter hints that were set as ignored by the user
-    Set<IgnoreWarningFix.WarningsItem> warningsItems = IgnoredWarningsCache.getInstance().get(FileOwnerQuery.getOwner(pFileObject));
-    if (pId != null && warningsItems.stream().anyMatch(pWarningsItem -> pWarningsItem.id == Integer.parseInt(pId)))
+    Set<IgnoredWarningsFacade.WarningsItem> warningsItems = IgnoredWarningsCache.getInstance()
+        .get(FileOwnerQuery.getOwner(pFileObject))
+        .blockingFirst();
+    if (pId != null && warningsItems.stream().anyMatch(pWarningsItem -> pWarningsItem.getId() == Integer.parseInt(pId)))
       return false;
     // in js there are no types, so this hint should be ignored
     return !_PATTERN_TYPES.matcher(pDescription).matches();
