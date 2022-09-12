@@ -6,6 +6,7 @@ import de.adito.aditoweb.nbm.metrics.api.types.Counted;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
+import de.adito.notification.INotificationFacade;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
@@ -56,7 +57,7 @@ public class NodeJSInstaller implements Runnable
       }
       catch (Exception e)
       {
-        _LOGGER.log(Level.WARNING, "", e);
+        INotificationFacade.INSTANCE.error(e);
       }
     });
   }
