@@ -6,6 +6,7 @@ import de.adito.notification.INotificationFacade;
 import de.adito.swing.icon.IconAttributes;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 
 import javax.swing.*;
@@ -176,6 +177,7 @@ public class IgnoredWarningsTablePanel extends JPanel
         try
         {
           IgnoredWarningsFacade.unIgnoreWarnings(project, itemsToRemove);
+          FileUtil.toFileObject(IgnoredWarningsCache.getIgnoredWarningsFile(project)).refresh();
         }
         catch (IOException pE)
         {
