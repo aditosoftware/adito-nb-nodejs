@@ -4,6 +4,7 @@ import com.google.gson.*;
 import io.reactivex.rxjava3.core.Observable;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.Project;
+import org.openide.filesystems.FileUtil;
 
 import java.io.*;
 import java.util.*;
@@ -59,6 +60,7 @@ public class IgnoredWarningsFacade
       writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(fileContent));
       writer.flush();
     }
+    FileUtil.toFileObject(IgnoredWarningsCache.getIgnoredWarningsFile(pProject)).refresh();
   }
 
   public static class WarningsItem
