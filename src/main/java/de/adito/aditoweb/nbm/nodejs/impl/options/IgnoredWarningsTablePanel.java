@@ -29,7 +29,9 @@ public class IgnoredWarningsTablePanel extends JPanel
 
   public IgnoredWarningsTablePanel(Project pOpenProject)
   {
-    JTable table = new JTable(new IgnoredWarningsTableModel(pOpenProject));
+    JTable table = new JTable();
+    IgnoredWarningsTableModel warningsTableModel = new IgnoredWarningsTableModel(pOpenProject, table);
+    table.setModel(warningsTableModel);
     table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     table.getColumnModel().getColumn(1).setMaxWidth(150);
     setLayout(new BorderLayout());
@@ -53,14 +55,16 @@ public class IgnoredWarningsTablePanel extends JPanel
     private List<IgnoredWarningsFacade.WarningsItem> warningsItems = List.of();
     private final List<TableModelListener> tableModelListeners = new ArrayList<>();
 
-    public IgnoredWarningsTableModel(Project pOpenProject)
+    public IgnoredWarningsTableModel(@NotNull Project pOpenProject, @NotNull JTable pTable)
     {
       IgnoredWarningsCache cache = IgnoredWarningsCache.getInstance();
       cache.get(pOpenProject).subscribe(pWarningsItems -> {
         warningsItems = pWarningsItems.stream()
             .sorted(Comparator.comparing(IgnoredWarningsFacade.WarningsItem::getId))
             .collect(Collectors.toList());
+        int selectedRow = pTable.getSelectedRow();
         fireModelChanged();
+        pTable.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
       });
       tableModelColumns = List.of(
           new TableModelColumn.TableColumnBuilder().setName("Description")
