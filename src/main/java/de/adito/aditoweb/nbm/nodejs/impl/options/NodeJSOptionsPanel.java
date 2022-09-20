@@ -110,7 +110,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
   @Override
   public boolean getScrollableTracksViewportHeight()
   {
-    return false;
+    return true;
   }
 
   /**
