@@ -29,7 +29,10 @@ public class IgnoreWarningFix implements Fix
   @Override
   public String getText()
   {
-    return "Ignore all warnings of type: '" + description + "'";
+    String text = "Ignore all warnings of type: '" + description + "'";
+    if(text.length() > 130)
+      text = text.substring(0, 130) + "...";
+    return text;
   }
 
   @Override
