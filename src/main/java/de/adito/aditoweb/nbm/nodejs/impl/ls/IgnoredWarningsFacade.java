@@ -1,6 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import io.reactivex.rxjava3.core.Observable;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.Project;
@@ -54,9 +54,9 @@ public class IgnoredWarningsFacade
     IgnoreWarningFix.FileContent fileContent = new IgnoreWarningFix.FileContent();
     fileContent.content = pWarningsItemStream.collect(Collectors.toMap(pWarningsItem -> String.valueOf(pWarningsItem.getId()),
                                                                        WarningsItem::getDescription));
-    try (FileWriter writer = new FileWriter(IgnoredWarningsCache.getInstance().getIgnoredWarningsFile(pProject)))
+    try (FileWriter writer = new FileWriter(IgnoredWarningsCache.getIgnoredWarningsFile(pProject)))
     {
-      writer.write(new Gson().toJson(fileContent));
+      writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(fileContent));
       writer.flush();
     }
   }

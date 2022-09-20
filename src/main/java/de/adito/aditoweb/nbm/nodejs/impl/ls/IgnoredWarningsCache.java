@@ -51,7 +51,7 @@ public class IgnoredWarningsCache
 
   @SuppressWarnings("ResultOfMethodCallIgnored") // ignore for mkdirs and createNewFile
   @NotNull
-  File getIgnoredWarningsFile(@NotNull Project pProject) throws IOException
+  public static File getIgnoredWarningsFile(@NotNull Project pProject) throws IOException
   {
     File ignoredWarnings = new File(FileUtil.toFile(pProject.getProjectDirectory()), ".aditoprj/ignoredWarnings");
     if (!ignoredWarnings.exists())
