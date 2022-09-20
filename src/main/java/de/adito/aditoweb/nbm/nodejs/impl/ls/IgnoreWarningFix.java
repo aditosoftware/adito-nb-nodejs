@@ -42,6 +42,7 @@ public class IgnoreWarningFix implements Fix
     IgnoredWarningsFacade.addIgnoredWarning(project, id, description);
     // "touch" the given file so that the warnings/errors are generated anew
     Files.setLastModifiedTime(FileUtil.toFile(fileObject).toPath(), FileTime.from(Instant.now()));
+    fileObject.refresh();
     return new ChangeInfo();
   }
 
