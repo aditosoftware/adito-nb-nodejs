@@ -1,10 +1,11 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
 import com.google.gson.*;
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.project.IProjectVisibility;
 import io.reactivex.rxjava3.core.Observable;
 import org.jetbrains.annotations.NotNull;
-import org.netbeans.api.project.Project;
-import org.openide.filesystems.FileUtil;
+import org.netbeans.api.project.*;
+import org.openide.filesystems.*;
 
 import java.io.*;
 import java.util.*;
@@ -30,10 +31,23 @@ public class IgnoredWarningsFacade
 
   public static void addIgnoredWarning(@NotNull Project pProject, int pId, @NotNull String pDescription) throws IOException
   {
-    Set<WarningsItem> warningsItems = getIgnoredWarnings(pProject).blockingFirst();
+    Project project = getRootProject(pProject);
+    Set<WarningsItem> warningsItems = getIgnoredWarnings(project).blockingFirst();
     Stream<WarningsItem> warningsItemStream = Stream.concat(warningsItems.stream(),
                                                             Stream.of(new WarningsItem(pId, pDescription)));
-    writeToFile(pProject, warningsItemStream);
+    writeToFile(project, warningsItemStream);
+  }
+
+  @NotNull
+  private static Project getRootProject(@NotNull Project pProject)
+  {
+    if(Boolean.TRUE.equals(pProject.getLookup().lookup(IProjectVisibility.class).isVisible()))
+      return pProject;
+    return Optional.ofNullable(pProject.getProjectDirectory())
+        .map(FileObject::getParent)
+        .map(FileOwnerQuery::getOwner)
+        .map(IgnoredWarningsFacade::getRootProject)
+        .orElse(pProject);
   }
 
   public static void addIgnoredWarnings(@NotNull Project pProject, @NotNull List<WarningsItem> pWarningsItems) throws IOException
