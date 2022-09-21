@@ -53,8 +53,9 @@ public class IgnoredWarningsFacade
   private static void writeToFile(@NotNull Project pProject, Stream<WarningsItem> pWarningsItemStream) throws IOException
   {
     IgnoreWarningFix.FileContent fileContent = new IgnoreWarningFix.FileContent();
-    fileContent.content = pWarningsItemStream.collect(Collectors.toMap(pWarningsItem -> String.valueOf(pWarningsItem.getId()),
-                                                                       WarningsItem::getDescription));
+    fileContent.content = pWarningsItemStream
+        .distinct()
+        .collect(Collectors.toMap(pWarningsItem -> String.valueOf(pWarningsItem.getId()), WarningsItem::getDescription));
     try (FileWriter writer = new FileWriter(IgnoredWarningsCache.getIgnoredWarningsFile(pProject)))
     {
       writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(fileContent));
