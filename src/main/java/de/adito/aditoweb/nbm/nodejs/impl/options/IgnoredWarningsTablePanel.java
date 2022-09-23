@@ -1,5 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options;
 
+import de.adito.aditoweb.nbm.nbide.nbaditointerface.common.IDisposerService;
 import de.adito.aditoweb.nbm.nodejs.impl.ls.*;
 import de.adito.aditoweb.nbm.vaadinicons.IVaadinIconsProvider;
 import de.adito.notification.INotificationFacade;
@@ -58,14 +59,15 @@ public class IgnoredWarningsTablePanel extends JPanel
     public IgnoredWarningsTableModel(@NotNull Project pOpenProject, @NotNull JTable pTable)
     {
       IgnoredWarningsCache cache = IgnoredWarningsCache.getInstance();
-      cache.get(pOpenProject).subscribe(pWarningsItems -> {
+      IDisposerService disposerService = Lookup.getDefault().lookup(IDisposerService.class);
+      disposerService.register(pOpenProject, cache.get(pOpenProject).subscribe(pWarningsItems -> {
         warningsItems = pWarningsItems.stream()
             .sorted(Comparator.comparing(IgnoredWarningsFacade.WarningsItem::getId))
             .collect(Collectors.toList());
         int selectedRow = pTable.getSelectedRow();
         fireModelChanged();
         pTable.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-      });
+      }));
       tableModelColumns = List.of(
           new TableModelColumn.TableColumnBuilder().setName("Description")
               .setClassType(String.class)
