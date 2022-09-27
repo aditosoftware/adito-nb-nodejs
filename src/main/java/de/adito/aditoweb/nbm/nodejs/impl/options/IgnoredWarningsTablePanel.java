@@ -58,9 +58,9 @@ public class IgnoredWarningsTablePanel extends JPanel
 
     public IgnoredWarningsTableModel(@NotNull Project pOpenProject, @NotNull JTable pTable)
     {
-      IgnoredWarningsCache cache = IgnoredWarningsCache.getInstance();
+      IgnoredWarningsProvider provider = pOpenProject.getLookup().lookup(IgnoredWarningsProvider.class);
       IDisposerService disposerService = Lookup.getDefault().lookup(IDisposerService.class);
-      disposerService.register(pOpenProject, cache.get(pOpenProject).subscribe(pWarningsItems -> {
+      disposerService.register(pOpenProject, provider.get().subscribe(pWarningsItems -> {
         warningsItems = pWarningsItems.stream()
             .sorted(Comparator.comparing(IgnoredWarningsFacade.WarningsItem::getId))
             .collect(Collectors.toList());
@@ -183,7 +183,7 @@ public class IgnoredWarningsTablePanel extends JPanel
         try
         {
           IgnoredWarningsFacade.unIgnoreWarnings(project, itemsToRemove);
-          FileUtil.toFileObject(IgnoredWarningsCache.getIgnoredWarningsFile(project)).refresh();
+          FileUtil.toFileObject(IgnoredWarningsProvider.getIgnoredWarningsFile(project)).refresh();
         }
         catch (IOException pE)
         {

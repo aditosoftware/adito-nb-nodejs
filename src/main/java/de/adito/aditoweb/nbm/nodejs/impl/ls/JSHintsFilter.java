@@ -2,7 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.lsp.ILSPHintsFilter;
 import org.jetbrains.annotations.*;
-import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.*;
 import org.openide.filesystems.FileObject;
 import org.openide.text.PositionBounds;
 import org.openide.util.lookup.ServiceProvider;
@@ -31,9 +31,10 @@ public class JSHintsFilter implements ILSPHintsFilter
   @Override
   public boolean filter(@NotNull FileObject pFileObject, @Nullable String pId, @NotNull String pDescription, @NotNull String pSeverity, @Nullable PositionBounds pRange)
   {
+    Project project = FileOwnerQuery.getOwner(pFileObject);
     // Filter hints that were set as ignored by the user
-    Set<IgnoredWarningsFacade.WarningsItem> warningsItems = IgnoredWarningsCache.getInstance()
-        .get(FileOwnerQuery.getOwner(pFileObject))
+    Set<IgnoredWarningsFacade.WarningsItem> warningsItems = project.getLookup().lookup(IgnoredWarningsProvider.class)
+        .get()
         .blockingFirst();
     if (pId != null && warningsItems.stream().anyMatch(pWarningsItem -> pWarningsItem.getId() == Integer.parseInt(pId)))
       return false;

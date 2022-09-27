@@ -17,7 +17,6 @@ import java.util.stream.*;
 public class IgnoredWarningsFacade
 {
 
-  private static final IgnoredWarningsCache warningsCache = IgnoredWarningsCache.getInstance();
 
   private IgnoredWarningsFacade()
   {
@@ -26,7 +25,9 @@ public class IgnoredWarningsFacade
   @NotNull
   public static Observable<Set<WarningsItem>> getIgnoredWarnings(@NotNull Project pProject)
   {
-    return warningsCache.get(pProject);
+    return Optional.ofNullable(pProject.getLookup().lookup(IgnoredWarningsProvider.class))
+        .map(IgnoredWarningsProvider::get)
+        .orElse(Observable.just(Set.of()));
   }
 
   public static void addIgnoredWarning(@NotNull Project pProject, int pId, @NotNull String pDescription) throws IOException
@@ -70,12 +71,12 @@ public class IgnoredWarningsFacade
     fileContent.content = pWarningsItemStream
         .distinct()
         .collect(Collectors.toMap(pWarningsItem -> String.valueOf(pWarningsItem.getId()), WarningsItem::getDescription));
-    try (FileWriter writer = new FileWriter(IgnoredWarningsCache.getIgnoredWarningsFile(pProject)))
+    try (FileWriter writer = new FileWriter(IgnoredWarningsProvider.getIgnoredWarningsFile(pProject)))
     {
       writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(fileContent));
       writer.flush();
     }
-    FileUtil.toFileObject(IgnoredWarningsCache.getIgnoredWarningsFile(pProject)).refresh();
+    FileUtil.toFileObject(IgnoredWarningsProvider.getIgnoredWarningsFile(pProject)).refresh();
   }
 
   public static class WarningsItem
