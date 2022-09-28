@@ -7,8 +7,9 @@ import de.adito.notification.INotificationFacade;
 import de.adito.swing.icon.IconAttributes;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.*;
 import org.openide.util.Lookup;
+import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -17,6 +18,9 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -154,6 +158,8 @@ public class IgnoredWarningsTablePanel extends JPanel
   {
 
     @NotNull
+    private static final Set<String> MIME_TYPES = Set.of("text/javascript", "text/typescript");
+    @NotNull
     private final Project project;
     @NotNull
     private final JTable table;
@@ -184,10 +190,30 @@ public class IgnoredWarningsTablePanel extends JPanel
         {
           IgnoredWarningsFacade.unIgnoreWarnings(project, itemsToRemove);
           FileUtil.toFileObject(IgnoredWarningsProvider.getIgnoredWarningsFile(project)).refresh();
+          updateTopcomponents();
+
         }
         catch (IOException pE)
         {
           INotificationFacade.INSTANCE.error(pE);
+        }
+      }
+    }
+
+    /**
+     * trigger an update of all TopComponents containing js or ts files -> warnings are refreshed
+     *
+     * @throws IOException in case the lastModified time on a file cannot be set
+     */
+    private void updateTopcomponents() throws IOException
+    {
+      for (TopComponent topComponent : TopComponent.getRegistry().getOpened())
+      {
+        FileObject fileObject = topComponent.getLookup().lookup(FileObject.class);
+        if (MIME_TYPES.contains(fileObject.getMIMEType()))
+        {
+          Files.setLastModifiedTime(FileUtil.toFile(fileObject).toPath(), FileTime.from(Instant.now()));
+          fileObject.refresh();
         }
       }
     }
