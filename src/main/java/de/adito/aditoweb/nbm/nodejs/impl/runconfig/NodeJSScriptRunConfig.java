@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.runconfig;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
+import de.adito.aditoweb.nbm.nodejs.impl.NodeJSScriptExitHook;
 import de.adito.aditoweb.nbm.nodejs.impl.actions.io.*;
 import de.adito.nbm.runconfig.api.*;
 import de.adito.nbm.runconfig.spi.IActiveConfigComponentProvider;
@@ -12,14 +13,18 @@ import org.apache.commons.io.output.WriterOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.project.*;
+import org.netbeans.core.output2.adito.InputOutputExt;
+import org.openide.*;
+import org.openide.util.*;
 import org.openide.windows.*;
 
 import javax.swing.*;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 
 /**
  * RunConfig to execute a single nodejs script
@@ -28,7 +33,6 @@ import java.util.concurrent.CompletableFuture;
  */
 class NodeJSScriptRunConfig implements IRunConfig
 {
-
   private final Project project;
   private final INodeJSEnvironment environment;
   private final String scriptName;
@@ -86,6 +90,12 @@ class NodeJSScriptRunConfig implements IRunConfig
     }
   }
 
+  @NbBundle.Messages({
+      "LBL_ScriptCloseTerminateTitle=NodeJS script is still running...",
+      "LBL_ScriptCloseTerminateMessage=Do you want to terminate the NodeJS script?",
+      "LBL_ScriptCloseTerminateTerminateBtn=Terminate",
+      "LBL_ScriptCloseTerminateDetachBtn=Detach",
+  })
   private void run(@NotNull InputOutput pIo, @NotNull INodeJSExecutor pExecutor, @NotNull Subject<Optional<CompletableFuture<Integer>>> pSubject)
   {
     try
@@ -107,7 +117,34 @@ class NodeJSScriptRunConfig implements IRunConfig
       String npmScript = Paths.get(environment.getPath().getParent(), "node_modules", "npm", "bin", "npm-cli.js").toString();
       CompletableFuture<Integer> future = pExecutor.executeAsync(environment, INodeJSExecBase.node(), out, err, null, npmScript, "run", scriptName);
       pSubject.onNext(Optional.of(future));
-      future.whenComplete((pExit, pEx) -> pSubject.onNext(Optional.of(future)));
+
+      PropertyChangeListener ioListener = evt -> {
+        // also remove, if the script is not stopped
+        NodeJSScriptExitHook.remove(future);
+
+        // no cancel option, because the closing of the output window can not be aborted here
+        NotifyDescriptor descriptor = new NotifyDescriptor.Confirmation(
+            Bundle.LBL_ScriptCloseTerminateMessage(),
+            Bundle.LBL_ScriptCloseTerminateTitle());
+        descriptor.setOptions(new String[]{
+            Bundle.LBL_ScriptCloseTerminateTerminateBtn(),
+            Bundle.LBL_ScriptCloseTerminateDetachBtn(),
+            });
+        Object selected = DialogDisplayer.getDefault().notify(descriptor);
+        if (Bundle.LBL_ScriptCloseTerminateTerminateBtn().equals(selected))
+          future.cancel(false);
+      };
+      if (pIo instanceof InputOutputExt)
+        ((InputOutputExt) pIo).addPropertyChangeListener(ioListener);
+
+      future.whenComplete((pExit, pEx) -> {
+        if (pIo instanceof InputOutputExt)
+          ((InputOutputExt) pIo).removePropertyChangeListener(ioListener);
+
+        NodeJSScriptExitHook.remove(future);
+        pSubject.onNext(Optional.of(future));
+      });
+      NodeJSScriptExitHook.add(future);
     }
     catch (IOException pEx)
     {
