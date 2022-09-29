@@ -44,8 +44,10 @@ public final class NPMInstallRequired extends FileChangeAdapter
     FileObject packageJsonFo = project.getProjectDirectory().getFileObject("package.json");
     if (packageJsonFo == null)
       return false;
-    FileObject nodeModulesFo = project.getProjectDirectory().getFileObject("node_modules");
-    long nodeModulesLastModified = nodeModulesFo == null ? 0 : FileUtil.toFile(nodeModulesFo).lastModified();
+    FileObject packageLockFo = project.getProjectDirectory()
+        .getFileObject("node_modules", false)
+        .getFileObject(".package-lock.json");
+    long nodeModulesLastModified = packageLockFo == null ? 0 : FileUtil.toFile(packageLockFo).lastModified();
     return nodeModulesLastModified < FileUtil.toFile(packageJsonFo).lastModified();
   }
 
