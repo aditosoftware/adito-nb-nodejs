@@ -49,6 +49,11 @@
       <artifactId>de-adito-metrics-api</artifactId>
       <version>${netbeans.version}-1.9.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.netbeans.modules</groupId>
+      <artifactId>org-netbeans-core-output2</artifactId>
+      <version>${netbeans.version}-1.9.0</version>
+    </dependency>
 
     <!-- ADITO Utils -->
     <dependency>
