@@ -6,6 +6,17 @@ OpenIDE-Module-Layer: de/adito/aditoweb/nbm/nodejs/layer.xml
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.4.5</p>
+  <p style="margin-left: 10px; font-weight: bold;">MAJOR</p>
+    <ul>
+      <li>Added actions to ignore warnings. An overview over the ignored warnings is available in the options, ignored warnings can be unignored there too.</li>
+      <li>Terminate NodeJS scripts gracefully on exit/close</li>
+    </ul>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+    <ul>
+      <li>Added a notification if a npm install is required</li>
+      <li>Added an error notification if downloading of the nodejs bundle fails</li>
+    </ul>
   <p style="font-weight: bold;">v1.4.4</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
     <ul>
