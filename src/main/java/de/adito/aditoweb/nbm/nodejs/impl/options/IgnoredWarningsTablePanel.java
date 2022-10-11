@@ -210,7 +210,7 @@ public class IgnoredWarningsTablePanel extends JPanel
       for (TopComponent topComponent : TopComponent.getRegistry().getOpened())
       {
         FileObject fileObject = topComponent.getLookup().lookup(FileObject.class);
-        if (MIME_TYPES.contains(fileObject.getMIMEType()))
+        if (fileObject != null && MIME_TYPES.contains(fileObject.getMIMEType()))
         {
           Files.setLastModifiedTime(FileUtil.toFile(fileObject).toPath(), FileTime.from(Instant.now()));
           fileObject.refresh();
