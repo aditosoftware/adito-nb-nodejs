@@ -3,6 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.notification.INotificationFacade;
+import org.apache.commons.io.output.NullOutputStream;
 import org.buildobjects.process.*;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
@@ -67,10 +68,19 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
   public String executeSync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, long pTimeout, @NotNull String... pParams)
       throws IOException, InterruptedException, TimeoutException
   {
+    return executeSync(pEnv, pBase, pTimeout, true, pParams);
+  }
+
+  @NotNull
+  @Override
+  public String executeSync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, long pTimeout, boolean pIncludeStdErr, @NotNull String... pParams)
+      throws IOException, InterruptedException, TimeoutException
+  {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    OutputStream errBaos = pIncludeStdErr ? baos : NullOutputStream.NULL_OUTPUT_STREAM;
 
     // create and start
-    Future<Integer> process = _executeAsync(pEnv, pBase, baos, baos, null, false, pParams);
+    Future<Integer> process = _executeAsync(pEnv, pBase, baos, errBaos, null, false, pParams);
 
     try
     {
