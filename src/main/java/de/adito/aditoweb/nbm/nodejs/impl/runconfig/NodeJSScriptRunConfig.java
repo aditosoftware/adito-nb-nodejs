@@ -15,16 +15,16 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.project.*;
 import org.netbeans.core.output2.adito.InputOutputExt;
 import org.openide.*;
-import org.openide.util.*;
+import org.openide.util.NbBundle;
 import org.openide.windows.*;
 
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * RunConfig to execute a single nodejs script
@@ -79,14 +79,13 @@ class NodeJSScriptRunConfig implements IRunConfig
     {
       Subject<Optional<CompletableFuture<Integer>>> futureObservable = BehaviorSubject.createDefault(Optional.empty());
 
-      Action[] actions = new Action[2];
-      InputOutput io = _createIO(actions);
-
-      actions[0] = new StartAction(futureObservable, () -> run(io, executor, futureObservable));
-      actions[1] = new StopAction(futureObservable);
+      AtomicReference<InputOutput> ioRef = new AtomicReference<>();
+      StartAction start = new StartAction(futureObservable, () -> run(ioRef.get(), executor, futureObservable));
+      StopAction stop = new StopAction(futureObservable);
+      ioRef.set(_createIO(start, stop));
 
       // execute nonblocking, so that other runconfigs can be run in parallel
-      run(io, executor, futureObservable);
+      run(ioRef.get(), executor, futureObservable);
     }
   }
 
