@@ -7,14 +7,15 @@ import org.buildobjects.process.*;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileUtil;
+import org.openide.modules.Places;
 import org.openide.util.BaseUtilities;
 import org.openide.util.lookup.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 /**
@@ -98,9 +99,18 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     // Prepare Process
     ArrayList<String> params = new ArrayList<>(Arrays.asList(pParams));
     params.add(0, _getCommandPath(pEnv, pBase).getAbsolutePath());
-    return new ProcessBuilder(params)
-        .directory(workingDir)
-        .start();
+
+    ProcessBuilder builder = new ProcessBuilder(params)
+        .directory(workingDir);
+
+    // redirect error stream to prevent randomly blocking ui...
+    // I dont know exactly why this fix works, but .. hey, it works
+    File err_log = new File(Places.getUserDirectory(), "var/log/npm_err.log");
+    if (!err_log.exists())
+      if (err_log.createNewFile())
+        builder = builder.redirectError(err_log);
+
+    return builder.start();
   }
 
   @NotNull
