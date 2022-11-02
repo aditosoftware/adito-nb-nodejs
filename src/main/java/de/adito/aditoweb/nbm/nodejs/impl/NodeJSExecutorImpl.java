@@ -106,9 +106,11 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     // redirect error stream to prevent randomly blocking ui...
     // I dont know exactly why this fix works, but .. hey, it works
     File err_log = new File(Places.getUserDirectory(), "var/log/npm_err.log");
-    if (!err_log.exists())
-      if (err_log.createNewFile())
-        builder = builder.redirectError(err_log);
+
+    //noinspection ResultOfMethodCallIgnored
+    err_log.createNewFile();
+
+    builder = builder.redirectError(err_log);
 
     return builder.start();
   }
