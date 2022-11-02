@@ -6,6 +6,11 @@ OpenIDE-Module-Layer: de/adito/aditoweb/nbm/nodejs/layer.xml
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.4.7</p>
+  <p style="margin-left: 10px; font-weight: bold;">BUGFIXES</p>
+    <ul>
+      <li>Fix: Redirect errors from npm process, even if the error already existed</li>
+    </ul>
   <p style="font-weight: bold;">v1.4.6</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
     <ul>
