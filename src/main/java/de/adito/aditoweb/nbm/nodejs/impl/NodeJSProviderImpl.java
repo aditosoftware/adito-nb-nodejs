@@ -16,10 +16,7 @@ import java.util.Optional;
 /**
  * @author w.glanzer, 05.03.2021
  */
-@ServiceProviders({
-    @ServiceProvider(service = INodeJSProvider.class, path = "Projects/de-adito-project/Lookup"), //backwards compatibility to 2022.0.0
-    @ServiceProvider(service = INodeJSProvider.class, path = "Projects/de-adito-project/StaticLookup"),
-})
+@ServiceProvider(service = INodeJSProvider.class, path = "Projects/de-adito-project/StaticLookup")
 public class NodeJSProviderImpl implements INodeJSProvider
 {
   private final Project project;

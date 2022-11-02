@@ -7,6 +7,7 @@ import de.adito.observables.netbeans.*;
 import io.reactivex.rxjava3.core.Observable;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.io.File;
@@ -37,7 +38,7 @@ public class NodeJSScriptsRunConfigProvider implements ISystemRunConfigProvider
   @Override
   public Observable<List<IRunConfig>> runConfigurations(List<ISystemInfo> pList)
   {
-    if (project == null)
+    if (project == null || !Arrays.stream(OpenProjects.getDefault().getOpenProjects()).filter(p -> p.equals(project)).findFirst().isPresent())
       return Observable.just(List.of());
     return _createRunConfigsForProject(project);
   }

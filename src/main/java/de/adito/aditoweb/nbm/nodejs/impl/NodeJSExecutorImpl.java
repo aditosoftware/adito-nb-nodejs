@@ -22,10 +22,7 @@ import java.util.concurrent.atomic.*;
 /**
  * @author w.glanzer, 08.03.2021
  */
-@ServiceProviders({
-    @ServiceProvider(service = INodeJSExecutor.class, path = "Projects/de-adito-project/Lookup"), //backwards compatibility to 2022.0.0
-    @ServiceProvider(service = INodeJSExecutor.class, path = "Projects/de-adito-project/StaticLookup"),
-})
+@ServiceProvider(service = INodeJSExecutor.class, path = "Projects/de-adito-project/StaticLookup")
 public class NodeJSExecutorImpl implements INodeJSExecutor
 {
   private static final String _PATH_ENVIRONMENT = "PATH";
