@@ -10,7 +10,7 @@
 
   <groupId>de.adito.aditoweb.nbm</groupId>
   <artifactId>nodejs</artifactId>
-  <version>1.4.6</version>
+  <version>1.4.7</version>
   <packaging>nbm</packaging>
 
   <properties>
