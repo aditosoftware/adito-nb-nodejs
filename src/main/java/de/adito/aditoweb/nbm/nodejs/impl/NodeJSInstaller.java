@@ -7,6 +7,8 @@ import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.notification.INotificationFacade;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
@@ -27,6 +29,8 @@ import java.util.logging.*;
 public class NodeJSInstaller implements Runnable
 {
 
+  public static final String DEFAULT_VERSION = "v16.1.0";
+
   private static final String _INSTALLER_INTEGRITYCHECK_FILE = ".installer_integrity";
   private static final Logger _LOGGER = Logger.getLogger(NodeJSInstaller.class.getName());
   private static final ExecutorService _EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
@@ -34,12 +38,25 @@ public class NodeJSInstaller implements Runnable
                                                                                          .setNameFormat("tNodeJSInstaller-%d")
                                                                                          .setPriority(Thread.MIN_PRIORITY)
                                                                                          .build());
+  private static final BehaviorSubject<Long> installSubject = BehaviorSubject.createDefault(System.currentTimeMillis());
   private final _NodeJSDownloadRetryHandler retryHandler = IMetricProxyFactory.proxy(new _NodeJSDownloadRetryHandler());
+
+  /**
+   * Observes the installation.
+   * The Observable is triggert when the installation has changed, e.g. a new package was installed.
+   *
+   * @return the {@link Observable}
+   */
+  public static Observable<Long> observeInstallation()
+  {
+    return installSubject;
+  }
 
   @Override
   public void run()
   {
-    _downloadLibraries();
+    //noinspection ResultOfMethodCallIgnored doesn't need to be disponsed since there is only one NodeJSInstaller
+    NodeJSOptions.observe().subscribe(pOptions -> _downloadLibraries());
   }
 
   /**
@@ -51,6 +68,14 @@ public class NodeJSInstaller implements Runnable
     _EXECUTOR.execute(() -> {
       try
       {
+        // validate and fix the installation (switch to the bundled installation),
+        // if the specified installation is invalid
+        if (isInvalidInstallation())
+        {
+          NodeJSOptions.update(NodeJSOptions.getInstance().toBuilder().path(null).build());
+          return;
+        }
+
         // download and / or install
         downloadBundledNodeJS();
         downloadOrUpdateBundledTypeScript();
@@ -63,27 +88,54 @@ public class NodeJSInstaller implements Runnable
   }
 
   /**
-   * Downloads the latest nodejs version, if no version is specified
+   * Checks whether the current {@link NodeJSInstallation} is invalid.
+   *
+   * @return boolean indicating if the installation is invalid
+   */
+  private boolean isInvalidInstallation()
+  {
+    NodeJSInstallation installation = NodeJSInstallation.getCurrent();
+
+    if (NodeJSOptions.getInstance().getPath() != null)
+    {
+      // invalidate existing explicit paths to the bundled installation
+      String currRoot = installation.getRootFolder().getAbsolutePath();
+      String bundledRoot = new NodeJSInstallation.BundledInstallationProvider().get().getRootFolder().getAbsolutePath();
+      if (currRoot.equals(bundledRoot))
+        return true;
+
+      // the installation is invalid, if no valid environment can be created
+      return !installation.isEnvironmentAvailable();
+    }
+
+    return false;
+  }
+
+  /**
+   * Downloads the nodejs version specified via {@link NodeJSInstaller#DEFAULT_VERSION}, if no version is specified
    */
   @NbBundle.Messages("LBL_Progress_Download_Execute=Downloading NodeJS {0}...")
   protected void downloadBundledNodeJS() throws IOException
   {
+    NodeJSInstallation installation = NodeJSInstallation.getCurrent();
+    if (!installation.isInternal())
+      return;
+
     // do not download or update anything, if the nodejs container folder already exists and integrity is ok
-    File target = BundledNodeJS.getInstance().getBundledNodeJSContainer();
-    String version = BundledNodeJS.getInstance().getBundledVersion();
-    if (_isIntegrityOK(target, version))
+    File rootFolder = installation.getRootFolder();
+    if (_isIntegrityOK(rootFolder, DEFAULT_VERSION))
     {
       if (BaseUtilities.isWindows())
       {
-        if (new File(target, "node_modules/npm").exists())
+        if (new File(rootFolder, "node_modules/npm").exists())
           return;
       }
       else
         return;
     }
 
-    if (target.exists())
-      FileUtils.deleteDirectory(target);
+    if (rootFolder.exists())
+      FileUtils.deleteDirectory(rootFolder);
 
     try (ProgressHandle handle = ProgressHandle.createSystemHandle(Bundle.LBL_Progress_DownloadLibraries(), null))
     {
@@ -92,29 +144,20 @@ public class NodeJSInstaller implements Runnable
       handle.switchToIndeterminate();
 
       // download
-      handle.setDisplayName(Bundle.LBL_Progress_Download_Execute(version));
+      handle.setDisplayName(Bundle.LBL_Progress_Download_Execute(DEFAULT_VERSION));
 
       INodeJSDownloader downloader = INodeJSDownloader.getInstance();
-      File binFile = downloader.downloadVersion(version, target.getParentFile());
+      File binFile = downloader.downloadVersion(DEFAULT_VERSION, rootFolder.getParentFile());
       File nodeVersionContainer = downloader.findInstallationFromNodeExecutable(binFile);
 
       // rename to target
       if (nodeVersionContainer != null)
-      {
-        FileUtils.moveDirectory(nodeVersionContainer, target);
-        binFile = downloader.findNodeExecutableInInstallation(target);
-      }
+        FileUtils.moveDirectory(nodeVersionContainer, rootFolder);
       else
         throw new IllegalStateException("Could not found nodeVersionContainer in " + binFile);
 
       // update integrity
-      _updateIntegrity(target, version);
-
-      // update options to use new binary
-      if (binFile != null && !NodeJSOptions.getInstance().isPathValid())
-        NodeJSOptions.update(NodeJSOptions.getInstance().toBuilder()
-                                 .path(binFile.getAbsolutePath())
-                                 .build());
+      _updateIntegrity(rootFolder, DEFAULT_VERSION);
     }
   }
 
@@ -134,25 +177,27 @@ public class NodeJSInstaller implements Runnable
       // handle progress
       handle.start();
       handle.switchToIndeterminate();
-      BundledNodeJS bundledNode = BundledNodeJS.getInstance();
-      File target = bundledNode.getBundledNodeJSContainer();
-      if (!target.exists())
+
+      // verify that a node installation is present
+      NodeJSInstallation installation = NodeJSInstallation.getCurrent();
+      File rootFolder = installation.getRootFolder();
+      if (!rootFolder.exists())
         return;
 
       // Create node_modules folder to install the typescript module in the correct directory
       //noinspection ResultOfMethodCallIgnored
-      new File(target, "node_modules").mkdir();
+      new File(rootFolder, "node_modules").mkdir();
 
       // prepare
       List<String> packagesToInstall = IBundledPackages.getPreinstalledPackages();
-      INodeJSExecutor executor = bundledNode.getBundledExecutor();
+      INodeJSExecutor executor = installation.getExecutor();
 
       // try it multiple times, sometimes no NodeJS is available
-      if (!bundledNode.isBundledEnvironmentAvailable())
+      if (!installation.isEnvironmentAvailable())
         retryHandler.retryBundledNodeJsDownload();
 
-      INodeJSEnvironment environment = bundledNode.getBundledEnvironment();
-      boolean install = !NodeCommands.list(executor, environment, target.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
+      INodeJSEnvironment environment = installation.getEnvironment();
+      boolean install = !NodeCommands.list(executor, environment, rootFolder.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
 
       boolean changes = false;
 
@@ -162,24 +207,24 @@ public class NodeJSInstaller implements Runnable
         String display = String.join(", ", packagesToInstall);
         _LOGGER.info(Bundle.LBL_Progress_Download(display));
         handle.setDisplayName(Bundle.LBL_Progress_Download(display));
-        NodeCommands.install(executor, environment, target.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
+        NodeCommands.install(executor, environment, rootFolder.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
       }
 
       // download and install all "preinstalled" packages, so they will be available at runtime
       for (String pkg : packagesToInstall)
       {
         // Update if installed but outdated
-        if (NodeCommands.outdated(executor, environment, target.getAbsolutePath(), pkg))
+        if (NodeCommands.outdated(executor, environment, rootFolder.getAbsolutePath(), pkg))
         {
           changes = true;
           _LOGGER.info(Bundle.LBL_Progress_Update(pkg));
           handle.setDisplayName(Bundle.LBL_Progress_Update(pkg));
-          NodeCommands.update(executor, environment, target.getAbsolutePath(), pkg);
+          NodeCommands.update(executor, environment, rootFolder.getAbsolutePath(), pkg);
         }
       }
 
       if (changes)
-        bundledNode.fireBundledEnvironmentChanged();
+        installSubject.onNext(System.currentTimeMillis());
     }
   }
 
@@ -242,10 +287,10 @@ public class NodeJSInstaller implements Runnable
     @Counted(name = "nodejs.bundled.download.retryhandler")
     public void retryBundledNodeJsDownload() throws IOException
     {
-      BundledNodeJS bundledNode = BundledNodeJS.getInstance();
+      NodeJSInstallation installation = NodeJSInstallation.getCurrent();
 
       int countRetries = 0;
-      while (!bundledNode.isBundledEnvironmentAvailable() && countRetries < 3)
+      while (!installation.isEnvironmentAvailable() && countRetries < 3)
       {
         downloadBundledNodeJS();
         countRetries++;

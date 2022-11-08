@@ -19,7 +19,7 @@ class Test_NodeCommands
   private File target;
   private INodeJSExecutor executor;
   private INodeJSEnvironment environment;
-  private MockedStatic<BundledNodeJS> nodejsMock;
+  private MockedStatic<NodeJSInstallation> nodejsMock;
 
   @BeforeEach
   void beforeEach() throws IOException, TimeoutException, InterruptedException
@@ -30,9 +30,9 @@ class Test_NodeCommands
     FileUtils.deleteDirectory(target);
 
     // mock
-    nodejsMock = Mockito.mockStatic(BundledNodeJS.class);
-    nodejsMock.when(BundledNodeJS::getInstance)
-        .thenReturn(new BundledNodeJS(() -> target));
+    nodejsMock = Mockito.mockStatic(NodeJSInstallation.class);
+    nodejsMock.when(NodeJSInstallation::getCurrent)
+        .thenReturn(new NodeJSInstallation(target, true));
 
     // download nodejs
     NodeJSInstaller installer = new NodeJSInstaller();
@@ -40,8 +40,8 @@ class Test_NodeCommands
     installer.downloadOrUpdateBundledTypeScript();
 
     // save
-    executor = BundledNodeJS.getInstance().getBundledExecutor();
-    environment = BundledNodeJS.getInstance().getBundledEnvironment();
+    executor = NodeJSInstallation.getCurrent().getExecutor();
+    environment = NodeJSInstallation.getCurrent().getEnvironment();
   }
 
   @AfterEach

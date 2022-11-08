@@ -1,17 +1,13 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSEnvironment;
-import de.adito.aditoweb.nbm.nbide.nbaditointerface.project.IProjectVisibility;
-import de.adito.aditoweb.nbm.nodejs.impl.BundledNodeJS;
-import de.adito.aditoweb.nbm.nodejs.impl.ls.IgnoredWarningsFacade;
+import de.adito.aditoweb.nbm.nodejs.impl.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.swing.*;
 import info.clearthought.layout.*;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.progress.BaseProgressUtils;
-import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.*;
 import org.openide.util.NbBundle;
 
@@ -36,13 +32,14 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
   private static final String _DEFAULT_PATH = System.getProperty("user.home") + "/.nodejs-versions";
 
   private final PathSelectionPanel path;
-  private NodeJSOptions options; //NOSONAR its just a swing panel
+  private NodeJSOptions options; //NOSONAR it's just a swing panel
 
   @NbBundle.Messages({
       "LBL_Path=Path to Executable",
       "LBL_Installation=Installation",
       "LBL_Chooser_LocateNodeJS=Locate NodeJS Executable",
-      "LBL_IgnoredWarnings=Ignored Warnings"
+      "LBL_IgnoredWarnings=Ignored Warnings",
+      "LBL_BundledInstallation=<use bundled installation>"
   })
   public NodeJSOptionsPanel()
   {
@@ -114,6 +111,18 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
   }
 
   /**
+   * @return the currently set options, with the user changed values
+   */
+  @NotNull
+  public NodeJSOptions getCurrent()
+  {
+    String selectedPath = path.getValue();
+    return options.toBuilder()
+        .path(selectedPath.equals(Bundle.LBL_BundledInstallation()) ? null : selectedPath)
+        .build();
+  }
+
+  /**
    * Sets the current options to display
    *
    * @param pOptions options to display
@@ -121,18 +130,8 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
   public void setCurrent(@NotNull NodeJSOptions pOptions)
   {
     options = pOptions;
-    path.setValue(pOptions.getPath());
-  }
-
-  /**
-   * @return the currently set options, with the user changed values
-   */
-  @NotNull
-  public NodeJSOptions getCurrent()
-  {
-    return options.toBuilder()
-        .path(path.getValue())
-        .build();
+    String optionsPath = pOptions.getPath();
+    path.setValue(optionsPath != null ? optionsPath : Bundle.LBL_BundledInstallation());
   }
 
   /**
@@ -144,13 +143,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
     List<String> result = new ArrayList<>();
 
     // add bundled
-    File bundledPath = BundledNodeJS.getInstance().getBundledNodeJSContainer();
-    if (bundledPath.exists() && bundledPath.isDirectory())
-    {
-      File bin = INodeJSDownloader.getInstance().findNodeExecutableInInstallation(bundledPath);
-      if (bin != null)
-        result.add(bin.getAbsolutePath());
-    }
+    result.add(Bundle.LBL_BundledInstallation());
 
     // installed in default downloader path
     File folder = new File(_DEFAULT_PATH);
@@ -290,12 +283,12 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
       try
       {
         String value = path.getValue();
-        if (!value.trim().isEmpty())
-        {
-          INodeJSEnvironment env = NodeJSEnvironmentFactory.create(new File(value));
-          if (env != null)
-            return env.getVersion();
-        }
+        if (value.equals(Bundle.LBL_BundledInstallation()))
+          return NodeJSInstaller.DEFAULT_VERSION;
+
+        INodeJSEnvironment env = NodeJSEnvironmentFactory.create(new File(value));
+        if (env != null)
+          return env.getVersion();
       }
       catch (Exception e)
       {
