@@ -14,7 +14,7 @@ class Test_NodeJSInstaller
 {
 
   private static File target;
-  private static MockedStatic<BundledNodeJS> nodejsMock;
+  private static MockedStatic<NodeJSInstallation> nodejsMock;
   private NodeJSInstaller installer;
 
   @BeforeAll
@@ -26,9 +26,9 @@ class Test_NodeJSInstaller
     FileUtils.deleteDirectory(target);
 
     // mock
-    nodejsMock = Mockito.mockStatic(BundledNodeJS.class);
-    nodejsMock.when(BundledNodeJS::getInstance)
-        .thenReturn(new BundledNodeJS(() -> target));
+    nodejsMock = Mockito.mockStatic(NodeJSInstallation.class);
+    nodejsMock.when(NodeJSInstallation::getCurrent)
+        .thenReturn(new NodeJSInstallation(target, true));
   }
 
   @AfterAll

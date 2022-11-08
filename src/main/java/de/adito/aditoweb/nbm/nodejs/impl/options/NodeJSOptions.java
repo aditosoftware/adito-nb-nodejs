@@ -1,14 +1,11 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options;
 
-import com.google.common.base.Strings;
-import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.observables.netbeans.PreferencesObservable;
 import io.reactivex.rxjava3.core.Observable;
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.*;
 import org.openide.util.NbPreferences;
 
-import java.io.File;
 import java.util.prefs.Preferences;
 
 /**
@@ -23,23 +20,11 @@ public class NodeJSOptions
   private static final Preferences PREFS = NbPreferences.forModule(NodeJSOptions.class);
 
   /**
-   * Path to a valid NodeJS environment (binary)
+   * Path to a NodeJS environment (binary)
+   * or null if the bundled installation should be used
    */
+  @Nullable
   private String path;
-
-  /**
-   * Evaluates, if the defined nodeJS installation (in path variable) is valid and readable
-   *
-   * @return true, if valid
-   */
-  public boolean isPathValid()
-  {
-    String path = NodeJSOptions.getInstance().getPath();
-    if (Strings.isNullOrEmpty(path))
-      return false;
-
-    return NodeJSEnvironmentFactory.create(new File(path)) != null;
-  }
 
   /**
    * Reads a new instance from preferences
@@ -73,7 +58,10 @@ public class NodeJSOptions
    */
   public static void update(@NotNull NodeJSOptions pOptions)
   {
-    PREFS.put("path", pOptions.getPath());
+    if (pOptions.getPath() == null)
+      PREFS.remove("path");
+    else
+      PREFS.put("path", pOptions.getPath());
   }
 
 }

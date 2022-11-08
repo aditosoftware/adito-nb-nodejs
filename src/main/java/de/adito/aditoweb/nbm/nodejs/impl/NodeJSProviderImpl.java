@@ -56,21 +56,21 @@ public class NodeJSProviderImpl implements INodeJSProvider
         .map(pOptions -> Optional.ofNullable(pOptions.getPath()))
         .distinctUntilChanged()
 
-        // observe if file exists
+        // observe if manual version is specified
         .switchMap(pPathOpt -> pPathOpt
             .map(File::new)
             .map(FileObservable::createForPlainFile)
             .orElseGet(() -> Observable.just(Optional.empty())))
 
-        // if specified version is invalid -> use bundled
+        // use bundled, if bundled installation shall be used or specified version is invalid
         .switchMap(pOptionsOpt -> pOptionsOpt
             .filter(File::exists)
             .map(pFile -> Observable.just(Optional.of(pFile)))
-            .orElseGet(() -> BundledNodeJS.getInstance().observeBundledEnvironment()
+            .orElseGet(() -> NodeJSInstaller.observeInstallation()
                 .map(pL -> {
-                  BundledNodeJS node = BundledNodeJS.getInstance();
-                  if (node.isBundledEnvironmentAvailable())
-                    return Optional.ofNullable(INodeJSDownloader.getInstance().findNodeExecutableInInstallation(node.getBundledNodeJSContainer()));
+                  NodeJSInstallation node = NodeJSInstallation.getCurrent();
+                  if (node.isEnvironmentAvailable())
+                    return Optional.ofNullable(node.getBinary());
                   return Optional.empty();
                 })));
   }

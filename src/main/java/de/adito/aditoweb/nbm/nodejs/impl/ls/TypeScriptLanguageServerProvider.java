@@ -64,16 +64,16 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     _handleRestartOnChange(pServerRestarter);
 
     // execute
-    return Optional.of(BundledNodeJS.getInstance().getBundledExecutor())
+    return Optional.of(NodeJSInstallation.getCurrent().getExecutor())
         .map(pExec -> {
           try
           {
             // check if NodeJS is available
-            BundledNodeJS bundled = BundledNodeJS.getInstance();
-            if (!bundled.isBundledEnvironmentAvailable())
+            NodeJSInstallation installation = NodeJSInstallation.getCurrent();
+            if (!installation.isEnvironmentAvailable())
               return null;
 
-            INodeJSEnvironment bundledEnvironment = bundled.getBundledEnvironment();
+            INodeJSEnvironment bundledEnvironment = installation.getEnvironment();
             String pathLSP = "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER_NAME + "/lib/cli.js";
 
             try
@@ -112,7 +112,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
 
     // create new, if necessary
     if (pServerRestarter != null)
-      currentDisposable = BundledNodeJS.getInstance().observeBundledEnvironment()
+      currentDisposable = NodeJSInstaller.observeInstallation()
           .skip(1) // ignore initial value, we only want real changes
           .subscribe(pTime -> {
             LOGGER.info("Restarting TypeScript Language Server");
