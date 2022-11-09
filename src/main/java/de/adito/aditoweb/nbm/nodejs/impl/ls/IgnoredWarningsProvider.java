@@ -110,13 +110,12 @@ public class IgnoredWarningsProvider
     return ignoredWarnings;
   }
 
-  private Set<IgnoredWarningsFacade.WarningsItem> readIgnoredWarnings(@Nullable File pIgnoreFile) throws FileNotFoundException
+  private static Set<IgnoredWarningsFacade.WarningsItem> readIgnoredWarnings(@Nullable File pIgnoreFile) throws IOException
   {
-    if (pIgnoreFile == null)
+    if (pIgnoreFile == null || !pIgnoreFile.exists())
       return Set.of();
-    IgnoreWarningFix.FileContent fileContent = new Gson().fromJson(new FileReader(pIgnoreFile), IgnoreWarningFix.FileContent.class);
     HashSet<IgnoredWarningsFacade.WarningsItem> warningsSet = new HashSet<>();
-    Set<Map.Entry<String, String>> entrySet = Optional.ofNullable(fileContent)
+    Set<Map.Entry<String, String>> entrySet = Optional.ofNullable(readIgnoredWarningsFileContent(pIgnoreFile))
         .map(pFileContent -> pFileContent.content)
         .map(Map::entrySet)
         .orElse(Set.of());
@@ -127,4 +126,11 @@ public class IgnoredWarningsProvider
     return warningsSet;
   }
 
+  private static IgnoreWarningFix.FileContent readIgnoredWarningsFileContent(@NotNull File pIgnoreFile) throws IOException
+  {
+    try (FileReader fr = new FileReader(pIgnoreFile))
+    {
+      return new Gson().fromJson(fr, IgnoreWarningFix.FileContent.class);
+    }
+  }
 }
