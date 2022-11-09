@@ -35,8 +35,8 @@ public class IgnoredWarningsProvider
   }
 
   /**
-   * IMPORTANT: only use this method if the instance of this serviceProvider was obtained by querying the lookup of the actual project,
-   * if you got obtained this instance by querying the default lookup use the get(Project pProject) method.
+   * IMPORTANT: this method requires a project, so it only works
+   * if the instance of this serviceProvider was obtained by querying the lookup of the actual project.
    *
    * @return Observable of the Set of WarningsItems that are ignored for the given project. Contains items of the parent project(s) if this project
    * is only used as a module, or an empty Observable if this serviceProvider did not get a project
@@ -44,34 +44,22 @@ public class IgnoredWarningsProvider
   @NotNull
   public Observable<Set<IgnoredWarningsFacade.WarningsItem>> get()
   {
-    if (project != null)
-      return get(project);
-    else
-      return Observable.just(Set.of());
-  }
-
-  /**
-   * @param pProject Project whose warningsItems should be obtained
-   * @return Observable of the Set of WarningsItems that are ignored for the given project. Contains items of the parent project(s) if this project
-   * is only used as a module
-   */
-  @NotNull
-  public Observable<Set<IgnoredWarningsFacade.WarningsItem>> get(@NotNull Project pProject)
-  {
+    if (project == null)
+      throw new IllegalStateException("IgnoredWarningsProvider has to be obtained from the project lookup");
     if (warningsObs == null)
     {
       try
       {
-        if (Boolean.TRUE.equals(pProject.getLookup().lookup(IProjectVisibility.class).isVisible()))
+        if (Boolean.TRUE.equals(project.getLookup().lookup(IProjectVisibility.class).isVisible()))
         {
-          File ignoredWarningsFile = getIgnoredWarningsFile(pProject);
+          File ignoredWarningsFile = getIgnoredWarningsFile(project);
           warningsObs = FileObservable.createForPlainFile(ignoredWarningsFile)
               .map(pFile -> readIgnoredWarnings(ignoredWarningsFile));
         }
         else
         {
           List<Observable<Set<IgnoredWarningsFacade.WarningsItem>>> warningsItemsObs = new ArrayList<>();
-          Project currentProj = pProject;
+          Project currentProj = project;
           boolean breakLoop = false;
           while (currentProj != null && !breakLoop)
           {
