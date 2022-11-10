@@ -42,7 +42,7 @@ public class IgnoredWarningsFacade
   @NotNull
   private static Project getRootProject(@NotNull Project pProject)
   {
-    if(Boolean.TRUE.equals(pProject.getLookup().lookup(IProjectVisibility.class).isVisible()))
+    if (Boolean.TRUE.equals(pProject.getLookup().lookup(IProjectVisibility.class).isVisible()))
       return pProject;
     return Optional.ofNullable(pProject.getProjectDirectory())
         .map(FileObject::getParent)
@@ -65,18 +65,36 @@ public class IgnoredWarningsFacade
     writeToFile(pProject, warningsItems.stream());
   }
 
+  @SuppressWarnings("ResultOfMethodCallIgnored") // ignore for delete, mkdirs and createNewFile
   private static void writeToFile(@NotNull Project pProject, Stream<WarningsItem> pWarningsItemStream) throws IOException
   {
     IgnoreWarningFix.FileContent fileContent = new IgnoreWarningFix.FileContent();
     fileContent.content = pWarningsItemStream
         .distinct()
         .collect(Collectors.toMap(pWarningsItem -> String.valueOf(pWarningsItem.getId()), WarningsItem::getDescription));
-    try (FileWriter writer = new FileWriter(IgnoredWarningsProvider.getIgnoredWarningsFile(pProject)))
+
+    File file = IgnoredWarningsProvider.getIgnoredWarningsFile(pProject);
+
+    if (fileContent.content.size() == 0)
+    {
+      if (file.exists())
+        FileUtil.toFileObject(file).delete();
+      return;
+    }
+
+    if (!file.exists())
+    {
+      file.getParentFile().mkdirs();
+      file.createNewFile();
+    }
+
+    try (FileWriter writer = new FileWriter(file))
     {
       writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(fileContent));
       writer.flush();
     }
-    FileUtil.toFileObject(IgnoredWarningsProvider.getIgnoredWarningsFile(pProject)).refresh();
+
+    FileUtil.toFileObject(file).refresh();
   }
 
   public static class WarningsItem
