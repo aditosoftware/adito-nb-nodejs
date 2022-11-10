@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 /**
  * @author w.glanzer, 19.03.2021
  */
-class Test_NodeJSExecutorImpl
+class NodeJSExecutorImplTest
 {
 
   private INodeJSEnvironment env;
@@ -27,7 +27,7 @@ class Test_NodeJSExecutorImpl
   }
 
   @Test
-  void test_executeSimple() throws Exception
+  void shouldExecuteNodeVersion() throws Exception
   {
     Assertions.assertEquals("v15.12.0", Stream.of(executor.executeSync(env, INodeJSExecBase.node(), 30000, "--version").split("\n"))
         .skip(1)
@@ -36,7 +36,7 @@ class Test_NodeJSExecutorImpl
   }
 
   @Test
-  void test_npmVersion() throws Exception
+  void shouldExecuteNpmVersion() throws Exception
   {
     Assertions.assertEquals("7.6.3", Stream.of(executor.executeSync(env, INodeJSExecBase.packageManager(), 30000, "--version").split("\n"))
         .skip(1)
@@ -45,7 +45,7 @@ class Test_NodeJSExecutorImpl
   }
 
   @Test
-  void test_resolveBase()
+  void shouldResolveNodeAndNpmBinaryPaths()
   {
     Assertions.assertTrue(env.resolveExecBase(INodeJSExecBase.node()).exists());
     Assertions.assertTrue(env.resolveExecBase(INodeJSExecBase.packageManager()).exists());

@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 /**
  * @author p.neub, 22.08.2022
  */
-public class Test_SendCtrlC
+public class SendCtrlCTest
 {
 
   private INodeJSEnvironment env;
@@ -38,7 +38,7 @@ public class Test_SendCtrlC
   }
 
   @Test
-  void test_exitProcess() throws Exception
+  void shouldTerminateProcess() throws Exception
   {
     // create nodejs process, that console.logs its own pid and setIntervals infinitely, so the process doesn't exit on itself
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -68,7 +68,7 @@ public class Test_SendCtrlC
   }
 
   @Test
-  void test_sigintHandler() throws Exception
+  void shouldTerminateProcessAndInvokeSigIntHandler() throws Exception
   {
     // create nodejs process that setIntervals infinitely, so the process doesn't exit on itself
     // console.logs "start" at startup
