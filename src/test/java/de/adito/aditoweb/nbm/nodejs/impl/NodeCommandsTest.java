@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author w.glanzer, 25.10.2021
  */
-class Test_NodeCommands
+class NodeCommandsTest
 {
 
   private static final String _MODULE_TO_INSTALL = "big.js";
@@ -51,7 +51,7 @@ class Test_NodeCommands
   }
 
   @Test
-  void test_install() throws InterruptedException, TimeoutException, IOException
+  void shouldInstallPackage() throws InterruptedException, TimeoutException, IOException
   {
     File moduleFolder = new File(target, "node_modules/" + _MODULE_TO_INSTALL);
 
@@ -67,7 +67,7 @@ class Test_NodeCommands
   }
 
   @Test
-  void test_update() throws InterruptedException, TimeoutException, IOException
+  void shouldUpdatePackage() throws InterruptedException, TimeoutException, IOException
   {
     // install old version
     NodeCommands.install(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL + "@" + _OLD_MODULE_VERSION);
@@ -83,7 +83,7 @@ class Test_NodeCommands
   }
 
   @Test
-  void test_outdated() throws InterruptedException, TimeoutException, IOException
+  void shouldReportOldPackageVersion() throws InterruptedException, TimeoutException, IOException
   {
     // install old version
     NodeCommands.install(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL + "@" + _OLD_MODULE_VERSION);
@@ -93,7 +93,7 @@ class Test_NodeCommands
   }
 
   @Test
-  void test_outdated_notOutdated() throws InterruptedException, TimeoutException, IOException
+  void shouldNotReportUpToDatePackageVersionAsOutdated() throws InterruptedException, TimeoutException, IOException
   {
     // install current version
     NodeCommands.install(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL);
@@ -103,7 +103,7 @@ class Test_NodeCommands
   }
 
   @Test
-  void test_list() throws InterruptedException, TimeoutException, IOException
+  void shouldListInstalledPackages() throws InterruptedException, TimeoutException, IOException
   {
     // not installed
     Assertions.assertFalse(NodeCommands.list(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL));

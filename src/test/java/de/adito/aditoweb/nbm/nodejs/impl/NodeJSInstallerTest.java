@@ -10,7 +10,7 @@ import java.io.*;
 /**
  * @author w.glanzer, 11.05.2021
  */
-class Test_NodeJSInstaller
+class NodeJSInstallerTest
 {
 
   private static File target;
@@ -44,7 +44,7 @@ class Test_NodeJSInstaller
   }
 
   @Test
-  void test_downloadBundledNodeJS() throws Exception
+  void shouldDownloadBundledNodeJsAndResolveNodeExecutable() throws Exception
   {
     installer.downloadBundledNodeJS();
 
@@ -54,7 +54,7 @@ class Test_NodeJSInstaller
   }
 
   @Test
-  void test_downloadOrUpdateBundledTypeScript() throws Exception
+  void shouldDownloadBundledNodeJsAndInstallTypeScriptLanguageServer() throws Exception
   {
     installer.downloadBundledNodeJS();
     installer.downloadOrUpdateBundledTypeScript();

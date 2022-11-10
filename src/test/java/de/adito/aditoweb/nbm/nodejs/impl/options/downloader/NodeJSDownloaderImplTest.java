@@ -15,10 +15,10 @@ import java.util.stream.*;
 /**
  * @author w.glanzer, 10.03.2021
  */
-class Test_NodeJSDownloaderImpl
+class NodeJSDownloaderImplTest
 {
 
-  private static final Logger _LOGGER = Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName());
+  private static final Logger _LOGGER = Logger.getLogger(NodeJSDownloaderImplTest.class.getName());
   private NodeJSDownloaderImpl downloader;
 
   @BeforeEach
@@ -28,13 +28,13 @@ class Test_NodeJSDownloaderImpl
   }
 
   @Test
-  void test_getVersions() throws Exception
+  void shouldHaveVersionsAvailable() throws Exception
   {
     Assertions.assertFalse(downloader.getAvailableVersions().isEmpty());
   }
 
   @Test
-  void test_validDownloadURL() throws Exception
+  void shouldBeValidDownloadUrls() throws Exception
   {
     List<String> invalidURLs = new ArrayList<>();
     List<String> validURLs = new ArrayList<>();
@@ -48,7 +48,7 @@ class Test_NodeJSDownloaderImpl
       }
       catch (Exception e)
       {
-        Logger.getLogger(Test_NodeJSDownloaderImpl.class.getName()).warning("URL invalid: " + pURL);
+        Logger.getLogger(NodeJSDownloaderImplTest.class.getName()).warning("URL invalid: " + pURL);
         invalidURLs.add(pURL);
       }
     };
@@ -70,7 +70,7 @@ class Test_NodeJSDownloaderImpl
   }
 
   @Test
-  void test_download() throws Exception
+  void shouldDownloadSuccessfully() throws Exception
   {
     List<String> validDownloads = new ArrayList<>();
     List<String> invalidDownloads = new ArrayList<>();
