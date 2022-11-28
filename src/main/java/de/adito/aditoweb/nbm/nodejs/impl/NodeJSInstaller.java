@@ -78,7 +78,7 @@ public class NodeJSInstaller implements Runnable
 
         // download and / or install
         downloadBundledNodeJS();
-        downloadOrUpdateBundledTypeScript();
+        downloadRequiredGlobalPackages();
       }
       catch (Exception e)
       {
@@ -170,7 +170,7 @@ public class NodeJSInstaller implements Runnable
       "LBL_Progress_Update=Updating {0}...",
       "LBL_Progress_Analyze=Analyzing {0}..."
   })
-  protected void downloadOrUpdateBundledTypeScript() throws IOException, InterruptedException, TimeoutException
+  protected void downloadRequiredGlobalPackages() throws IOException, InterruptedException, TimeoutException
   {
     try (ProgressHandle handle = ProgressHandle.createSystemHandle(Bundle.LBL_Progress_Checking(), null))
     {
@@ -189,7 +189,6 @@ public class NodeJSInstaller implements Runnable
       new File(rootFolder, "node_modules").mkdir();
 
       // prepare
-      List<String> packagesToInstall = IBundledPackages.getPreinstalledPackages();
       INodeJSExecutor executor = installation.getExecutor();
 
       // try it multiple times, sometimes no NodeJS is available
@@ -197,7 +196,11 @@ public class NodeJSInstaller implements Runnable
         retryHandler.retryBundledNodeJsDownload();
 
       INodeJSEnvironment environment = installation.getEnvironment();
-      boolean install = !NodeCommands.list(executor, environment, rootFolder.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
+
+      List<String> packagesToInstall = getRequiredGlobalPackages();
+      NPMCommandExecutor npm = new NPMCommandExecutor(executor, environment, true, rootFolder.getAbsolutePath());
+
+      boolean install = !npm.list(packagesToInstall.toArray(new String[0]));
 
       boolean changes = false;
 
@@ -207,25 +210,39 @@ public class NodeJSInstaller implements Runnable
         String display = String.join(", ", packagesToInstall);
         _LOGGER.info(Bundle.LBL_Progress_Download(display));
         handle.setDisplayName(Bundle.LBL_Progress_Download(display));
-        NodeCommands.install(executor, environment, rootFolder.getAbsolutePath(), packagesToInstall.toArray(new String[0]));
+        npm.install(packagesToInstall.toArray(new String[0]));
       }
 
       // download and install all "preinstalled" packages, so they will be available at runtime
       for (String pkg : packagesToInstall)
       {
         // Update if installed but outdated
-        if (NodeCommands.outdated(executor, environment, rootFolder.getAbsolutePath(), pkg))
+        if (npm.outdated(pkg))
         {
           changes = true;
           _LOGGER.info(Bundle.LBL_Progress_Update(pkg));
           handle.setDisplayName(Bundle.LBL_Progress_Update(pkg));
-          NodeCommands.update(executor, environment, rootFolder.getAbsolutePath(), pkg);
+          npm.update(pkg);
         }
       }
 
       if (changes)
+      {
+        DesignerBusUtils.fireModuleChange();
         installSubject.onNext(System.currentTimeMillis());
+      }
     }
+  }
+
+  /**
+   * Returns the global packages that are required by this plugin.
+   * Packages may include versions.
+   *
+   * @return list of package specifications
+   */
+  protected static List<String> getRequiredGlobalPackages()
+  {
+    return List.of("typescript@4.5.2", "typescript-language-server@0.7.1");
   }
 
   /**
