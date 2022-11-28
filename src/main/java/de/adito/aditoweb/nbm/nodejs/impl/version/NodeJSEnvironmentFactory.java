@@ -70,6 +70,28 @@ public class NodeJSEnvironmentFactory
       else if (BaseUtilities.isMac())
         extension = pBase.getMacExt();
 
+      // Folder structure
+      //
+      // windows_installation
+      //   - node_modules
+      //     - npm
+      //     - typescript
+      //     - typescript-language-server
+      //   - node.exe
+      //   - npm.cmd
+      //   - ...
+      //
+      // linux_installation
+      //   - bin
+      //     - node.exe
+      //     - npm.cmd
+      //     - ...
+      //   - lib
+      //     - node_modules
+      //       - npm
+      //       - typescript
+      //       - typescript-language-server
+
       File parent = nodejsBinary.getParentFile();
       String child = pBase.getBasePath() + (Strings.isNullOrEmpty(extension) ? "" : "." + extension);
 
@@ -80,6 +102,12 @@ public class NodeJSEnvironmentFactory
 
       // second take a look in the grandparents directory - mostly correct under Unix / Mac
       executable = new File(parent.getParentFile(), child);
+      if (executable.exists())
+        return executable;
+
+      // third take a look in the grandparents directory under lib
+      // mostly correct under Unix / Mac, if the target is within the global node_modules folder
+      executable = new File(new File(parent.getParentFile(), "lib"), child);
       if (executable.exists())
         return executable;
 
