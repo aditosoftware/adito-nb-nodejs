@@ -4,6 +4,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
+import org.openide.util.BaseUtilities;
 
 import java.io.*;
 
@@ -63,7 +64,8 @@ class NodeJSInstallerTest
     {
       int versionIndex = packageSpec.indexOf("@");
       String packageName = versionIndex < 0 ? packageSpec : packageSpec.substring(0, versionIndex);
-      File module = new File(target, "node_modules/" + packageName);
+      String packageDir = BaseUtilities.isWindows() ? "node_modules/" : "lib/node_modules/";
+      File module = new File(target, packageDir + packageName);
       Assertions.assertTrue(module.exists());
       Assertions.assertTrue(module.isDirectory());
     }

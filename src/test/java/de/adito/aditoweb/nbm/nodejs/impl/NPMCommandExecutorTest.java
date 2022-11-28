@@ -4,6 +4,7 @@ import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
+import org.openide.util.BaseUtilities;
 
 import java.io.*;
 import java.util.concurrent.TimeoutException;
@@ -53,7 +54,8 @@ class NPMCommandExecutorTest
   @Test
   void shouldInstallPackage() throws InterruptedException, TimeoutException, IOException
   {
-    File moduleFolder = new File(target, "node_modules/" + _MODULE_TO_INSTALL);
+    String packageDir = BaseUtilities.isWindows() ? "node_modules/" : "lib/node_modules/";
+    File moduleFolder = new File(target, packageDir + _MODULE_TO_INSTALL);
 
     // must not be there
     Assertions.assertFalse(moduleFolder.exists());
