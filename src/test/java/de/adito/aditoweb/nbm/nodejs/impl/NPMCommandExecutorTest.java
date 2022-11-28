@@ -11,14 +11,13 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author w.glanzer, 25.10.2021
  */
-class NodeCommandsTest
+class NPMCommandExecutorTest
 {
 
   private static final String _MODULE_TO_INSTALL = "big.js";
   private static final String _OLD_MODULE_VERSION = "6.0.3";
   private File target;
-  private INodeJSExecutor executor;
-  private INodeJSEnvironment environment;
+  private NPMCommandExecutor npm;
   private MockedStatic<NodeJSInstallation> nodejsMock;
 
   @BeforeEach
@@ -37,11 +36,12 @@ class NodeCommandsTest
     // download nodejs
     NodeJSInstaller installer = new NodeJSInstaller();
     installer.downloadBundledNodeJS();
-    installer.downloadOrUpdateBundledTypeScript();
+    installer.downloadRequiredGlobalPackages();
 
     // save
-    executor = NodeJSInstallation.getCurrent().getExecutor();
-    environment = NodeJSInstallation.getCurrent().getEnvironment();
+    INodeJSExecutor executor = NodeJSInstallation.getCurrent().getExecutor();
+    INodeJSEnvironment environment = NodeJSInstallation.getCurrent().getEnvironment();
+    npm = new NPMCommandExecutor(executor, environment, true, target.getAbsolutePath());
   }
 
   @AfterEach
@@ -59,7 +59,7 @@ class NodeCommandsTest
     Assertions.assertFalse(moduleFolder.exists());
 
     // install
-    NodeCommands.install(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL);
+    npm.install(_MODULE_TO_INSTALL);
 
     // it has to be there now
     Assertions.assertTrue(moduleFolder.exists());
@@ -70,49 +70,49 @@ class NodeCommandsTest
   void shouldUpdatePackage() throws InterruptedException, TimeoutException, IOException
   {
     // install old version
-    NodeCommands.install(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL + "@" + _OLD_MODULE_VERSION);
+    npm.install(_MODULE_TO_INSTALL + "@" + _OLD_MODULE_VERSION);
 
     // it has to be outdated, because we installed an old version
-    Assertions.assertTrue(NodeCommands.outdated(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL));
+    Assertions.assertTrue(npm.outdated(_MODULE_TO_INSTALL));
 
     // update the package
-    NodeCommands.update(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL);
+    npm.update(_MODULE_TO_INSTALL);
 
     // it has to be the newest version, because we updated it beforehand
-    Assertions.assertFalse(NodeCommands.outdated(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL));
+    Assertions.assertFalse(npm.outdated(_MODULE_TO_INSTALL));
   }
 
   @Test
   void shouldReportOldPackageVersion() throws InterruptedException, TimeoutException, IOException
   {
     // install old version
-    NodeCommands.install(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL + "@" + _OLD_MODULE_VERSION);
+    npm.install(_MODULE_TO_INSTALL + "@" + _OLD_MODULE_VERSION);
 
     // it has to be outdated, because we installed an old version
-    Assertions.assertTrue(NodeCommands.outdated(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL));
+    Assertions.assertTrue(npm.outdated(_MODULE_TO_INSTALL));
   }
 
   @Test
   void shouldNotReportUpToDatePackageVersionAsOutdated() throws InterruptedException, TimeoutException, IOException
   {
     // install current version
-    NodeCommands.install(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL);
+    npm.install(_MODULE_TO_INSTALL);
 
     // it has to be outdated, because we installed an old version
-    Assertions.assertFalse(NodeCommands.outdated(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL));
+    Assertions.assertFalse(npm.outdated(_MODULE_TO_INSTALL));
   }
 
   @Test
   void shouldListInstalledPackages() throws InterruptedException, TimeoutException, IOException
   {
     // not installed
-    Assertions.assertFalse(NodeCommands.list(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL));
+    Assertions.assertFalse(npm.list(_MODULE_TO_INSTALL));
 
     // install
-    NodeCommands.install(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL);
+    npm.install(_MODULE_TO_INSTALL);
 
     // installed
-    Assertions.assertTrue(NodeCommands.list(executor, environment, target.getAbsolutePath(), _MODULE_TO_INSTALL));
+    Assertions.assertTrue(npm.list(_MODULE_TO_INSTALL));
   }
 
 }
