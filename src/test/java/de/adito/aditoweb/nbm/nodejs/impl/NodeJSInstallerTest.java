@@ -54,14 +54,19 @@ class NodeJSInstallerTest
   }
 
   @Test
-  void shouldDownloadBundledNodeJsAndInstallTypeScriptLanguageServer() throws Exception
+  void shouldDownloadBundledNodeJsAndInstallGlobalPackages() throws Exception
   {
     installer.downloadBundledNodeJS();
-    installer.downloadOrUpdateBundledTypeScript();
+    installer.downloadRequiredGlobalPackages();
 
-    File module = new File(target, "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER_NAME);
-    Assertions.assertTrue(module.exists());
-    Assertions.assertTrue(module.isDirectory());
+    for (String packageSpec : NodeJSInstaller.getRequiredGlobalPackages())
+    {
+      int versionIndex = packageSpec.indexOf("@");
+      String packageName = versionIndex < 0 ? packageSpec : packageSpec.substring(0, versionIndex);
+      File module = new File(target, "node_modules/" + packageName);
+      Assertions.assertTrue(module.exists());
+      Assertions.assertTrue(module.isDirectory());
+    }
   }
 
 }

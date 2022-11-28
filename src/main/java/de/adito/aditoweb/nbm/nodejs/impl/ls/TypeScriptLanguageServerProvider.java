@@ -10,7 +10,7 @@ import org.netbeans.modules.lsp.client.LanguageServerProviderAccessor;
 import org.netbeans.modules.lsp.client.spi.*;
 import org.openide.util.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
@@ -74,20 +74,22 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
               return null;
 
             INodeJSEnvironment bundledEnvironment = installation.getEnvironment();
-            String pathLSP = "node_modules/" + IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER_NAME + "/lib/cli.js";
 
             try
             {
-              // check if Typescript LSP is available
-              bundledEnvironment.resolveExecBase(INodeJSExecBase.module(IBundledPackages.TYPESCRIPT_LANGUAGE_SERVER_NAME, "lib/cli.js"));
+              INodeJSExecBase lspBinary = new NPMCommandExecutor(pExec, bundledEnvironment, true, null)
+                  .binaries().get("typescript-language-server");
+              if (lspBinary == null)
+                return null;
+
+              String lspBinaryPath = bundledEnvironment.resolveExecBase(lspBinary).getAbsolutePath();
+              return pExec.execute(bundledEnvironment, INodeJSExecBase.node(), lspBinaryPath, "--stdio", "--log-level", "4");
             }
-            catch (IllegalStateException e)
+            catch (IllegalStateException pE)
             {
-              // no exec base found
+              // no valid typescript langauge server binary found
               return null;
             }
-
-            return pExec.execute(bundledEnvironment, INodeJSExecBase.node(), pathLSP, "--stdio", "--log-level", "4");
           }
           catch (IOException e)
           {
