@@ -6,6 +6,14 @@ OpenIDE-Module-Layer: de/adito/aditoweb/nbm/nodejs/layer.xml
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v1.5.1</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+    <ul>
+      <li>Upgraded default nodejs version to 16.18.1 in order to prevent errors during peerDependency reading</li>
+      <li>Install global packages using 'npm i -g', instead of modifying node_modules manually</li>
+      <li>Create the ignoredWarnings file only if there are ignored warnings</li>
+      <li>Always use the nodejs installation specified in options</li>
+    </ul>
   <p style="font-weight: bold;">v1.5.0</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
     <ul>
