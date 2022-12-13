@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 /**
  * @author w.glanzer, 10.05.2021
@@ -29,7 +29,7 @@ import java.util.logging.*;
 public class NodeJSInstaller implements Runnable
 {
 
-  public static final String DEFAULT_VERSION = "v16.1.0";
+  public static final String DEFAULT_VERSION = "v16.18.1";
 
   private static final String _INSTALLER_INTEGRITYCHECK_FILE = ".installer_integrity";
   private static final Logger _LOGGER = Logger.getLogger(NodeJSInstaller.class.getName());
