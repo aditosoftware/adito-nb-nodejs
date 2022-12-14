@@ -2,16 +2,21 @@ package de.adito.aditoweb.nbm.nodejs.impl.parser;
 
 import com.google.gson.Gson;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSExecBase;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 /**
  * @author w.glanzer, 12.05.2021
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PackageParser
 {
+  private static final Logger logger = Logger.getLogger(PackageParser.class.getName());
+
   /**
    * Parses the package.json and extracts all set scripts.
    * Key: ScriptName, Value: Script
@@ -28,7 +33,8 @@ public class PackageParser
     }
     catch (Exception e)
     {
-      // just return empty map
+      // just return empty map, but log the exception
+      logger.log(Level.WARNING, e.getMessage(), e);
     }
 
     return Map.of();
@@ -52,17 +58,18 @@ public class PackageParser
     }
     catch (Exception e)
     {
-      // just return empty map
+      // just return empty map, but log the exception
+      logger.log(Level.WARNING, e.getMessage(), e);
     }
 
     return Map.of();
   }
 
   /**
-   * Parses the output of "npm list" and returns the binaries,
+   * Parses the output of "npm list -j -l" and returns the binaries,
    * so that we don't have to use the ".cmd" wrapper.
    *
-   * @param pJsonData output of "npm list"
+   * @param pJsonData output of "npm list -j -l"
    * @return a map of binaries and their INodeJSExecBase, pointing to the resolved javascript file
    */
   @NotNull
@@ -70,11 +77,11 @@ public class PackageParser
   {
     try
     {
-      _Type root = new Gson().fromJson(pJsonData, _Type.class);
+      NpmListType root = new Gson().fromJson(pJsonData, NpmListType.class);
       if (root.dependencies != null)
       {
         Map<String, INodeJSExecBase> res = new HashMap<>();
-        for (Map.Entry<String, _Type> dep : root.dependencies.entrySet())
+        for (Map.Entry<String, NpmListType> dep : root.dependencies.entrySet())
         {
           if (dep.getValue().bin == null)
             continue;
@@ -86,7 +93,8 @@ public class PackageParser
     }
     catch (Exception pE)
     {
-      // just return empty map
+      // just return empty map, but log the exception
+      logger.log(Level.WARNING, pE.getMessage(), pE);
     }
 
     return Map.of();
@@ -97,8 +105,15 @@ public class PackageParser
    */
   private static class _Type
   {
-    public Map<String, _Type> dependencies;
     public Map<String, String> scripts;
+  }
+
+  /**
+   * gson type of the result of {@code npm list -j -l}
+   */
+  private static class NpmListType extends _Type
+  {
+    public Map<String, NpmListType> dependencies;
     public Map<String, String> bin;
   }
 
