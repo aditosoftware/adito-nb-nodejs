@@ -4,6 +4,8 @@ import de.adito.aditoweb.nbm.nodejs.impl.util.NPMCommandUtil;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.Project;
 
+import java.util.function.Consumer;
+
 /**
  * Base class for NPM command actions
  * Child classes only need to provide the npm command via getCommand()
@@ -24,10 +26,18 @@ public abstract class AbstractNPMCommandAction extends AbstractProjectAction
   @NotNull
   protected abstract String[] getCommand();
 
+  /**
+   * Creates an action that will be executed after the npm command was run.
+   *
+   * @return the created action
+   */
+  @NotNull
+  protected abstract Consumer<Project> getAfterCommandAction();
+
   @Override
-  protected void performAction(@NotNull Project pProject)
+  public void performAction(@NotNull Project pProject)
   {
-    NPMCommandUtil.runCommand(pProject, getCommand());
+    NPMCommandUtil.runCommand(pProject, getAfterCommandAction(), getCommand());
   }
 
   @Override

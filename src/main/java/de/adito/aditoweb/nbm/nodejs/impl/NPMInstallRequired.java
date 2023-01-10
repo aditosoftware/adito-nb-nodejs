@@ -1,13 +1,14 @@
 package de.adito.aditoweb.nbm.nodejs.impl;
 
-import de.adito.aditoweb.nbm.nodejs.impl.util.NPMCommandUtil;
+import de.adito.aditoweb.nbm.nodejs.impl.actions.NPMInstallCommandAction;
 import de.adito.notification.INotificationFacade;
 import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.project.*;
 import org.openide.filesystems.*;
 import org.openide.util.NbBundle;
+import org.openide.util.actions.SystemAction;
 
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -66,7 +67,7 @@ public final class NPMInstallRequired extends FileChangeAdapter
         Bundle.LBL_DependenciesHaveChanged(info.getDisplayName()),
         Bundle.LBL_RunNpmInstall(),
         false,
-        e -> NPMCommandUtil.runCommand(project, "install"));
+        e -> SystemAction.get(NPMInstallCommandAction.class).performAction(project));
   }
 
   /**
