@@ -76,8 +76,9 @@ public final class NPMCommandUtil
             }
 
             // do some action after the node command
-            // this action can not be done in the designer and the module change, because it needs the project
-            //  will not be there on startup, so it will throw some errors
+            // This action is called here and not in the designer project as result of a module change event,
+            // because it caused problems during the startup of the designer and was called multiple times for each event.
+            // Calling the action here avoids these problems.
             pastCommandAction.accept(pProject);
 
             DesignerBusUtils.fireModuleChange();
