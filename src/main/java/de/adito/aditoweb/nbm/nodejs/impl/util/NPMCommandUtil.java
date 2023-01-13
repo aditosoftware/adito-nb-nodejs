@@ -2,6 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.util;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.DesignerBusUtils;
+import lombok.*;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.progress.*;
@@ -11,23 +12,26 @@ import org.openide.windows.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.*;
 
 /**
  * @author p.neub, 16.09.2022
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class NPMCommandUtil
 {
 
   /**
    * Utility function for running a npm command on a specific project
    *
-   * @param pProject the project
-   * @param pParams  the npm parameters
+   * @param pProject          the project
+   * @param pastCommandAction the command that should be executed after the node command was run
+   * @param pParams           the npm parameters
    */
   @NbBundle.Messages("LBL_PerformAction=Executing \"{0}\"")
-  public static void runCommand(@NotNull Project pProject, @NotNull String... pParams)
+  public static void runCommand(@NotNull Project pProject, @NotNull Consumer<Project> pastCommandAction, @NotNull String... pParams)
   {
     INodeJSEnvironment env = findEnvironment(pProject);
     INodeJSExecutor executor = findExecutor(pProject);
@@ -70,6 +74,12 @@ public final class NPMCommandUtil
             {
               // do nothing
             }
+
+            // do some action after the node command
+            // This action is called here and not in the designer project as result of a module change event,
+            // because it caused problems during the startup of the designer and was called multiple times for each event.
+            // Calling the action here avoids these problems.
+            pastCommandAction.accept(pProject);
 
             DesignerBusUtils.fireModuleChange();
             return pExitCode;

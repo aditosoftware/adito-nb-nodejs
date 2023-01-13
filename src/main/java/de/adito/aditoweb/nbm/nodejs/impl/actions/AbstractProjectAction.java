@@ -58,7 +58,7 @@ abstract class AbstractProjectAction extends NodeAction
    *
    * @param pProject the project
    */
-  protected abstract void performAction(@NotNull Project pProject);
+  public abstract void performAction(@NotNull Project pProject);
 
   /**
    * Finds a Project in the specified Nodes

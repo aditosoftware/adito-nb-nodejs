@@ -1,5 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
+import org.jetbrains.annotations.NotNull;
 import org.openide.awt.*;
 import org.openide.util.NbBundle;
 
@@ -10,9 +11,10 @@ import org.openide.util.NbBundle;
 @ActionID(category = "NodeJS", id = "de.adito.aditoweb.nbm.nodejs.impl.actions.NPMCleanInstallCommandAction")
 @ActionRegistration(displayName = "#CTL_NPMCleanInstallAction", lazy = false)
 @ActionReference(path = "Plugins/NodeJS/Actions", position = 100)
-public class NPMCleanInstallCommandAction extends AbstractNPMCommandAction
+public class NPMCleanInstallCommandAction extends AbstractNPMInstallCommand
 {
 
+  @NotNull
   @Override
   protected String[] getCommand()
   {
