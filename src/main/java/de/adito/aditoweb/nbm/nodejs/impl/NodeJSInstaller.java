@@ -1,12 +1,12 @@
 package de.adito.aditoweb.nbm.nodejs.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.adito.aditoweb.nbm.metrics.api.IMetricProxyFactory;
 import de.adito.aditoweb.nbm.metrics.api.types.Counted;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.options.NodeJSOptions;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
-import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.notification.INotificationFacade;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
@@ -31,7 +31,7 @@ public class NodeJSInstaller implements Runnable
 {
 
   public static final String DEFAULT_VERSION = "v18.14.0";
-  private static final String IS_INCLUDE_SYMLINKS_PROPERTY = "adito.fs.watcher.symlink.handling.enabled";
+  static final String IS_INCLUDE_SYMLINKS_PROPERTY = "adito.fs.watcher.symlink.handling.enabled";
 
   private static final String _INSTALLER_INTEGRITYCHECK_FILE = ".installer_integrity";
   private static final Logger _LOGGER = Logger.getLogger(NodeJSInstaller.class.getName());
@@ -82,25 +82,48 @@ public class NodeJSInstaller implements Runnable
         downloadBundledNodeJS();
         downloadRequiredGlobalPackages();
 
-        // after we have verified the download, disable symlinks if the version of node is at least 18.x.x
-        if (System.getProperty(IS_INCLUDE_SYMLINKS_PROPERTY) == null)
-        {
-          // .. symlink handling is not explicitly set
-          NodeJSInstallation installation = NodeJSInstallation.getCurrent();
-          if (installation.isEnvironmentAvailable())
-          {
-            INodeJSEnvironment env = installation.getEnvironment();
-            String[] version = env.getVersion().substring(1).split("\\.");
-            if (Integer.parseInt(version[0]) >= 18)
-              System.setProperty(IS_INCLUDE_SYMLINKS_PROPERTY, Boolean.FALSE.toString());
-          }
-        }
+        disableSymlinksIfNodeMeetsTheRequiredVersion();
       }
       catch (Exception e)
       {
         INotificationFacade.INSTANCE.error(e);
       }
     });
+  }
+
+  /**
+   * Checks whether the current nodejs installations creates symlinks on npm install.
+   * If that is not the case, it disables the symlink handling.
+   */
+  @VisibleForTesting
+  void disableSymlinksIfNodeMeetsTheRequiredVersion()
+  {
+    if (System.getProperty(IS_INCLUDE_SYMLINKS_PROPERTY) == null)
+    {
+      // .. symlink handling is not explicitly set
+      NodeJSInstallation installation = NodeJSInstallation.getCurrent();
+      if (installation.isEnvironmentAvailable())
+      {
+        INodeJSEnvironment env = installation.getEnvironment();
+        if (!doesNodeCreateSymlinksOnNpmInstall(env.getVersion()))
+          System.setProperty(IS_INCLUDE_SYMLINKS_PROPERTY, Boolean.FALSE.toString());
+      }
+    }
+  }
+
+  /**
+   * Check whether the provided nodejs version creates symlinks on npm install.
+   * The version should be in the following format vMAJOR.MINOR.PATCH.
+   *
+   * @param pNodeJsVersion the version of nodejs (node --version)
+   * @return whether the nodejs version creates symlinks on npm install
+   */
+  @VisibleForTesting
+  static boolean doesNodeCreateSymlinksOnNpmInstall(@NotNull String pNodeJsVersion)
+  {
+    String[] version = pNodeJsVersion.substring(1).split("\\.");
+    // nodejs version v18.x.x is tested to not create symlinks
+    return Integer.parseInt(version[0]) < 18;
   }
 
   /**
