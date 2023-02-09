@@ -37,8 +37,13 @@ class NodeJSInstallerTest
     installer = new NodeJSInstaller();
   }
 
+  /**
+   * Returns the arguments for the {@link NodeJSInstallerTest#shouldDisableSymlinksDependingOnTheNodeJsVersion} test.
+   *
+   * @return stream of arguments
+   */
   @NotNull
-  static Stream<Arguments> shouldDisableSymlinksDependingOnTheNodeJsVersionSource()
+  static Stream<Arguments> shouldDisableSymlinksDependingOnTheNodeJsVersion()
   {
     return Stream.of(
         Arguments.of(null, false, "v1.0.0"),
@@ -51,9 +56,15 @@ class NodeJSInstallerTest
 
   /**
    * Checks that symlinks are disabled if the nodejs version does not create symlinks on npm install.
+   *
+   * @param pSymlinkProperty        value of the symlink property, if null the property gets cleared
+   * @param pIsEnvironmentAvailable whether the nodejs environment will be available
+   * @param pNodeVersion            the mocked node js version, since doesNodeCreateSymlinksOnNpmInstall is tested separately
+   *                                doesNodeCreateSymlinksOnNpmInstall(pNodeVersion) will be used to check,
+   *                                whether the system property should be set or not
    */
   @ParameterizedTest
-  @MethodSource("shouldDisableSymlinksDependingOnTheNodeJsVersionSource")
+  @MethodSource
   void shouldDisableSymlinksDependingOnTheNodeJsVersion(@Nullable String pSymlinkProperty, boolean pIsEnvironmentAvailable, @NotNull String pNodeVersion)
   {
     if (pSymlinkProperty == null)
@@ -71,6 +82,7 @@ class NodeJSInstallerTest
       Mockito.when(installationMock.getEnvironment()).thenReturn(environmentMock);
 
       installationStaticMock.when(NodeJSInstallation::getCurrent).thenReturn(installationMock);
+
       installer.disableSymlinksIfNodeMeetsTheRequiredVersion();
 
       if (pSymlinkProperty != null)
@@ -91,15 +103,31 @@ class NodeJSInstallerTest
   }
 
   /**
-   * Checks whether doesNodeCreateSymlinksOnNpmInstall parses and checks the version correctly.
+   * Returns the arguments for the {@link NodeJSInstallerTest#shouldCheckIfNodeJsCreatesSymlinksOnNpmInstall} test.
+   *
+   * @return stream of arguments
    */
-  @Test
-  void shouldCheckIfNodeJsCreatesSymlinksOnNpmInstall()
+  static Stream<Arguments> shouldCheckIfNodeJsCreatesSymlinksOnNpmInstall()
   {
-    Assertions.assertTrue(NodeJSInstaller.doesNodeCreateSymlinksOnNpmInstall("v16.1.2"));
-    Assertions.assertTrue(NodeJSInstaller.doesNodeCreateSymlinksOnNpmInstall("v17.167867867.3542"));
-    Assertions.assertFalse(NodeJSInstaller.doesNodeCreateSymlinksOnNpmInstall("v18.12345.56789"));
-    Assertions.assertFalse(NodeJSInstaller.doesNodeCreateSymlinksOnNpmInstall("v123456789.12345.12345"));
+    return Stream.of(
+        Arguments.of("v16.1.2", true),
+        Arguments.of("v17.167867867.3542", true),
+        Arguments.of("v18.12345.56789", false),
+        Arguments.of("v123456789.12345.12345", false)
+    );
+  }
+
+  /**
+   * Checks whether doesNodeCreateSymlinksOnNpmInstall parses and checks the version correctly.
+   *
+   * @param pVersion            the nodejs version as string (output from node --version)
+   * @param pDoesCreateSymlinks whether the nodejs version creates symlinks on npm install or not
+   */
+  @ParameterizedTest
+  @MethodSource
+  void shouldCheckIfNodeJsCreatesSymlinksOnNpmInstall(@NotNull String pVersion, boolean pDoesCreateSymlinks)
+  {
+    Assertions.assertEquals(pDoesCreateSymlinks, NodeJSInstaller.doesNodeCreateSymlinksOnNpmInstall(pVersion));
   }
 
   @Test
