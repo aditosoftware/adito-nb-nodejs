@@ -4,13 +4,14 @@ import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.*;
 import de.adito.notification.INotificationFacade;
 import io.reactivex.rxjava3.disposables.Disposable;
+import lombok.Getter;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.editor.mimelookup.*;
 import org.netbeans.modules.lsp.client.LanguageServerProviderAccessor;
 import org.netbeans.modules.lsp.client.spi.*;
 import org.openide.util.*;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
@@ -28,6 +29,10 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   private final AtomicReference<Optional<LanguageServerDescription>> currentRef = new AtomicReference<>(null);
   private final _NotificationHandler notificationHandler = new _NotificationHandler();
   private Disposable currentDisposable;
+
+  @Getter
+  @Nullable
+  private ServerRestarter serverRestarter;
 
   @Override
   public LanguageServerDescription startServer(@NotNull Lookup pLookup)
@@ -61,6 +66,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     LOGGER.log(Level.INFO, "Starting TypeScript Language Server");
 
     // restarts
+    serverRestarter = pServerRestarter;
     _handleRestartOnChange(pServerRestarter);
 
     // execute
@@ -116,24 +122,32 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
     if (pServerRestarter != null)
       currentDisposable = NodeJSInstaller.observeInstallation()
           .skip(1) // ignore initial value, we only want real changes
-          .subscribe(pTime -> {
-            LOGGER.info("Restarting TypeScript Language Server");
+          .subscribe(pTime -> stopServer(pServerRestarter));
+  }
 
-            // Stop Server
-            Optional<LanguageServerDescription> currentServer = currentRef.get();
-            if (currentServer != null && currentServer.isPresent()) //NOSONAR null is a valid value, even it is not recommended
-              _stopServer(currentServer.get());
+  /**
+   * Stops the server via the given server restarter.
+   *
+   * @param pServerRestarter the server restarter with which the LSP should be stopped
+   */
+  public void stopServer(@NotNull ServerRestarter pServerRestarter)
+  {
+    LOGGER.info("Restarting TypeScript Language Server");
 
-            // Trigger Restart
-            try
-            {
-              pServerRestarter.restart();
-            }
-            catch (Exception e)
-            {
-              LOGGER.log(Level.SEVERE, "", e);
-            }
-          });
+    // Stop Server
+    Optional<LanguageServerDescription> currentServer = currentRef.get();
+    if (currentServer != null && currentServer.isPresent()) //NOSONAR null is a valid value, even it is not recommended
+      _stopServer(currentServer.get());
+
+    // Trigger Restart
+    try
+    {
+      pServerRestarter.restart();
+    }
+    catch (Exception e)
+    {
+      LOGGER.log(Level.SEVERE, "", e);
+    }
   }
 
   /**
