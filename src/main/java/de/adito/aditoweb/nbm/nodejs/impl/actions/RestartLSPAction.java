@@ -20,7 +20,7 @@ import java.awt.event.ActionEvent;
     @ActionReference(path = "Editors/text/javascript/Toolbars/Default", position = 20220)
 })
 @ActionID(category = "adito/editor/toolbar", id = "de.adito.aditoweb.nbm.nodejs.impl.actions.RestartLSP")
-@ActionRegistration(displayName = "Restart LSP",
+@ActionRegistration(displayName = "Restart the server that provides autocomplete, go-to actions and other features for js/ts files",
     iconBase = "de/adito/aditoweb/nbm/nodejs/impl/actions/restart.svg", lazy = false)
 public class RestartLSPAction extends BaseAction
 {
@@ -30,7 +30,7 @@ public class RestartLSPAction extends BaseAction
    */
   public RestartLSPAction()
   {
-    super("Restart LSP");
+    super("Restart the server that provides autocomplete, go-to actions and other features for js/ts files");
     putValue(BaseAction.ICON_RESOURCE_PROPERTY, "de/adito/aditoweb/nbm/nodejs/impl/actions/restart.svg");
   }
 

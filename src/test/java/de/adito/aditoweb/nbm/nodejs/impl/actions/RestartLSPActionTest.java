@@ -34,7 +34,8 @@ class RestartLSPActionTest
   {
     RestartLSPAction restartLSPAction = new RestartLSPAction();
 
-    Map<String, Object> expected = Map.of("Name", "Restart LSP", "IconResource", "de/adito/aditoweb/nbm/nodejs/impl/actions/restart.svg");
+    Map<String, Object> expected = Map.of("Name", "Restart the server that provides autocomplete, go-to actions and other features for js/ts files",
+                                          "IconResource", "de/adito/aditoweb/nbm/nodejs/impl/actions/restart.svg");
 
     Map<String, Object> actual = new HashMap<>();
     // Transforming all key - values in the restartAction
