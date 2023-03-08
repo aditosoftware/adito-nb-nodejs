@@ -125,6 +125,6 @@ class NodeJSDownloaderImplTest
 
     // check
     Assertions.assertTrue(invalidDownloads.isEmpty(), invalidDownloads::toString);
-    Assertions.assertTrue(validDownloads.containsAll(availableVersions), invalidDownloads::toString);
+    Assertions.assertTrue(validDownloads.containsAll(availableVersions), () -> validDownloads + " should contain all " + availableVersions);
   }
 }
