@@ -6,6 +6,11 @@ OpenIDE-Module-Layer: de/adito/aditoweb/nbm/nodejs/layer.xml
 OpenIDE-Module-Short-Description: NodeJS & TypeScript Support for ADITO Designer
 OpenIDE-Module-Long-Description: NodeJS & TypeScript Support for ADITO Designer
   <p style="font-weight: bold;">Changelog</p>
+   <p style="font-weight: bold;">v1.5.5</p>
+     <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+       <ul>
+         <li>Added a button in the toolbar of the javascript and typescript editor to restart the server that provides autocomplete, go-to actions and other features for js/ts files</li>
+       </ul>
   <p style="font-weight: bold;">v1.5.4</p>
    <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
      <ul>
