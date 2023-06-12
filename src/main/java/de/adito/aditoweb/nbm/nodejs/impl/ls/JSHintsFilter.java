@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.lsp.ILSPHintsFilter;
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.*;
 import org.openide.filesystems.FileObject;
@@ -23,13 +24,13 @@ public class JSHintsFilter implements ILSPHintsFilter
   private static final Pattern _PATTERN_TYPES = Pattern.compile("Type '.+' is not assignable to type '.+'\\.");
 
   @Override
-  public boolean canFilter(@NotNull FileObject pFileObject)
+  public boolean canFilter(@NonNull FileObject pFileObject)
   {
     return pFileObject.getExt().equals(JS_EXTENSION);
   }
 
   @Override
-  public boolean filter(@NotNull FileObject pFileObject, @Nullable String pId, @NotNull String pDescription, @NotNull String pSeverity, @Nullable PositionBounds pRange)
+  public boolean filter(@NonNull FileObject pFileObject, @Nullable String pId, @NonNull String pDescription, @NonNull String pSeverity, @Nullable PositionBounds pRange)
   {
     Project project = FileOwnerQuery.getOwner(pFileObject);
     // Filter hints that were set as ignored by the user

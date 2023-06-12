@@ -1,7 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.project.IProjectVisibility;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.openide.util.lookup.ServiceProvider;
@@ -22,7 +22,7 @@ public class NodeJSProjectOpenedHook extends ProjectOpenedHook
   }
 
   @SuppressWarnings("unused") // ServiceProvider
-  public NodeJSProjectOpenedHook(@NotNull Project pProject)
+  public NodeJSProjectOpenedHook(@NonNull Project pProject)
   {
     project = pProject;
   }

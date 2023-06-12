@@ -6,7 +6,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.observables.netbeans.FileObservable;
 import io.reactivex.rxjava3.core.Observable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.Project;
 import org.openide.util.lookup.*;
 
@@ -28,12 +28,12 @@ public class NodeJSProviderImpl implements INodeJSProvider
   }
 
   @SuppressWarnings("unused") // ServiceProvider
-  public NodeJSProviderImpl(@NotNull Project pProject)
+  public NodeJSProviderImpl(@NonNull Project pProject)
   {
     project = pProject;
   }
 
-  @NotNull
+  @NonNull
   @Override
   public Observable<Optional<INodeJSEnvironment>> current()
   {
@@ -48,7 +48,7 @@ public class NodeJSProviderImpl implements INodeJSProvider
   /**
    * @return Observable that contains the current nodejs version specified in options (or bundled, if specified is invalid)
    */
-  @NotNull
+  @NonNull
   private Observable<Optional<File>> _observeNodeJSVersion()
   {
     return NodeJSOptions.observe()
@@ -78,7 +78,7 @@ public class NodeJSProviderImpl implements INodeJSProvider
   /**
    * @return Observable that contains the current package.json
    */
-  @NotNull
+  @NonNull
   private Observable<Optional<File>> _observePackageJson()
   {
     assert project != null;

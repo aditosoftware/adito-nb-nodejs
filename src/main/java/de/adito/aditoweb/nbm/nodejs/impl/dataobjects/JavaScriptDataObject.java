@@ -6,7 +6,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.util.FileAttributeObservable;
 import de.adito.observables.netbeans.OpenProjectsObservable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.*;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.*;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
@@ -51,7 +51,7 @@ public class JavaScriptDataObject extends MultiDataObject
    *
    * @return true if this file should be editable
    */
-  @NotNull
+  @NonNull
   public Observable<Boolean> editableOnGUI()
   {
     return FileAttributeObservable.create(getPrimaryFile(), _EDITABLE_ATTRIBUTE)
@@ -133,17 +133,17 @@ public class JavaScriptDataObject extends MultiDataObject
    */
   private static class JSNodeDelegate extends DataNode implements Disposable
   {
-    @NotNull
+    @NonNull
     private final DataObject dataObject;
-    @NotNull
+    @NonNull
     private final CompositeDisposable disposable = new CompositeDisposable();
-    @NotNull
+    @NonNull
     private String displayName;
 
     private Node node;
     private NodeListener listener;
 
-    public JSNodeDelegate(@NotNull DataObject pDataObject)
+    public JSNodeDelegate(@NonNull DataObject pDataObject)
     {
       super(pDataObject, Children.LEAF);
       dataObject = pDataObject;
@@ -169,7 +169,7 @@ public class JavaScriptDataObject extends MultiDataObject
     }
 
     @Override
-    @NotNull
+    @NonNull
     public String getDisplayName()
     {
       return displayName;

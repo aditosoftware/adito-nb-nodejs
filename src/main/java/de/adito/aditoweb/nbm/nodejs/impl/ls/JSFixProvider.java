@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.lsp.ILSPFixProvider;
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 import org.netbeans.spi.editor.hints.*;
 import org.openide.filesystems.FileObject;
@@ -22,7 +23,7 @@ public class JSFixProvider implements ILSPFixProvider
   private static final Pattern VARIABLE_PATTERN = Pattern.compile("'\\w+'");
 
   @Override
-  public List<Fix> provideFixes(@NotNull FileObject pFileObject, int pId, @NotNull String pDescription, @NotNull String pSeverity, @Nullable Range pRange)
+  public List<Fix> provideFixes(@NonNull FileObject pFileObject, int pId, @NonNull String pDescription, @NonNull String pSeverity, @Nullable Range pRange)
   {
     String adjustedDescription = VARIABLE_PATTERN.matcher(pDescription).replaceAll("'XXX'");
     return List.of(new IgnoreWarningFix(pId, adjustedDescription, pFileObject));

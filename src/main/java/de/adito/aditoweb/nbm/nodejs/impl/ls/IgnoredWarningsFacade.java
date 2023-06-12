@@ -3,7 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.ls;
 import com.google.gson.*;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.project.IProjectVisibility;
 import io.reactivex.rxjava3.core.Observable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.*;
 import org.openide.filesystems.*;
 
@@ -22,15 +22,15 @@ public class IgnoredWarningsFacade
   {
   }
 
-  @NotNull
-  public static Observable<Set<WarningsItem>> getIgnoredWarnings(@NotNull Project pProject)
+  @NonNull
+  public static Observable<Set<WarningsItem>> getIgnoredWarnings(@NonNull Project pProject)
   {
     return Optional.ofNullable(pProject.getLookup().lookup(IgnoredWarningsProvider.class))
         .map(IgnoredWarningsProvider::get)
         .orElse(Observable.just(Set.of()));
   }
 
-  public static void addIgnoredWarning(@NotNull Project pProject, int pId, @NotNull String pDescription) throws IOException
+  public static void addIgnoredWarning(@NonNull Project pProject, int pId, @NonNull String pDescription) throws IOException
   {
     Project project = getRootProject(pProject);
     Set<WarningsItem> warningsItems = getIgnoredWarnings(project).blockingFirst();
@@ -39,8 +39,8 @@ public class IgnoredWarningsFacade
     writeToFile(project, warningsItemStream);
   }
 
-  @NotNull
-  private static Project getRootProject(@NotNull Project pProject)
+  @NonNull
+  private static Project getRootProject(@NonNull Project pProject)
   {
     if (Boolean.TRUE.equals(pProject.getLookup().lookup(IProjectVisibility.class).isVisible()))
       return pProject;
@@ -51,14 +51,14 @@ public class IgnoredWarningsFacade
         .orElse(pProject);
   }
 
-  public static void addIgnoredWarnings(@NotNull Project pProject, @NotNull List<WarningsItem> pWarningsItems) throws IOException
+  public static void addIgnoredWarnings(@NonNull Project pProject, @NonNull List<WarningsItem> pWarningsItems) throws IOException
   {
     Set<WarningsItem> warningsItems = getIgnoredWarnings(pProject).blockingFirst();
     Stream<WarningsItem> warningsItemStream = Stream.concat(warningsItems.stream(), pWarningsItems.stream());
     writeToFile(pProject, warningsItemStream);
   }
 
-  public static void unIgnoreWarnings(@NotNull Project pProject, @NotNull List<WarningsItem> pWarningsItems) throws IOException
+  public static void unIgnoreWarnings(@NonNull Project pProject, @NonNull List<WarningsItem> pWarningsItems) throws IOException
   {
     Set<WarningsItem> warningsItems = getIgnoredWarnings(pProject).blockingFirst();
     pWarningsItems.forEach(warningsItems::remove);
@@ -66,7 +66,7 @@ public class IgnoredWarningsFacade
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored") // ignore for delete, mkdirs and createNewFile
-  private static void writeToFile(@NotNull Project pProject, Stream<WarningsItem> pWarningsItemStream) throws IOException
+  private static void writeToFile(@NonNull Project pProject, Stream<WarningsItem> pWarningsItemStream) throws IOException
   {
     IgnoreWarningFix.FileContent fileContent = new IgnoreWarningFix.FileContent();
     fileContent.content = pWarningsItemStream
@@ -101,10 +101,10 @@ public class IgnoredWarningsFacade
   {
 
     private final int id;
-    @NotNull
+    @NonNull
     private final String description;
 
-    public WarningsItem(int pId, @NotNull String pDescription)
+    public WarningsItem(int pId, @NonNull String pDescription)
     {
       id = pId;
       description = pDescription;
@@ -115,7 +115,7 @@ public class IgnoredWarningsFacade
       return id;
     }
 
-    @NotNull
+    @NonNull
     public String getDescription()
     {
       return description;

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.project.IProjectVisibility;
 import de.adito.observables.netbeans.FileObservable;
 import io.reactivex.rxjava3.core.Observable;
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.*;
 import org.openide.filesystems.FileUtil;
@@ -43,7 +44,7 @@ public class IgnoredWarningsProvider
    * @return Observable of the Set of WarningsItems that are ignored for the given project. Contains items of the parent project(s) if this project
    * is only used as a module, or an empty Observable if this serviceProvider did not get a project
    */
-  @NotNull
+  @NonNull
   public Observable<Set<IgnoredWarningsFacade.WarningsItem>> get()
   {
     if (project == null)
@@ -81,8 +82,8 @@ public class IgnoredWarningsProvider
    * @param setSet array of sets of warningsItems
    * @return combined set
    */
-  @NotNull
-  private static Set<IgnoredWarningsFacade.WarningsItem> combineSetArray(@NotNull Object[] setSet)
+  @NonNull
+  private static Set<IgnoredWarningsFacade.WarningsItem> combineSetArray(@NonNull Object[] setSet)
   {
     //noinspection unchecked array contains sets of WarningsItems, but has to be object array to satisfy signatures
     return Arrays.stream(setSet)
@@ -97,8 +98,8 @@ public class IgnoredWarningsProvider
    * @param pProject the project
    * @return the ignored warnings file
    */
-  @NotNull
-  public static File getIgnoredWarningsFile(@NotNull Project pProject)
+  @NonNull
+  public static File getIgnoredWarningsFile(@NonNull Project pProject)
   {
     return new File(FileUtil.toFile(pProject.getProjectDirectory()), ".aditoprj/ignoredWarnings");
   }
@@ -141,7 +142,7 @@ public class IgnoredWarningsProvider
    * @throws IOException if reading the ignored warnings file failed
    */
   @Nullable
-  private static IgnoreWarningFix.FileContent readIgnoredWarningsFileContent(@NotNull File pIgnoreFile) throws IOException
+  private static IgnoreWarningFix.FileContent readIgnoredWarningsFileContent(@NonNull File pIgnoreFile) throws IOException
   {
     try (FileReader fr = new FileReader(pIgnoreFile))
     {

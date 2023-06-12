@@ -9,8 +9,8 @@ import de.adito.notification.INotificationFacade;
 import de.adito.observables.netbeans.*;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.*;
+import lombok.NonNull;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.project.*;
 import org.netbeans.core.output2.adito.InputOutputExt;
@@ -38,21 +38,21 @@ class NodeJSScriptRunConfig implements IRunConfig
   private final INodeJSEnvironment environment;
   private final String scriptName;
 
-  public NodeJSScriptRunConfig(@NotNull Project pProject, @NotNull INodeJSEnvironment pEnvironment, @NotNull String pScriptName)
+  public NodeJSScriptRunConfig(@NonNull Project pProject, @NonNull INodeJSEnvironment pEnvironment, @NonNull String pScriptName)
   {
     project = pProject;
     environment = pEnvironment;
     scriptName = pScriptName;
   }
 
-  @NotNull
+  @NonNull
   @Override
   public Observable<Optional<IRunConfigCategory>> category()
   {
     return Observable.just(Optional.of(new NodeJSScriptRunConfigCategory()));
   }
 
-  @NotNull
+  @NonNull
   @Override
   public Observable<String> displayName()
   {
@@ -73,7 +73,7 @@ class NodeJSScriptRunConfig implements IRunConfig
   }
 
   @Override
-  public void executeAsnyc(@NotNull ProgressHandle pProgressHandle)
+  public void executeAsnyc(@NonNull ProgressHandle pProgressHandle)
   {
     INodeJSExecutor executor = INodeJSExecutor.findInstance(project).orElse(null);
     if (executor != null)
@@ -96,7 +96,7 @@ class NodeJSScriptRunConfig implements IRunConfig
       "LBL_ScriptCloseTerminateTerminateBtn=Terminate",
       "LBL_ScriptCloseTerminateDetachBtn=Detach",
   })
-  private void run(@NotNull InputOutput pIo, @NotNull INodeJSExecutor pExecutor, @NotNull Subject<Optional<CompletableFuture<Integer>>> pSubject)
+  private void run(@NonNull InputOutput pIo, @NonNull INodeJSExecutor pExecutor, @NonNull Subject<Optional<CompletableFuture<Integer>>> pSubject)
   {
     try
     {
@@ -156,7 +156,7 @@ class NodeJSScriptRunConfig implements IRunConfig
   /**
    * @return a new IO instance to write to
    */
-  @NotNull
+  @NonNull
   private InputOutput _createIO(Action... pActions)
   {
     InputOutput io = IOProvider.get("nodejs_runconfig_executor").getIO("NodeJS Script: " + scriptName, true,

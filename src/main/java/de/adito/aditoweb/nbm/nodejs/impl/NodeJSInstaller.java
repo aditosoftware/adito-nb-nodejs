@@ -10,8 +10,8 @@ import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.notification.INotificationFacade;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import lombok.NonNull;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.NotNull;
 import org.netbeans.api.progress.ProgressHandle;
 import org.openide.util.*;
 import org.openide.windows.OnShowing;
@@ -119,7 +119,7 @@ public class NodeJSInstaller implements Runnable
    * @return whether the nodejs version creates symlinks on npm install
    */
   @VisibleForTesting
-  static boolean doesNodeCreateSymlinksOnNpmInstall(@NotNull String pNodeJsVersion)
+  static boolean doesNodeCreateSymlinksOnNpmInstall(@NonNull String pNodeJsVersion)
   {
     String[] version = pNodeJsVersion.substring(1).split("\\.");
     // nodejs version v18.x.x is tested to not create symlinks
@@ -291,7 +291,7 @@ public class NodeJSInstaller implements Runnable
    * @param pVersion version to check
    * @return true, if OK
    */
-  private boolean _isIntegrityOK(@NotNull File pTarget, @NotNull String pVersion)
+  private boolean _isIntegrityOK(@NonNull File pTarget, @NonNull String pVersion)
   {
     File file = new File(pTarget, _INSTALLER_INTEGRITYCHECK_FILE);
     if (!file.exists() || !file.isFile() || !file.canRead())
@@ -314,7 +314,7 @@ public class NodeJSInstaller implements Runnable
    * @param pTarget  target to update
    * @param pVersion version to set
    */
-  private void _updateIntegrity(@NotNull File pTarget, @NotNull String pVersion)
+  private void _updateIntegrity(@NonNull File pTarget, @NonNull String pVersion)
   {
     File file = new File(pTarget, _INSTALLER_INTEGRITYCHECK_FILE);
 

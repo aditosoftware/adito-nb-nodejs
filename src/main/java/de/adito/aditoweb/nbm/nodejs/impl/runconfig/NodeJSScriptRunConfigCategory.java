@@ -2,7 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.runconfig;
 
 import de.adito.nbm.runconfig.api.IRunConfigCategory;
 import io.reactivex.rxjava3.core.Observable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.openide.util.*;
 
 import java.awt.*;
@@ -19,14 +19,14 @@ class NodeJSScriptRunConfigCategory implements IRunConfigCategory
 
   private static final Image _ICON = ImageUtilities.loadImage("de/adito/aditoweb/nbm/nodejs/impl/runconfig/nodejs16.png"); //NOI18N
 
-  @NotNull
+  @NonNull
   @Override
   public String getName()
   {
     return "de-adito-aditoweb-nbm-nodejs-impl-runconfig-NodeJSScriptRunConfigCategory";
   }
 
-  @NotNull
+  @NonNull
   @Override
   @NbBundle.Messages("LBL_RunConfigCategoryTitle=Scripts")
   public Observable<String> title()
@@ -34,7 +34,7 @@ class NodeJSScriptRunConfigCategory implements IRunConfigCategory
     return Observable.just(Bundle.LBL_RunConfigCategoryTitle());
   }
 
-  @NotNull
+  @NonNull
   @Override
   public Observable<Optional<Image>> icon()
   {

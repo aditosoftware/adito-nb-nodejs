@@ -1,5 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options;
 
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 
 import java.util.function.*;
@@ -12,9 +13,9 @@ import java.util.function.*;
 public class TableModelColumn
 {
 
-  @NotNull
+  @NonNull
   private final String name;
-  @NotNull
+  @NonNull
   private final Class<?> classType;
   @Nullable
   private final IsEditableFn isEditableFn;
@@ -31,7 +32,7 @@ public class TableModelColumn
    * @param pGetValueFn function for getting the value of cell of this column
    * @param pSetValueFn function for setting the value of a cell of this column
    */
-  private TableModelColumn(@NotNull String pName, @NotNull Class<?> pClassType, @Nullable IsEditableFn pIsEditableFn, @Nullable GetValueFn pGetValueFn,
+  private TableModelColumn(@NonNull String pName, @NonNull Class<?> pClassType, @Nullable IsEditableFn pIsEditableFn, @Nullable GetValueFn pGetValueFn,
                            @Nullable SetValueFn pSetValueFn)
   {
     name = pName;
@@ -41,13 +42,13 @@ public class TableModelColumn
     setValueFn = pSetValueFn;
   }
 
-  @NotNull
+  @NonNull
   public String getName()
   {
     return name;
   }
 
-  @NotNull
+  @NonNull
   public Class<?> getClassType()
   {
     return classType;
@@ -68,7 +69,7 @@ public class TableModelColumn
     return getValueFn.apply(pIndex);
   }
 
-  public void setValue(@NotNull Object pObj, int pIndex)
+  public void setValue(@NonNull Object pObj, int pIndex)
   {
     if (setValueFn != null)
       setValueFn.accept(pObj, pIndex);
@@ -83,31 +84,31 @@ public class TableModelColumn
     private GetValueFn getValueFn;
     private SetValueFn setValueFn;
 
-    public TableColumnBuilder setName(@NotNull String pName)
+    public TableColumnBuilder setName(@NonNull String pName)
     {
       name = pName;
       return this;
     }
 
-    public TableColumnBuilder setClassType(@NotNull Class<?> pType)
+    public TableColumnBuilder setClassType(@NonNull Class<?> pType)
     {
       classType = pType;
       return this;
     }
 
-    public TableColumnBuilder setIsEditableFn(@NotNull IsEditableFn pEditableFn)
+    public TableColumnBuilder setIsEditableFn(@NonNull IsEditableFn pEditableFn)
     {
       isEditableFn = pEditableFn;
       return this;
     }
 
-    public TableColumnBuilder setGetValueFn(@NotNull GetValueFn pGetValueFn)
+    public TableColumnBuilder setGetValueFn(@NonNull GetValueFn pGetValueFn)
     {
       getValueFn = pGetValueFn;
       return this;
     }
 
-    public TableColumnBuilder setSetValueFn(@NotNull SetValueFn pSetValueFn)
+    public TableColumnBuilder setSetValueFn(@NonNull SetValueFn pSetValueFn)
     {
       setValueFn = pSetValueFn;
       return this;

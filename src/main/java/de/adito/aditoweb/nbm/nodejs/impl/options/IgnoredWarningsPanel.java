@@ -3,7 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.options;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.project.IProjectVisibility;
 import de.adito.aditoweb.nbm.vaadinicons.IVaadinIconsProvider;
 import de.adito.swing.icon.IconAttributes;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.util.Lookup;
@@ -47,7 +47,7 @@ public class IgnoredWarningsPanel extends JPanel
 
     private final JTabbedPane tabbedPane;
 
-    public RemoveSelectedIgnoresAction(@NotNull JTabbedPane pTabbedPane)
+    public RemoveSelectedIgnoresAction(@NonNull JTabbedPane pTabbedPane)
     {
       tabbedPane = pTabbedPane;
       Optional.ofNullable(Lookup.getDefault().lookup(IVaadinIconsProvider.class))

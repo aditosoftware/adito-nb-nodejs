@@ -1,6 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.document;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.editor.document.*;
 
 import javax.swing.text.*;
@@ -19,7 +19,7 @@ public class DocumentUtil
    * @return List with the line indices of the currently selected lines. A line index is the line number -1
    * @throws BadLocationException thrown if during calculating the line indices an invalid offset is used
    */
-  public static List<Integer> getSelectedLineOffsets(@NotNull JTextComponent pTextComponent, @NotNull LineDocument pLineDocument) throws BadLocationException
+  public static List<Integer> getSelectedLineOffsets(@NonNull JTextComponent pTextComponent, @NonNull LineDocument pLineDocument) throws BadLocationException
   {
     List<Integer> selectedLineOffsets = new ArrayList<>();
     int selectionStart = pTextComponent.getSelectionStart();
@@ -40,7 +40,7 @@ public class DocumentUtil
    * @return the offset of the first non-whitespace character of the requested line. -1 if the given line index is invalid
    * @throws BadLocationException
    */
-  public static int getLineFirstNonWhiteSpaceForLine(@NotNull LineDocument pLineDocument, int pLineOffset) throws BadLocationException
+  public static int getLineFirstNonWhiteSpaceForLine(@NonNull LineDocument pLineDocument, int pLineOffset) throws BadLocationException
   {
     int lineStartFromIndex = LineDocumentUtils.getLineStartFromIndex(pLineDocument, pLineOffset);
     if (lineStartFromIndex >= 0)

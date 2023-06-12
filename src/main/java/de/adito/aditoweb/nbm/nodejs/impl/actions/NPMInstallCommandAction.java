@@ -1,6 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.openide.awt.*;
 import org.openide.util.NbBundle;
 
@@ -14,7 +14,7 @@ import org.openide.util.NbBundle;
 public class NPMInstallCommandAction extends AbstractNPMInstallCommand
 {
 
-  @NotNull
+  @NonNull
   @Override
   protected String[] getCommand()
   {

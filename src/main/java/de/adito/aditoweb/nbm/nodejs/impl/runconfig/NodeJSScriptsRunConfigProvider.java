@@ -5,7 +5,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.parser.PackageParser;
 import de.adito.nbm.runconfig.api.*;
 import de.adito.observables.netbeans.*;
 import io.reactivex.rxjava3.core.Observable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.util.lookup.ServiceProvider;
@@ -29,12 +29,12 @@ public class NodeJSScriptsRunConfigProvider implements ISystemRunConfigProvider
     project = null;
   }
 
-  public NodeJSScriptsRunConfigProvider(@NotNull Project pProject)
+  public NodeJSScriptsRunConfigProvider(@NonNull Project pProject)
   {
     project = pProject;
   }
 
-  @NotNull
+  @NonNull
   @Override
   public Observable<List<IRunConfig>> runConfigurations(List<ISystemInfo> pList)
   {
@@ -55,8 +55,8 @@ public class NodeJSScriptsRunConfigProvider implements ISystemRunConfigProvider
    * @param pProject Project
    * @return Observable with runconfigs
    */
-  @NotNull
-  private Observable<List<IRunConfig>> _createRunConfigsForProject(@NotNull Project pProject)
+  @NonNull
+  private Observable<List<IRunConfig>> _createRunConfigsForProject(@NonNull Project pProject)
   {
     return LookupResultObservable.create(pProject.getLookup(), INodeJSProvider.class)
         .map(pProviders -> pProviders.stream().findFirst())
@@ -75,8 +75,8 @@ public class NodeJSScriptsRunConfigProvider implements ISystemRunConfigProvider
    * @param pEnvironment Environment, already observed
    * @return Observable with runconfigs
    */
-  @NotNull
-  private Observable<List<IRunConfig>> _createRunConfigsForProject(@NotNull Project pProject, @NotNull INodeJSEnvironment pEnvironment)
+  @NonNull
+  private Observable<List<IRunConfig>> _createRunConfigsForProject(@NonNull Project pProject, @NonNull INodeJSEnvironment pEnvironment)
   {
     return FileObservable.createForPlainFile(new File(pProject.getProjectDirectory().getPath(), "package.json"))
         .map(pFileOpt -> pFileOpt

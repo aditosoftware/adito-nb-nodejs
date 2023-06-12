@@ -2,7 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.util;
 
 import de.adito.util.reactive.*;
 import io.reactivex.rxjava3.core.Observable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.openide.filesystems.*;
 
 import java.util.Optional;
@@ -15,22 +15,22 @@ public class FileAttributeObservable extends AbstractListenerObservable<FileChan
 
   private final String attribute;
 
-  @NotNull
-  public static Observable<Optional<Object>> create(@NotNull FileObject pFileObject, @NotNull String pAttributeName)
+  @NonNull
+  public static Observable<Optional<Object>> create(@NonNull FileObject pFileObject, @NonNull String pAttributeName)
   {
     return Observables.create(new FileAttributeObservable(pFileObject, pAttributeName),
                               () -> Optional.ofNullable(pFileObject.getAttribute(pAttributeName)));
   }
 
-  private FileAttributeObservable(@NotNull FileObject pListenableValue, @NotNull String pAttribute)
+  private FileAttributeObservable(@NonNull FileObject pListenableValue, @NonNull String pAttribute)
   {
     super(pListenableValue);
     attribute = pAttribute;
   }
 
-  @NotNull
+  @NonNull
   @Override
-  protected FileChangeListener registerListener(@NotNull FileObject pFileObject, @NotNull IFireable<Optional<Object>> pFireable)
+  protected FileChangeListener registerListener(@NonNull FileObject pFileObject, @NonNull IFireable<Optional<Object>> pFireable)
   {
     FileChangeListener fcl = new FileChangeAdapter()
     {
@@ -47,7 +47,7 @@ public class FileAttributeObservable extends AbstractListenerObservable<FileChan
   }
 
   @Override
-  protected void removeListener(@NotNull FileObject pFileObject, @NotNull FileChangeListener pFileChangeListener)
+  protected void removeListener(@NonNull FileObject pFileObject, @NonNull FileChangeListener pFileChangeListener)
   {
     pFileObject.removeFileChangeListener(pFileChangeListener);
   }

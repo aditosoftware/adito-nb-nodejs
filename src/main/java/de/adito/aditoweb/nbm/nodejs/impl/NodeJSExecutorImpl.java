@@ -3,6 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.notification.INotificationFacade;
+import lombok.NonNull;
 import org.apache.commons.io.output.NullOutputStream;
 import org.buildobjects.process.*;
 import org.jetbrains.annotations.*;
@@ -37,8 +38,8 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
    * @param pDirectory Directory to execute commands in
    * @return an executor that is not bound to a project
    */
-  @NotNull
-  public static INodeJSExecutor getInternalUnboundExecutor(@NotNull File pDirectory)
+  @NonNull
+  public static INodeJSExecutor getInternalUnboundExecutor(@NonNull File pDirectory)
   {
     return new NodeJSExecutorImpl(pDirectory);
   }
@@ -50,27 +51,27 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
   }
 
   @SuppressWarnings("unused") // ServiceProvider
-  public NodeJSExecutorImpl(@NotNull Project pProject)
+  public NodeJSExecutorImpl(@NonNull Project pProject)
   {
     this(FileUtil.toFile(pProject.getProjectDirectory()));
   }
 
-  private NodeJSExecutorImpl(@NotNull File pWorkingDir)
+  private NodeJSExecutorImpl(@NonNull File pWorkingDir)
   {
     workingDir = pWorkingDir;
   }
 
-  @NotNull
+  @NonNull
   @Override
-  public String executeSync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, long pTimeout, @NotNull String... pParams)
+  public String executeSync(@NonNull INodeJSEnvironment pEnv, @NonNull INodeJSExecBase pBase, long pTimeout, @NonNull String... pParams)
       throws IOException, InterruptedException, TimeoutException
   {
     return executeSync(pEnv, pBase, pTimeout, true, pParams);
   }
 
-  @NotNull
+  @NonNull
   @Override
-  public String executeSync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, long pTimeout, boolean pIncludeStdErr, @NotNull String... pParams)
+  public String executeSync(@NonNull INodeJSEnvironment pEnv, @NonNull INodeJSExecBase pBase, long pTimeout, boolean pIncludeStdErr, @NonNull String... pParams)
       throws IOException, InterruptedException, TimeoutException
   {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -96,9 +97,9 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     return baos.toString(StandardCharsets.UTF_8).trim();
   }
 
-  @NotNull
+  @NonNull
   @Override
-  public Process execute(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase, @NotNull String... pParams) throws IOException
+  public Process execute(@NonNull INodeJSEnvironment pEnv, @NonNull INodeJSExecBase pBase, @NonNull String... pParams) throws IOException
   {
     // Invalid Environment
     _checkValid(pEnv);
@@ -122,18 +123,18 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     return builder.start();
   }
 
-  @NotNull
+  @NonNull
   @Override
-  public CompletableFuture<Integer> executeAsync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase,
-                                                 @NotNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
-                                                 @NotNull String... pParams)
+  public CompletableFuture<Integer> executeAsync(@NonNull INodeJSEnvironment pEnv, @NonNull INodeJSExecBase pBase,
+                                                 @NonNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
+                                                 @NonNull String... pParams)
   {
     return _executeAsync(pEnv, pBase, pDefaultOut, pErrorOut, pDefaultIn, true, pParams);
   }
 
-  private CompletableFuture<Integer> _executeAsync(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase,
-                                                   @NotNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
-                                                   boolean pFlushDuringExecution, @NotNull String... pParams)
+  private CompletableFuture<Integer> _executeAsync(@NonNull INodeJSEnvironment pEnv, @NonNull INodeJSExecBase pBase,
+                                                   @NonNull OutputStream pDefaultOut, @Nullable OutputStream pErrorOut, @Nullable InputStream pDefaultIn,
+                                                   boolean pFlushDuringExecution, @NonNull String... pParams)
   {
     if (pErrorOut == null)
       pErrorOut = pDefaultOut;
@@ -295,7 +296,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     return waitingFuture;
   }
 
-  @NotNull
+  @NonNull
   private String _getSeparator()
   {
     if (BaseUtilities.isWindows())
@@ -308,7 +309,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
    *
    * @param pEnv environment to check
    */
-  private void _checkValid(@NotNull INodeJSEnvironment pEnv)
+  private void _checkValid(@NonNull INodeJSEnvironment pEnv)
   {
     if (!pEnv.isValid())
       throw new IllegalStateException("Failed to execute command on nodejs, because version is invalid (" + pEnv + ")");
@@ -321,8 +322,8 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
    * @param pBase base
    * @return the path file
    */
-  @NotNull
-  private File _getCommandPath(@NotNull INodeJSEnvironment pEnv, @NotNull INodeJSExecBase pBase)
+  @NonNull
+  private File _getCommandPath(@NonNull INodeJSEnvironment pEnv, @NonNull INodeJSExecBase pBase)
   {
     return pBase.isRelativeToWorkingDir() ? new File(workingDir, pBase.getBasePath()) : pEnv.resolveExecBase(pBase);
   }
@@ -333,7 +334,7 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
    * @param pBuilder Builder
    * @param pOut     Stream to log to
    */
-  private void _logCommand(@NotNull ProcBuilder pBuilder, @NotNull OutputStream pOut)
+  private void _logCommand(@NonNull ProcBuilder pBuilder, @NonNull OutputStream pOut)
   {
     try
     {
@@ -355,20 +356,20 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     private final OutputStream delegate;
     private Runnable onClosed;
 
-    public OutputStreamWrapper(@NotNull OutputStream pDelegate, @NotNull Runnable pOnClosed)
+    public OutputStreamWrapper(@NonNull OutputStream pDelegate, @NonNull Runnable pOnClosed)
     {
       delegate = pDelegate;
       onClosed = pOnClosed;
     }
 
     @Override
-    public void write(@NotNull byte[] b) throws IOException
+    public void write(@NonNull byte[] b) throws IOException
     {
       delegate.write(b);
     }
 
     @Override
-    public void write(@NotNull byte[] b, int off, int len) throws IOException
+    public void write(@NonNull byte[] b, int off, int len) throws IOException
     {
       delegate.write(b, off, len);
     }

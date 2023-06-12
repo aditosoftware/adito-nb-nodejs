@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.common.IProjectQuery;
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.project.Project;
 import org.openide.nodes.Node;
@@ -42,7 +43,7 @@ abstract class AbstractProjectAction extends NodeAction
    * @param pProject project that can be used to check whether the action should be enabled
    * @return boolean indication if the action should be enabled
    */
-  protected boolean enable(@NotNull Project pProject)
+  protected boolean enable(@NonNull Project pProject)
   {
     return true;
   }
@@ -58,7 +59,7 @@ abstract class AbstractProjectAction extends NodeAction
    *
    * @param pProject the project
    */
-  public abstract void performAction(@NotNull Project pProject);
+  public abstract void performAction(@NonNull Project pProject);
 
   /**
    * Finds a Project in the specified Nodes

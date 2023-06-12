@@ -5,7 +5,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.ls.*;
 import de.adito.aditoweb.nbm.vaadinicons.IVaadinIconsProvider;
 import de.adito.notification.INotificationFacade;
 import de.adito.swing.icon.IconAttributes;
-import org.jetbrains.annotations.*;
+import lombok.NonNull;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.*;
 import org.openide.util.Lookup;
@@ -60,7 +60,7 @@ public class IgnoredWarningsTablePanel extends JPanel
     private List<IgnoredWarningsFacade.WarningsItem> warningsItems = List.of();
     private final List<TableModelListener> tableModelListeners = new ArrayList<>();
 
-    public IgnoredWarningsTableModel(@NotNull Project pOpenProject, @NotNull JTable pTable)
+    public IgnoredWarningsTableModel(@NonNull Project pOpenProject, @NonNull JTable pTable)
     {
       IgnoredWarningsProvider provider = pOpenProject.getLookup().lookup(IgnoredWarningsProvider.class);
       IDisposerService disposerService = Lookup.getDefault().lookup(IDisposerService.class);
@@ -97,7 +97,7 @@ public class IgnoredWarningsTablePanel extends JPanel
       return tableModelColumns.size();
     }
 
-    @Nls
+    @NonNull
     @Override
     public String getColumnName(int columnIndex)
     {
@@ -157,14 +157,14 @@ public class IgnoredWarningsTablePanel extends JPanel
   private static class RemoveIgnoredWarningsAction extends AbstractAction
   {
 
-    @NotNull
+    @NonNull
     private static final Set<String> MIME_TYPES = Set.of("text/javascript", "text/typescript");
-    @NotNull
+    @NonNull
     private final Project project;
-    @NotNull
+    @NonNull
     private final JTable table;
 
-    private RemoveIgnoredWarningsAction(@NotNull Project pProject, @NotNull JTable pTable)
+    private RemoveIgnoredWarningsAction(@NonNull Project pProject, @NonNull JTable pTable)
     {
       project = pProject;
       table = pTable;

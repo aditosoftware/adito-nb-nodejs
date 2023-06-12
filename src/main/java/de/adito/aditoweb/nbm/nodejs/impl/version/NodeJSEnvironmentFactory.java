@@ -3,6 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.version;
 import com.google.common.base.Strings;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.NodeJSExecutorImpl;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.*;
 import org.openide.util.BaseUtilities;
@@ -24,7 +25,7 @@ public class NodeJSEnvironmentFactory
    * @return the (valid) env
    */
   @Nullable
-  public static INodeJSEnvironment create(@NotNull File pBinary)
+  public static INodeJSEnvironment create(@NonNull File pBinary)
   {
     _BinaryEnvironment version = new _BinaryEnvironment(pBinary);
     if (version.isValid())
@@ -46,21 +47,21 @@ public class NodeJSEnvironmentFactory
     private Boolean valid = null;
     private Long validCheckBinaryLastModified = null;
 
-    public _BinaryEnvironment(@NotNull File pNodejsBinary)
+    public _BinaryEnvironment(@NonNull File pNodejsBinary)
     {
       nodejsBinary = pNodejsBinary;
     }
 
-    @NotNull
+    @NonNull
     @Override
     public File getPath()
     {
       return nodejsBinary;
     }
 
-    @NotNull
+    @NonNull
     @Override
-    public File resolveExecBase(@NotNull INodeJSExecBase pBase)
+    public File resolveExecBase(@NonNull INodeJSExecBase pBase)
     {
       String extension = "";
       if (BaseUtilities.isWindows())
@@ -116,7 +117,7 @@ public class NodeJSEnvironmentFactory
                                           parent.getAbsolutePath() + ")");
     }
 
-    @NotNull
+    @NonNull
     @Override
     public String getVersion()
     {
@@ -168,26 +169,26 @@ public class NodeJSEnvironmentFactory
      *
      * @return the version
      */
-    @NotNull
+    @NonNull
     private String _readVersion() throws IOException, InterruptedException, TimeoutException
     {
       String result = NodeJSExecutorImpl.getInternalUnboundExecutor(new File(".")).executeSync(new INodeJSEnvironment()
       {
-        @NotNull
+        @NonNull
         @Override
         public File getPath()
         {
           return _BinaryEnvironment.this.getPath();
         }
 
-        @NotNull
+        @NonNull
         @Override
-        public File resolveExecBase(@NotNull INodeJSExecBase pBase)
+        public File resolveExecBase(@NonNull INodeJSExecBase pBase)
         {
           return _BinaryEnvironment.this.getPath();
         }
 
-        @NotNull
+        @NonNull
         @Override
         public String getVersion()
         {

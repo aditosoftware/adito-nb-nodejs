@@ -1,6 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.ls;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.*;
 import org.netbeans.spi.editor.hints.*;
 import org.openide.filesystems.*;
@@ -19,7 +19,7 @@ public class IgnoreWarningFix implements Fix
   private final String description;
   private final FileObject fileObject;
 
-  public IgnoreWarningFix(int pId, @NotNull String pDescription, @NotNull FileObject pFileObject)
+  public IgnoreWarningFix(int pId, @NonNull String pDescription, @NonNull FileObject pFileObject)
   {
     id = pId;
     description = pDescription;
