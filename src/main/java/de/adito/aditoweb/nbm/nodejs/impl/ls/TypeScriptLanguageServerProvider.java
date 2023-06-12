@@ -5,6 +5,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.*;
 import de.adito.notification.INotificationFacade;
 import io.reactivex.rxjava3.disposables.Disposable;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.editor.mimelookup.*;
 import org.netbeans.modules.lsp.client.LanguageServerProviderAccessor;
@@ -35,7 +36,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
   private ServerRestarter serverRestarter;
 
   @Override
-  public LanguageServerDescription startServer(@NotNull Lookup pLookup)
+  public LanguageServerDescription startServer(@NonNull Lookup pLookup)
   {
     synchronized (currentRef)
     {
@@ -59,7 +60,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
    *
    * @return the server description
    */
-  @NotNull
+  @NonNull
   private Optional<LanguageServerDescription> _startServer(@Nullable ServerRestarter pServerRestarter)
   {
     // Log Start
@@ -130,7 +131,7 @@ public class TypeScriptLanguageServerProvider implements LanguageServerProvider
    *
    * @param pServerRestarter the server restarter with which the LSP should be stopped
    */
-  public void stopServer(@NotNull ServerRestarter pServerRestarter)
+  public void stopServer(@NonNull ServerRestarter pServerRestarter)
   {
     LOGGER.info("Restarting TypeScript Language Server");
 

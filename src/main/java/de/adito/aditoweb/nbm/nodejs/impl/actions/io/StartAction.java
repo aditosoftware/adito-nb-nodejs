@@ -4,7 +4,7 @@ import de.adito.aditoweb.nbm.vaadinicons.IVaadinIconsProvider;
 import de.adito.swing.icon.IconAttributes;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.openide.util.*;
 
 import javax.swing.*;
@@ -24,8 +24,8 @@ public class StartAction extends AbstractAction
   private final Disposable disposable; // strong ref
 
   @NbBundle.Messages("CTL_StartAction=Start Script")
-  public StartAction(@NotNull Observable<Optional<CompletableFuture<Integer>>> pObservable,
-                     @NotNull Runnable pReRun)
+  public StartAction(@NonNull Observable<Optional<CompletableFuture<Integer>>> pObservable,
+                     @NonNull Runnable pReRun)
   {
     super(Bundle.CTL_StartAction(), new ImageIcon(Lookup.getDefault().lookup(IVaadinIconsProvider.class).getImage(IVaadinIconsProvider.VaadinIcon.PLAY,
                                                                                                                   new IconAttributes(16f))));

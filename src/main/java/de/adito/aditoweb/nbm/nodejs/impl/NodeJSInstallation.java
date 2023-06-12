@@ -38,7 +38,7 @@ public class NodeJSInstallation
    *
    * @return an instance of the {@link NodeJSInstallation}
    */
-  @NotNull
+  @NonNull
   public static NodeJSInstallation getCurrent()
   {
     return _PROVIDER.get();
@@ -49,7 +49,7 @@ public class NodeJSInstallation
    *
    * @return an instance of a {@link INodeJSExecutor}
    */
-  @NotNull
+  @NonNull
   public INodeJSExecutor getExecutor()
   {
     return NodeJSExecutorImpl.getInternalUnboundExecutor(rootFolder);
@@ -73,7 +73,7 @@ public class NodeJSInstallation
    * @return an instance of a {@link INodeJSEnvironment}
    * @throws IllegalStateException in case the environment is invalid
    */
-  @NotNull
+  @NonNull
   public INodeJSEnvironment getEnvironment()
   {
     File binary = getBinary();
@@ -114,7 +114,7 @@ public class NodeJSInstallation
      *
      * @return an instance of the {@link NodeJSInstallation}
      */
-    @NotNull
+    @NonNull
     NodeJSInstallation get();
   }
 
@@ -123,7 +123,7 @@ public class NodeJSInstallation
    */
   public static class BundledInstallationProvider implements IInstallationProvider
   {
-    @NotNull
+    @NonNull
     @Override
     public NodeJSInstallation get()
     {
@@ -148,7 +148,7 @@ public class NodeJSInstallation
      */
     private final IInstallationProvider defaultRootProvider;
 
-    @NotNull
+    @NonNull
     @Override
     public NodeJSInstallation get()
     {

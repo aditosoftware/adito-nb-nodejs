@@ -1,6 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.dataobjects;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.textmate.lexer.api.GrammarRegistration;
@@ -66,7 +66,7 @@ public class JSONDataObject extends MultiDataObject
    */
   private class _JSONNode extends FilterNode
   {
-    public _JSONNode(@NotNull Node pOriginal)
+    public _JSONNode(@NonNull Node pOriginal)
     {
       super(pOriginal);
     }

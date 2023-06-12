@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
 import de.adito.aditoweb.nbm.nodejs.impl.ls.TypeScriptLanguageServerProvider;
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +66,7 @@ class RestartLSPActionTest
     /**
      * @return the arguments for {@link #shouldActionPerformed(int, ServerRestarter, String)}
      */
-    @NotNull
+    @NonNull
     private Stream<Arguments> shouldActionPerformed()
     {
       ServerRestarter serverRestarter = Mockito.spy(ServerRestarter.class);

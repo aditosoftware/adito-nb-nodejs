@@ -1,5 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options.downloader;
 
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 
 import java.io.*;
@@ -13,7 +14,7 @@ import java.util.List;
 public interface INodeJSDownloader
 {
 
-  @NotNull
+  @NonNull
   static INodeJSDownloader getInstance()
   {
     return NodeJSDownloaderImpl.INSTANCE;
@@ -24,7 +25,7 @@ public interface INodeJSDownloader
    *
    * @return versions, sorted descending (in correct "versioning" order)
    */
-  @NotNull
+  @NonNull
   List<String> getAvailableVersions() throws IOException;
 
   /**
@@ -34,7 +35,7 @@ public interface INodeJSDownloader
    * @return the binary file or null if not found
    */
   @Nullable
-  File findNodeExecutableInInstallation(@NotNull File pInstallation);
+  File findNodeExecutableInInstallation(@NonNull File pInstallation);
 
   /**
    * Detects the node installation folder from a binary
@@ -43,7 +44,7 @@ public interface INodeJSDownloader
    * @return the installation root
    */
   @Nullable
-  File findInstallationFromNodeExecutable(@NotNull File pBinary);
+  File findInstallationFromNodeExecutable(@NonNull File pBinary);
 
   /**
    * Downloads a nodejs version to pTarget.
@@ -52,7 +53,7 @@ public interface INodeJSDownloader
    * @param pTarget  Target Folder
    * @return the binary nodejs target
    */
-  @NotNull
-  File downloadVersion(@NotNull String pVersion, @NotNull File pTarget) throws IOException;
+  @NonNull
+  File downloadVersion(@NonNull String pVersion, @NonNull File pTarget) throws IOException;
 
 }

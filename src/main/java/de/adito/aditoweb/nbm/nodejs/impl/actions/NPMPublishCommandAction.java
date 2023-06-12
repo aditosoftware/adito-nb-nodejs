@@ -1,6 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.Project;
 import org.openide.awt.*;
 import org.openide.util.NbBundle;
@@ -17,14 +17,14 @@ import java.util.function.Consumer;
 public class NPMPublishCommandAction extends AbstractNPMCommandAction
 {
 
-  @NotNull
+  @NonNull
   @Override
   protected String[] getCommand()
   {
     return new String[]{"publish"};
   }
 
-  @NotNull
+  @NonNull
   @Override
   protected Consumer<Project> getAfterCommandAction()
   {

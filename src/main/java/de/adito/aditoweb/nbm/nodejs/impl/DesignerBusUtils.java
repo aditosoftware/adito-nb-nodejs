@@ -1,7 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl;
 
 import com.google.common.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.openide.util.Lookup;
 
 /**
@@ -27,7 +27,7 @@ public class DesignerBusUtils
    * @param pEvent event to fire
    */
   @SuppressWarnings("UnstableApiUsage")
-  public static void fireEvent(@NotNull String pEvent)
+  public static void fireEvent(@NonNull String pEvent)
   {
     EventBus bus = Lookup.getDefault().lookup(EventBus.class);
     if (bus != null)

@@ -6,6 +6,7 @@ import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
 import de.adito.aditoweb.nbm.nodejs.impl.version.NodeJSEnvironmentFactory;
 import de.adito.swing.*;
 import info.clearthought.layout.*;
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 import org.netbeans.api.progress.BaseProgressUtils;
 import org.openide.*;
@@ -113,7 +114,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
   /**
    * @return the currently set options, with the user changed values
    */
-  @NotNull
+  @NonNull
   public NodeJSOptions getCurrent()
   {
     String selectedPath = path.getValue();
@@ -127,7 +128,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
    *
    * @param pOptions options to display
    */
-  public void setCurrent(@NotNull NodeJSOptions pOptions)
+  public void setCurrent(@NonNull NodeJSOptions pOptions)
   {
     options = pOptions;
     String optionsPath = pOptions.getPath();
@@ -137,7 +138,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
   /**
    * @return all available nodejs installations
    */
-  @NotNull
+  @NonNull
   private List<String> _getInstalledNodeJSVersions()
   {
     List<String> result = new ArrayList<>();
@@ -171,7 +172,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
       "LBL_DownloadBtn=Download",
       "LBL_DownloadingVersion=Downloading NodeJS ({0}, {1})..."
   })
-  @NotNull
+  @NonNull
   private JButton _createDownloadButton()
   {
     JButton btn = new JButton(Bundle.LBL_Download());
@@ -239,7 +240,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
       "LBL_Version=Version: ",
       "LBL_UnknownVersion=Unknown"
   })
-  @NotNull
+  @NonNull
   private JLabel _createVersionLabel()
   {
     JLabel label = new JLabel();
@@ -276,8 +277,8 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
    * @param pDefault string to return, if read failed
    * @return future with the version
    */
-  @NotNull
-  private CompletableFuture<String> _getNodeJSVersionOfSelectedPath(@NotNull String pDefault)
+  @NonNull
+  private CompletableFuture<String> _getNodeJSVersionOfSelectedPath(@NonNull String pDefault)
   {
     return CompletableFuture.supplyAsync(() -> {
       try
@@ -311,7 +312,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
         "LBL_TargetPath=Target Path: ",
         "LBL_Chooser_Download=Target Folder for Downloaded Version"
     })
-    public _DownloadPanel(@NotNull List<String> pAvailableVersions)
+    public _DownloadPanel(@NonNull List<String> pAvailableVersions)
     {
       setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -355,7 +356,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
       return new File(path.getValue());
     }
 
-    public void addChangeListener(@NotNull ChangeListener pOnChange)
+    public void addChangeListener(@NonNull ChangeListener pOnChange)
     {
       path.addDocumentListener(new DocumentListener()
       {
@@ -387,7 +388,7 @@ public class NodeJSOptionsPanel extends JPanel implements Scrollable
      * @param pPath Path to check
      * @return true, if valid
      */
-    private static boolean _isValidFilePath(@NotNull String pPath)
+    private static boolean _isValidFilePath(@NonNull String pPath)
     {
       try
       {

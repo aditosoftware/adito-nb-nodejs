@@ -31,7 +31,7 @@ public class NodeJSOptions
    *
    * @return options, freshly generated from preferences
    */
-  @NotNull
+  @NonNull
   public static NodeJSOptions getInstance()
   {
     return NodeJSOptions.builder()
@@ -44,7 +44,7 @@ public class NodeJSOptions
    *
    * @return Observable with options
    */
-  @NotNull
+  @NonNull
   public static Observable<NodeJSOptions> observe()
   {
     return PreferencesObservable.create(PREFS)
@@ -56,7 +56,7 @@ public class NodeJSOptions
    *
    * @param pOptions Values to set in preferences
    */
-  public static void update(@NotNull NodeJSOptions pOptions)
+  public static void update(@NonNull NodeJSOptions pOptions)
   {
     if (pOptions.getPath() == null)
       PREFS.remove("path");

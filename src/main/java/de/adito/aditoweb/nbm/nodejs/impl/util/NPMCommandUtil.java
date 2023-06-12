@@ -31,7 +31,7 @@ public final class NPMCommandUtil
    * @param pParams           the npm parameters
    */
   @NbBundle.Messages("LBL_PerformAction=Executing \"{0}\"")
-  public static void runCommand(@NotNull Project pProject, @NotNull Consumer<Project> pastCommandAction, @NotNull String... pParams)
+  public static void runCommand(@NonNull Project pProject, @NonNull Consumer<Project> pastCommandAction, @NonNull String... pParams)
   {
     INodeJSEnvironment env = findEnvironment(pProject);
     INodeJSExecutor executor = findExecutor(pProject);
@@ -105,7 +105,7 @@ public final class NPMCommandUtil
    * @return the environment or null if not found
    */
   @Nullable
-  public static INodeJSEnvironment findEnvironment(@NotNull Project pProject)
+  public static INodeJSEnvironment findEnvironment(@NonNull Project pProject)
   {
     INodeJSProvider provider = INodeJSProvider.findInstance(pProject).orElse(null);
     if (provider == null)
@@ -120,7 +120,7 @@ public final class NPMCommandUtil
    * @return the executor or null if not found
    */
   @Nullable
-  public static INodeJSExecutor findExecutor(@NotNull Project pProject)
+  public static INodeJSExecutor findExecutor(@NonNull Project pProject)
   {
     return INodeJSExecutor.findInstance(pProject).orElse(null);
   }

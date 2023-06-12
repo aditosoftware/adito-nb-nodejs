@@ -1,5 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
+import lombok.NonNull;
 import org.jetbrains.annotations.*;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -55,7 +56,7 @@ class AbstractNPMInstallCommandTest
     {
       AbstractNPMInstallCommand abstractNPMInstallCommand = new AbstractNPMInstallCommand()
       {
-        @NotNull
+        @NonNull
         @Override
         protected String[] getCommand()
         {

@@ -2,7 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 
 import de.adito.aditoweb.nbm.nodejs.impl.actions.NPMInstallCommandAction;
 import de.adito.notification.INotificationFacade;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.*;
 import org.openide.filesystems.*;
 import org.openide.util.NbBundle;
@@ -24,7 +24,7 @@ public final class NPMInstallRequired extends FileChangeAdapter
   private final Project project;
   private long lastNotification = 0;
 
-  private NPMInstallRequired(@NotNull Project pProject)
+  private NPMInstallRequired(@NonNull Project pProject)
   {
     project = pProject;
     project.getProjectDirectory().addFileChangeListener(this);
@@ -76,8 +76,8 @@ public final class NPMInstallRequired extends FileChangeAdapter
    * @param pProject the project
    * @return the NpmInstallRequired instance
    */
-  @NotNull
-  public static NPMInstallRequired forProject(@NotNull Project pProject)
+  @NonNull
+  public static NPMInstallRequired forProject(@NonNull Project pProject)
   {
     return instances.computeIfAbsent(pProject, NPMInstallRequired::new);
   }
@@ -88,7 +88,7 @@ public final class NPMInstallRequired extends FileChangeAdapter
    *
    * @param pProject the project
    */
-  public static void delete(@NotNull Project pProject)
+  public static void delete(@NonNull Project pProject)
   {
     NPMInstallRequired instance = instances.remove(pProject);
     if (instance != null)

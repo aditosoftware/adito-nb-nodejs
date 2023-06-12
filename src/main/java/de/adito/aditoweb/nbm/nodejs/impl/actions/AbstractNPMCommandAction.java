@@ -1,7 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
 import de.adito.aditoweb.nbm.nodejs.impl.util.NPMCommandUtil;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.Project;
 
 import java.util.function.Consumer;
@@ -23,7 +23,7 @@ public abstract class AbstractNPMCommandAction extends AbstractProjectAction
    *
    * @return the npm command
    */
-  @NotNull
+  @NonNull
   protected abstract String[] getCommand();
 
   /**
@@ -31,17 +31,17 @@ public abstract class AbstractNPMCommandAction extends AbstractProjectAction
    *
    * @return the created action
    */
-  @NotNull
+  @NonNull
   protected abstract Consumer<Project> getAfterCommandAction();
 
   @Override
-  public void performAction(@NotNull Project pProject)
+  public void performAction(@NonNull Project pProject)
   {
     NPMCommandUtil.runCommand(pProject, getAfterCommandAction(), getCommand());
   }
 
   @Override
-  protected boolean enable(@NotNull Project pProject)
+  protected boolean enable(@NonNull Project pProject)
   {
     return NPMCommandUtil.findEnvironment(pProject) != null
         && NPMCommandUtil.findExecutor(pProject) != null;

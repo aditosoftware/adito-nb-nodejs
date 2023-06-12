@@ -1,6 +1,6 @@
 package de.adito.aditoweb.nbm.nodejs.impl.actions;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.masterfs.watcher.IADITOWatcherSymlinkProvider;
 import org.openide.util.Lookup;
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 public abstract class AbstractNPMInstallCommand extends AbstractNPMCommandAction
 {
 
-  @NotNull
+  @NonNull
   @Override
   protected Consumer<Project> getAfterCommandAction()
   {

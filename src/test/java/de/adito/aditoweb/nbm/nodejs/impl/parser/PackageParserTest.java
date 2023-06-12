@@ -2,7 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl.parser;
 
 import com.google.common.collect.Sets;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSExecBase;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
@@ -98,7 +98,7 @@ class PackageParserTest
      * @param filename       The name of the file in the resources folder
      * @throws URISyntaxException If the read url of the filename can not be converted into an {@link URI}
      */
-    private void baseParseScripts(@NotNull Set<Map.Entry<String, String>> expectedValues, @NotNull String filename) throws URISyntaxException
+    private void baseParseScripts(@NonNull Set<Map.Entry<String, String>> expectedValues, @NonNull String filename) throws URISyntaxException
     {
       // builds the expected map out of the set
       Map<String, String> expected = expectedValues.stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

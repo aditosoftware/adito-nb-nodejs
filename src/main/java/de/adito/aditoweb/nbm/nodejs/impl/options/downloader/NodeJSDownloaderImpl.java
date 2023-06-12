@@ -1,6 +1,7 @@
 package de.adito.aditoweb.nbm.nodejs.impl.options.downloader;
 
 import lombok.Getter;
+import lombok.NonNull;
 import org.apache.commons.io.IOUtils;
 import org.buildobjects.process.ProcBuilder;
 import org.jetbrains.annotations.*;
@@ -27,7 +28,7 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
   private static final Pattern _VERSION_REGEX = Pattern.compile("<a href=\"([^\"]*)\">");
   private static final Set<String> _IGNORED_VERSIONS = Set.of("v6.", "v5.", "v4.", "v0.");
 
-  @NotNull
+  @NonNull
   @Override
   public List<String> getAvailableVersions() throws IOException
   {
@@ -63,21 +64,21 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
 
   @Nullable
   @Override
-  public File findNodeExecutableInInstallation(@NotNull File pInstallation)
+  public File findNodeExecutableInInstallation(@NonNull File pInstallation)
   {
     return _findBinary(pInstallation, OS_SUFFIX.getCurrent());
   }
 
   @Nullable
   @Override
-  public File findInstallationFromNodeExecutable(@NotNull File pBinary)
+  public File findInstallationFromNodeExecutable(@NonNull File pBinary)
   {
     return _findInstallationRoot(pBinary, OS_SUFFIX.getCurrent());
   }
 
-  @NotNull
+  @NonNull
   @Override
-  public File downloadVersion(@NotNull String pVersion, @NotNull File pTarget) throws IOException
+  public File downloadVersion(@NonNull String pVersion, @NonNull File pTarget) throws IOException
   {
     return _downloadVersion(pVersion, pTarget, OS_SUFFIX.getCurrent());
   }
@@ -89,8 +90,8 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
    * @param pOS      OS-Type to download
    * @return the URL
    */
-  @NotNull
-  protected String getDownloadURL(@NotNull String pVersion, @NotNull OS_SUFFIX pOS)
+  @NonNull
+  protected String getDownloadURL(@NonNull String pVersion, @NonNull OS_SUFFIX pOS)
   {
     return _NODEJS_URL + pVersion + "/node-" + pVersion + "-" + pOS.getSuffix() + pOS.getFileEnding();
   }
@@ -103,8 +104,8 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
    * @param pOsType  OS-Type
    * @return the binary nodejs target
    */
-  @NotNull
-  private File _downloadVersion(@NotNull String pVersion, @NotNull File pTarget, @NotNull OS_SUFFIX pOsType) throws IOException
+  @NonNull
+  private File _downloadVersion(@NonNull String pVersion, @NonNull File pTarget, @NonNull OS_SUFFIX pOsType) throws IOException
   {
     File downloadedFile = new File(pTarget, pVersion + pOsType.getFileEnding());
 
@@ -142,8 +143,8 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
    * @param pTarget Target folder
    * @return the extracted folder
    */
-  @NotNull
-  private File _extractWithLinks(@NotNull File pFile, @NotNull File pTarget) throws IOException
+  @NonNull
+  private File _extractWithLinks(@NonNull File pFile, @NonNull File pTarget) throws IOException
   {
     Archiver factory = ArchiverFactory.createArchiver(pFile);
 
@@ -181,7 +182,7 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
    * @return the binary file or null if not found
    */
   @Nullable
-  private File _findBinary(@NotNull File pNodeJSInstallation, @NotNull OS_SUFFIX pOSType)
+  private File _findBinary(@NonNull File pNodeJSInstallation, @NonNull OS_SUFFIX pOSType)
   {
     File file = pOSType.getBinaryExtractor().apply(pNodeJSInstallation);
     if (file.exists() && file.canRead())
@@ -196,7 +197,7 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
    * @return the installation root or null if not found
    */
   @Nullable
-  private File _findInstallationRoot(@NotNull File pBinary, @NotNull OS_SUFFIX pOSType)
+  private File _findInstallationRoot(@NonNull File pBinary, @NonNull OS_SUFFIX pOSType)
   {
     File file = pOSType.getInstallationExtractor().apply(pBinary);
     if (file.exists() && file.canRead() && file.isDirectory())
@@ -220,8 +221,8 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
     private final UnaryOperator<File> binaryExtractor;
     private final UnaryOperator<File> installationExtractor;
 
-    OS_SUFFIX(@NotNull String pSuffix, @NotNull String pDisplayName, @NotNull String pFileEnding,
-              @NotNull UnaryOperator<File> pBinaryExtractor, @NotNull UnaryOperator<File> pInstallationExtractor)
+    OS_SUFFIX(@NonNull String pSuffix, @NonNull String pDisplayName, @NonNull String pFileEnding,
+              @NonNull UnaryOperator<File> pBinaryExtractor, @NonNull UnaryOperator<File> pInstallationExtractor)
     {
       suffix = pSuffix;
       displayName = pDisplayName;
@@ -233,7 +234,7 @@ public class NodeJSDownloaderImpl implements INodeJSDownloader
     /**
      * @return the type of the current OS
      */
-    @NotNull
+    @NonNull
     public static OS_SUFFIX getCurrent()
     {
       if (BaseUtilities.isMac())

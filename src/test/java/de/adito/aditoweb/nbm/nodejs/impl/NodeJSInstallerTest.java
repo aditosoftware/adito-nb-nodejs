@@ -2,6 +2,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSEnvironment;
 import de.adito.aditoweb.nbm.nodejs.impl.options.downloader.INodeJSDownloader;
+import lombok.NonNull;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.*;
 import org.junit.jupiter.api.*;
@@ -42,7 +43,7 @@ class NodeJSInstallerTest
    *
    * @return stream of arguments
    */
-  @NotNull
+  @NonNull
   static Stream<Arguments> shouldDisableSymlinksDependingOnTheNodeJsVersion()
   {
     return Stream.of(
@@ -65,7 +66,7 @@ class NodeJSInstallerTest
    */
   @ParameterizedTest
   @MethodSource
-  void shouldDisableSymlinksDependingOnTheNodeJsVersion(@Nullable String pSymlinkProperty, boolean pIsEnvironmentAvailable, @NotNull String pNodeVersion)
+  void shouldDisableSymlinksDependingOnTheNodeJsVersion(@Nullable String pSymlinkProperty, boolean pIsEnvironmentAvailable, @NonNull String pNodeVersion)
   {
     if (pSymlinkProperty == null)
       System.clearProperty(NodeJSInstaller.IS_INCLUDE_SYMLINKS_PROPERTY);
@@ -125,7 +126,7 @@ class NodeJSInstallerTest
    */
   @ParameterizedTest
   @MethodSource
-  void shouldCheckIfNodeJsCreatesSymlinksOnNpmInstall(@NotNull String pVersion, boolean pDoesCreateSymlinks)
+  void shouldCheckIfNodeJsCreatesSymlinksOnNpmInstall(@NonNull String pVersion, boolean pDoesCreateSymlinks)
   {
     Assertions.assertEquals(pDoesCreateSymlinks, NodeJSInstaller.doesNodeCreateSymlinksOnNpmInstall(pVersion));
   }

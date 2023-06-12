@@ -3,7 +3,6 @@ package de.adito.aditoweb.nbm.nodejs.impl.parser;
 import com.google.gson.Gson;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.INodeJSExecBase;
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.*;
@@ -24,8 +23,8 @@ public class PackageParser
    * @param pPackageJson package.json
    * @return the map of scripts
    */
-  @NotNull
-  public static Map<String, String> parseScripts(@NotNull File pPackageJson)
+  @NonNull
+  public static Map<String, String> parseScripts(@NonNull File pPackageJson)
   {
     try
     {
@@ -47,8 +46,8 @@ public class PackageParser
    * @param pPackageJsonReader package.json reader
    * @return the map of scripts
    */
-  @NotNull
-  public static Map<String, String> parseScripts(@NotNull Reader pPackageJsonReader)
+  @NonNull
+  public static Map<String, String> parseScripts(@NonNull Reader pPackageJsonReader)
   {
     try
     {
@@ -72,8 +71,8 @@ public class PackageParser
    * @param pJsonData output of "npm list -j -l"
    * @return a map of binaries and their INodeJSExecBase, pointing to the resolved javascript file
    */
-  @NotNull
-  public static Map<String, INodeJSExecBase> parseBinaries(@NotNull String pJsonData)
+  @NonNull
+  public static Map<String, INodeJSExecBase> parseBinaries(@NonNull String pJsonData)
   {
     try
     {

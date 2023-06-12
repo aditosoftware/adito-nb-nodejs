@@ -3,7 +3,7 @@ package de.adito.aditoweb.nbm.nodejs.impl;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.aditoweb.nbm.nodejs.impl.parser.PackageParser;
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,7 +28,7 @@ public class NPMCommandExecutor
    *
    * @param pPackages packages that should be installed
    */
-  public void install(@NotNull String... pPackages) throws IOException, InterruptedException, TimeoutException
+  public void install(@NonNull String... pPackages) throws IOException, InterruptedException, TimeoutException
   {
     String[] arguments = createArguments("install", pPackages);
     executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, arguments);
@@ -39,7 +39,7 @@ public class NPMCommandExecutor
    *
    * @param pPackages packages that should be updated
    */
-  public void update(@NotNull String... pPackages) throws IOException, InterruptedException, TimeoutException
+  public void update(@NonNull String... pPackages) throws IOException, InterruptedException, TimeoutException
   {
     String[] arguments = createArguments("update", pPackages);
     executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, arguments);
@@ -50,7 +50,7 @@ public class NPMCommandExecutor
    *
    * @param pPackages packages that should be checked
    */
-  public boolean outdated(@NotNull String... pPackages) throws IOException, InterruptedException, TimeoutException
+  public boolean outdated(@NonNull String... pPackages) throws IOException, InterruptedException, TimeoutException
   {
     String[] arguments = createArguments("outdated", pPackages);
     String result = executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, false, arguments);
@@ -66,7 +66,7 @@ public class NPMCommandExecutor
    *
    * @param pPackages packages that should be checked
    */
-  public boolean list(@NotNull String... pPackages) throws IOException, InterruptedException, TimeoutException
+  public boolean list(@NonNull String... pPackages) throws IOException, InterruptedException, TimeoutException
   {
     String[] arguments = createArguments("list", pPackages);
     String result = executor.executeSync(environment, INodeJSExecBase.packageManager(), -1, false, arguments);
@@ -98,7 +98,7 @@ public class NPMCommandExecutor
    * @param pArguments additional arguments that should be passed to the npm command
    * @return the arguments as array
    */
-  private String[] createArguments(@NotNull String command, @NotNull String... pArguments)
+  private String[] createArguments(@NonNull String command, @NonNull String... pArguments)
   {
     List<String> arguments = new ArrayList<>();
     arguments.add(command);

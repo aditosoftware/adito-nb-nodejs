@@ -25,7 +25,7 @@ public class BaseAbstractNPMCommandActionUtil
    * @param pWatcherSymlinkProvider   the {@link IADITOWatcherSymlinkProvider} that should be returned by {@code Lookup.getDefault().lookup(IADITOWatcherSymlinkProvider.class)}.
    * @param abstractNPMInstallCommand the implementation of an {@link AbstractNPMCommandAction} that should call the method
    */
-  public static void baseGetAfterCommandAction(@Nullable IADITOWatcherSymlinkProvider pWatcherSymlinkProvider, @NotNull AbstractNPMInstallCommand abstractNPMInstallCommand)
+  public static void baseGetAfterCommandAction(@Nullable IADITOWatcherSymlinkProvider pWatcherSymlinkProvider, @NonNull AbstractNPMInstallCommand abstractNPMInstallCommand)
   {
     Project project = Mockito.spy(Project.class);
 
