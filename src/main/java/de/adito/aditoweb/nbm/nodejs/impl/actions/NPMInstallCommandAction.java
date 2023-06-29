@@ -13,10 +13,9 @@ import org.openide.util.NbBundle;
 @ActionReference(path = "Plugins/NodeJS/Actions", position = 0)
 public class NPMInstallCommandAction extends AbstractNPMInstallCommand
 {
-
-  @NonNull
+  
   @Override
-  protected String[] getCommand()
+  protected String @NonNull [] getCommand()
   {
     return new String[]{"install"};
   }

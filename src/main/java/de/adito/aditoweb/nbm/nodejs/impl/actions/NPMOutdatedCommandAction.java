@@ -16,10 +16,9 @@ import java.util.function.Consumer;
 @ActionReference(path = "Plugins/NodeJS/Actions", position = 150, separatorBefore = 149)
 public class NPMOutdatedCommandAction extends AbstractNPMCommandAction
 {
-
-  @NonNull
+  
   @Override
-  protected String[] getCommand()
+  protected String @NonNull [] getCommand()
   {
     return new String[]{"outdated"};
   }

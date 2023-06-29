@@ -6,12 +6,12 @@ import de.adito.notification.INotificationFacade;
 import lombok.NonNull;
 import org.apache.commons.io.output.NullOutputStream;
 import org.buildobjects.process.*;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.Nullable;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.Places;
 import org.openide.util.BaseUtilities;
-import org.openide.util.lookup.*;
+import org.openide.util.lookup.ServiceProvider;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -363,13 +363,13 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
     }
 
     @Override
-    public void write(@NonNull byte[] b) throws IOException
+    public void write(byte @NonNull [] b) throws IOException
     {
       delegate.write(b);
     }
 
     @Override
-    public void write(@NonNull byte[] b, int off, int len) throws IOException
+    public void write(byte @NonNull [] b, int off, int len) throws IOException
     {
       delegate.write(b, off, len);
     }

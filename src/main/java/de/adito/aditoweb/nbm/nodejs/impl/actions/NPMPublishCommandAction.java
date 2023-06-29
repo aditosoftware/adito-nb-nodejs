@@ -16,10 +16,9 @@ import java.util.function.Consumer;
 @ActionReference(path = "Plugins/NodeJS/Actions", position = 200, separatorBefore = 199)
 public class NPMPublishCommandAction extends AbstractNPMCommandAction
 {
-
-  @NonNull
+  
   @Override
-  protected String[] getCommand()
+  protected String @NonNull [] getCommand()
   {
     return new String[]{"publish"};
   }

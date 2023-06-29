@@ -23,8 +23,7 @@ public abstract class AbstractNPMCommandAction extends AbstractProjectAction
    *
    * @return the npm command
    */
-  @NonNull
-  protected abstract String[] getCommand();
+  protected abstract String @NonNull [] getCommand();
 
   /**
    * Creates an action that will be executed after the npm command was run.

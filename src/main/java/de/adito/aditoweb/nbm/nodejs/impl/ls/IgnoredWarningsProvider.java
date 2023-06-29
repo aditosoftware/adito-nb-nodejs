@@ -5,7 +5,7 @@ import de.adito.aditoweb.nbm.nbide.nbaditointerface.project.IProjectVisibility;
 import de.adito.observables.netbeans.FileObservable;
 import io.reactivex.rxjava3.core.Observable;
 import lombok.NonNull;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.Nullable;
 import org.netbeans.api.project.*;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.ServiceProvider;
@@ -83,7 +83,7 @@ public class IgnoredWarningsProvider
    * @return combined set
    */
   @NonNull
-  private static Set<IgnoredWarningsFacade.WarningsItem> combineSetArray(@NonNull Object[] setSet)
+  private static Set<IgnoredWarningsFacade.WarningsItem> combineSetArray(Object @NonNull [] setSet)
   {
     //noinspection unchecked array contains sets of WarningsItems, but has to be object array to satisfy signatures
     return Arrays.stream(setSet)
