@@ -50,13 +50,14 @@ public final class TypeScriptLinkedFileCompiler implements ILinkedFileCompiler
   public CompletableFuture<Void> compileFiles(@NotNull Path pRoot, @NotNull List<Path> pFiles)
   {
     return CompletableFuture.supplyAsync(() -> createConfig(pRoot, pFiles), RequestProcessor.getDefault())
-        .thenAccept(pTsConfig -> runCompiler(pTsConfig).thenAccept(this::cleanup));
+        .thenApplyAsync(this::runCompiler)
+        .thenAcceptAsync(this::cleanup);
   }
 
   /**
    * Creates a temporary tsconfig file.
    *
-   * @param pRoot root of the project/module
+   * @param pRoot  root of the project/module
    * @param pFiles files that sohuld be included in the compilation
    * @return path to the tsconfig file
    */
@@ -104,7 +105,7 @@ public final class TypeScriptLinkedFileCompiler implements ILinkedFileCompiler
    * @return future that resolves once the compiler has finished executing
    */
   @NotNull
-  private CompletableFuture<CompilationResult> runCompiler(@NotNull Path pTsConfig)
+  private CompilationResult runCompiler(@NotNull Path pTsConfig)
   {
     INodeJSExecutor executor = NodeJSInstallation.getCurrent().getExecutor();
     INodeJSEnvironment bundledEnvironment = NodeJSInstallation.getCurrent().getEnvironment();
@@ -114,12 +115,14 @@ public final class TypeScriptLinkedFileCompiler implements ILinkedFileCompiler
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try
     {
-      return executor.executeAsync(
+      return new CompilationResult(
+          pTsConfig, baos,
+          executor.executeAsync(
               bundledEnvironment,
               INodeJSExecBase.node(),
               baos, baos, new NullInputStream(),
-              tscBinaryPath, "--build", pTsConfig.toString())
-          .thenApply(pExitCode -> new CompilationResult(pTsConfig, baos, pExitCode));
+              tscBinaryPath, "--build", pTsConfig.toString()).join()
+      );
     }
     catch (IOException pE)
     {
