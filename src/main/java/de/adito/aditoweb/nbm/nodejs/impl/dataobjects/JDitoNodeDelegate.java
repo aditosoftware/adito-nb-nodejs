@@ -52,6 +52,11 @@ class JDitoNodeDelegate extends DataNode implements Disposable
                        .subscribe(pNameOpt -> pNameOpt.ifPresent(this::updateDisplayName)));
   }
 
+  /**
+   * Updated den Display-Name dieses Nodes
+   *
+   * @param pName der neue Name
+   */
   private void updateDisplayName(String pName)
   {
     String old = displayName;
