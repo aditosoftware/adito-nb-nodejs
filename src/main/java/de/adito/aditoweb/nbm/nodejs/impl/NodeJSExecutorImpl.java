@@ -4,7 +4,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.adito.aditoweb.nbm.nbide.nbaditointerface.javascript.node.*;
 import de.adito.notification.INotificationFacade;
 import lombok.NonNull;
-import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.io.output.*;
 import org.buildobjects.process.*;
 import org.jetbrains.annotations.Nullable;
 import org.netbeans.api.project.Project;
@@ -13,6 +13,7 @@ import org.openide.modules.Places;
 import org.openide.util.BaseUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
+import java.io.ByteArrayOutputStream;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -74,27 +75,33 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
   public String executeSync(@NonNull INodeJSEnvironment pEnv, @NonNull INodeJSExecBase pBase, long pTimeout, boolean pIncludeStdErr, @NonNull String... pParams)
       throws IOException, InterruptedException, TimeoutException
   {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    OutputStream errBaos = pIncludeStdErr ? baos : NullOutputStream.NULL_OUTPUT_STREAM;
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); // regular output as bytes, needed as return value
+         ByteArrayOutputStream errBaos = new ByteArrayOutputStream(); // error output as bytes, needed for exception handling
 
-    // create and start
-    Future<Integer> process = _executeAsync(pEnv, pBase, baos, errBaos, null, false, pParams);
-
-    try
+         // Now combine the "errBaos" and the outter output stream
+         OutputStream erros = new TeeOutputStream(pIncludeStdErr ? baos : NullOutputStream.NULL_OUTPUT_STREAM, errBaos))
     {
+      // create and start
+      Future<Integer> process = _executeAsync(pEnv, pBase, baos, erros, null, false, pParams);
+      Integer exitCode;
+
       // wait until finished
       if (pTimeout > -1)
-        process.get(pTimeout, TimeUnit.MILLISECONDS);
+        exitCode = process.get(pTimeout, TimeUnit.MILLISECONDS);
       else
-        process.get();
+        exitCode = process.get();
+
+      // Throw an exception, if something failed and we do not include the stderr in the result output
+      if (exitCode != 0 && !pIncludeStdErr)
+        throw new IOException(errBaos.toString(StandardCharsets.UTF_8));
+
+      // Copy result to string and trim trailing linebreak
+      return baos.toString(StandardCharsets.UTF_8).trim();
     }
     catch (ExecutionException e)
     {
       throw new IOException(e);
     }
-
-    // Copy result to string and trim trailing linebreak
-    return baos.toString(StandardCharsets.UTF_8).trim();
   }
 
   @NonNull
