@@ -91,12 +91,15 @@ public class NodeJSExecutorImpl implements INodeJSExecutor
       else
         exitCode = process.get();
 
-      // Throw an exception, if something failed and we do not include the stderr in the result output
-      if (exitCode != 0 && !pIncludeStdErr)
+      // Copy result to string and trim trailing linebreak
+      String result = baos.toString(StandardCharsets.UTF_8).trim();
+
+      // Throw an exception, if something failed and we do not include the stderr in the result output.
+      // Do not throw anything, if we were able to execute *something*
+      if (exitCode != 0 && !pIncludeStdErr && !result.contains("\n"))
         throw new IOException(errBaos.toString(StandardCharsets.UTF_8));
 
-      // Copy result to string and trim trailing linebreak
-      return baos.toString(StandardCharsets.UTF_8).trim();
+      return result;
     }
     catch (ExecutionException e)
     {
